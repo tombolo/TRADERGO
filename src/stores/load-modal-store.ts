@@ -46,6 +46,9 @@ export default class LoadModalStore {
             getSelectedStrategyID: action.bound,
             refreshStrategies: action.bound,
             loadStrategyToBuilder: action.bound,
+            strategy_queued_for_builder: observable,
+            queueStrategyForBuilder: action.bound,
+            clearQueuedStrategyForBuilder: action.bound,
             refreshStrategiesTheme: action.bound,
             handleFileChange: action.bound,
             loadFileFromRecent: action.bound,
@@ -116,6 +119,16 @@ export default class LoadModalStore {
     is_strategy_removed = false;
     current_workspace_id = '';
     upload_id = '';
+    /** When Bot Builder is not mounted, queue here and apply after workspace init (see main.tsx). */
+    strategy_queued_for_builder: TStrategy | null = null;
+
+    queueStrategyForBuilder = (strategy: TStrategy) => {
+        this.strategy_queued_for_builder = strategy;
+    };
+
+    clearQueuedStrategyForBuilder = () => {
+        this.strategy_queued_for_builder = null;
+    };
 
     get preview_workspace(): window.Blockly.WorkspaceSvg | null {
         if (this.tab_name === tabs_title.TAB_LOCAL) return this.local_workspace;

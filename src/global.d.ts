@@ -150,4 +150,9 @@ declare global {
     const google: Window['google'];
 }
 
+declare module '*.xml' {
+    const content: string;
+    export default content;
+}
+
 export {};

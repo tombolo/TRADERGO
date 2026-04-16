@@ -31,13 +31,13 @@ import {
 } from '@/utils/trade-type-modal-handler';
 import {
     LabelPairedArrowRightArrowLeftCaptionBoldIcon,
-    LabelPairedChartLineCaptionRegularIcon,
+    LabelPairedChartLineCaptionBoldIcon,
     LabelPairedCircleStarCaptionBoldIcon,
-    LabelPairedLightChartLineUpDownClockCaptionRegularIcon,
-    LabelPairedObjectsColumnCaptionRegularIcon,
+    LabelPairedLightChartLineUpDownClockCaptionBoldIcon,
+    LabelPairedObjectsColumnCaptionBoldIcon,
     LabelPairedPuzzlePieceTwoCaptionBoldIcon,
 } from '@deriv/quill-icons/LabelPaired';
-import { LegacyGuide1pxIcon } from '@deriv/quill-icons/Legacy';
+import { LegacyGuide2pxIcon } from '@deriv/quill-icons/Legacy';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
 import RunPanel from '../../components/run-panel';
@@ -48,7 +48,7 @@ import './main.scss';
 
 const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
 const Tutorial = lazy(() => import('../tutorials'));
-const FreeBitsPage = lazy(() => import('../free-bits'));
+const FreeBotsPage = lazy(() => import('../free-bots'));
 const AnalysisToolsPage = lazy(() => import('../analysis-tools'));
 const CopyTradingPage = lazy(() => import('../copy-trading'));
 
@@ -312,6 +312,20 @@ const AppWrapper = observer(() => {
     }, [active_tab]);
 
     React.useEffect(() => {
+        if (active_tab !== DBOT_TABS.BOT_BUILDER || is_loading) return;
+        const queued = load_modal.strategy_queued_for_builder;
+        if (!queued) return;
+        void (async () => {
+            try {
+                await load_modal.loadStrategyToBuilder(queued, true);
+            } finally {
+                load_modal.clearQueuedStrategyForBuilder();
+            }
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [active_tab, is_loading, load_modal.strategy_queued_for_builder]);
+
+    React.useEffect(() => {
         const trashcan_init_id = setTimeout(() => {
             if (active_tab === BOT_BUILDER && Blockly?.derivWorkspace?.trashcan) {
                 const trashcanY = window.innerHeight - 250;
@@ -384,7 +398,7 @@ const AppWrapper = observer(() => {
                             <div
                                 label={
                                     <>
-                                        <LabelPairedObjectsColumnCaptionRegularIcon
+                                        <LabelPairedObjectsColumnCaptionBoldIcon
                                             height='24px'
                                             width='24px'
                                             fill='var(--text-general)'
@@ -412,7 +426,7 @@ const AppWrapper = observer(() => {
                             <div
                                 label={
                                     <>
-                                        <LabelPairedChartLineCaptionRegularIcon
+                                        <LabelPairedChartLineCaptionBoldIcon
                                             height='24px'
                                             width='24px'
                                             fill='var(--text-general)'
@@ -435,9 +449,9 @@ const AppWrapper = observer(() => {
                             <div
                                 label={
                                     <>
-                                        <LegacyGuide1pxIcon
-                                            height='16px'
-                                            width='16px'
+                                        <LegacyGuide2pxIcon
+                                            height='18px'
+                                            width='18px'
                                             fill='var(--text-general)'
                                             className='icon-general-fill-g-path'
                                         />
@@ -464,21 +478,21 @@ const AppWrapper = observer(() => {
                                             width='24px'
                                             fill='var(--text-general)'
                                         />
-                                        <Localize i18n_default_text='Free Bits' />
+                                        <Localize i18n_default_text='Free bots' />
                                     </>
                                 }
-                                id='id-free-bits'
+                                id='id-free-bots'
                             >
                                 <Suspense
                                     fallback={<ChunkLoader message={localize('Please wait, loading page...')} />}
                                 >
-                                    <FreeBitsPage />
+                                    <FreeBotsPage />
                                 </Suspense>
                             </div>
                             <div
                                 label={
                                     <>
-                                        <LabelPairedLightChartLineUpDownClockCaptionRegularIcon
+                                        <LabelPairedLightChartLineUpDownClockCaptionBoldIcon
                                             height='24px'
                                             width='24px'
                                             fill='var(--text-general)'
