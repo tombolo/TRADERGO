@@ -154,6 +154,7 @@ const AppHeader = observer(() => {
                             )}
                             <Button
                                 primary
+                                className='auth-actions__btn auth-actions__btn--transfer'
                                 disabled={client?.is_logging_out || !authData?.currency}
                                 onClick={handleTransfer}
                             >
@@ -171,10 +172,10 @@ const AppHeader = observer(() => {
             ) {
                 return (
                     <div className='auth-actions'>
-                        <Button tertiary onClick={handleLogin}>
+                        <Button className='auth-actions__btn auth-actions__btn--login' onClick={handleLogin}>
                             <Localize i18n_default_text='Log in' />
                         </Button>
-                        <Button primary_light onClick={handleSignup}>
+                        <Button className='auth-actions__btn auth-actions__btn--signup' onClick={handleSignup}>
                             <Localize i18n_default_text='Sign up' />
                         </Button>
                     </div>
