@@ -1,0 +1,18 @@
+.hub-page--copy {
+    --hub-accent: #b91c1c;
+    --hub-leaf: #f87171;
+
+    .hub-page__hero-icon--copy {
+        background: linear-gradient(145deg, #dc2626 0%, #7f1d1d 100%);
+    }
+
+    .hub-page__card::before {
+        background: linear-gradient(90deg, #dc2626, #1e3a8a);
+    }
+
+    .hub-page__badge--accent-red {
+        background: rgba(220, 38, 38, 0.12);
+        color: #b91c1c;
+        border-color: rgba(220, 38, 38, 0.28);
+    }
+}

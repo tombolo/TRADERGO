@@ -10,7 +10,7 @@ import MobileWrapper from '@/components/shared_ui/mobile-wrapper';
 import Tabs from '@/components/shared_ui/tabs/tabs';
 import TradeTypeConfirmationModal from '@/components/trade-type-confirmation-modal';
 import TradingViewModal from '@/components/trading-view-chart/trading-view-modal';
-import { DBOT_TABS, TAB_IDS } from '@/constants/bot-contents';
+import { DBOT_TABS, TAB_HASH_SEGMENTS, TAB_IDS } from '@/constants/bot-contents';
 import { api_base, updateWorkspaceName } from '@/external/bot-skeleton';
 import { CONNECTION_STATUS } from '@/external/bot-skeleton/services/api/observables/connection-status-stream';
 import { isDbotRTL } from '@/external/bot-skeleton/utils/workspace';
@@ -30,7 +30,10 @@ import {
     setModalStateChangeCallback,
 } from '@/utils/trade-type-modal-handler';
 import {
+    LabelPairedArrowRightArrowLeftCaptionBoldIcon,
     LabelPairedChartLineCaptionRegularIcon,
+    LabelPairedCircleStarCaptionBoldIcon,
+    LabelPairedLightChartLineUpDownClockCaptionRegularIcon,
     LabelPairedObjectsColumnCaptionRegularIcon,
     LabelPairedPuzzlePieceTwoCaptionBoldIcon,
 } from '@deriv/quill-icons/LabelPaired';
@@ -45,6 +48,9 @@ import './main.scss';
 
 const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
 const Tutorial = lazy(() => import('../tutorials'));
+const FreeBitsPage = lazy(() => import('../free-bits'));
+const AnalysisToolsPage = lazy(() => import('../analysis-tools'));
+const CopyTradingPage = lazy(() => import('../copy-trading'));
 
 const AppWrapper = observer(() => {
     const { connectionStatus } = useApiBase();
@@ -77,7 +83,7 @@ const AppWrapper = observer(() => {
     const { clear } = summary_card;
     const { DASHBOARD, BOT_BUILDER } = DBOT_TABS;
     const init_render = React.useRef(true);
-    const hash = ['dashboard', 'bot_builder', 'chart', 'tutorial'];
+    const hash = [...TAB_HASH_SEGMENTS];
     const { isDesktop } = useDevice();
     const location = useLocation();
     const navigate = useNavigate();
@@ -118,11 +124,12 @@ const AppWrapper = observer(() => {
         };
     };
 
-    let tab_value: number | string = active_tab;
     const GetHashedValue = (tab: number) => {
-        tab_value = location.hash?.split('#')[1];
-        if (!tab_value) return tab;
-        return Number(hash.indexOf(String(tab_value)));
+        const raw_hash = location.hash?.split('#')[1];
+        if (!raw_hash) return tab;
+        const idx = TAB_HASH_SEGMENTS.findIndex(segment => segment === raw_hash);
+        if (idx < 0) return tab;
+        return idx;
     };
     const active_hash_tab = GetHashedValue(active_tab);
 
@@ -140,7 +147,7 @@ const AppWrapper = observer(() => {
 
     React.useEffect(() => {
         const el_dashboard = document.getElementById('id-dbot-dashboard');
-        const el_tutorial = document.getElementById('id-tutorials');
+        const el_rightmost_tab = document.getElementById('id-copy-trading');
 
         const observer_dashboard = new window.IntersectionObserver(
             ([entry]) => {
@@ -156,7 +163,7 @@ const AppWrapper = observer(() => {
             }
         );
 
-        const observer_tutorial = new window.IntersectionObserver(
+        const observer_rightmost = new window.IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
                     setRightTabShadow(false);
@@ -169,8 +176,8 @@ const AppWrapper = observer(() => {
                 threshold: 0.5, // set offset 0.1 means trigger if atleast 10% of element in viewport
             }
         );
-        observer_dashboard.observe(el_dashboard);
-        observer_tutorial.observe(el_tutorial);
+        if (el_dashboard) observer_dashboard.observe(el_dashboard);
+        if (el_rightmost_tab) observer_rightmost.observe(el_rightmost_tab);
     });
 
     React.useEffect(() => {
@@ -281,7 +288,8 @@ const AppWrapper = observer(() => {
         } else {
             // Preserve URL parameters when navigating
             const currentSearch = window.location.search;
-            navigate(`${currentSearch}#${hash[active_tab] || hash[0]}`);
+            const safe_tab = Math.min(Math.max(active_tab, 0), hash.length - 1);
+            navigate(`${currentSearch}#${hash[safe_tab] ?? hash[0]}`);
         }
         if (active_tour !== '') {
             setActiveTour('');
@@ -447,6 +455,63 @@ const AppWrapper = observer(() => {
                                         <Tutorial handleTabChange={handleTabChange} />
                                     </Suspense>
                                 </div>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedCircleStarCaptionBoldIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Free Bits' />
+                                    </>
+                                }
+                                id='id-free-bits'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading page...')} />}
+                                >
+                                    <FreeBitsPage />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedLightChartLineUpDownClockCaptionRegularIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Analysis tools' />
+                                    </>
+                                }
+                                id='id-analysis-tools'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading page...')} />}
+                                >
+                                    <AnalysisToolsPage />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
+                                        <LabelPairedArrowRightArrowLeftCaptionBoldIcon
+                                            height='24px'
+                                            width='24px'
+                                            fill='var(--text-general)'
+                                        />
+                                        <Localize i18n_default_text='Copy trading' />
+                                    </>
+                                }
+                                id='id-copy-trading'
+                            >
+                                <Suspense
+                                    fallback={<ChunkLoader message={localize('Please wait, loading page...')} />}
+                                >
+                                    <CopyTradingPage />
+                                </Suspense>
                             </div>
                         </Tabs>
                         {!isDesktop && right_tab_shadow && <span className='tabs-shadow tabs-shadow--right' />}{' '}
