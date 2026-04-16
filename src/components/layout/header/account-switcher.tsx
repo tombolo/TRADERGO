@@ -80,7 +80,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     tabIndex={showChevron ? 0 : -1}
                     aria-expanded={showChevron ? isOpen : undefined}
                     aria-haspopup={showChevron ? 'listbox' : undefined}
-                    className={classNames('acc-info', {
+                    className={classNames('acc-info acc-info--compact', {
                         'acc-info--is-virtual': isVirtual,
                         'acc-info--interactive': showChevron,
                     })}
@@ -92,23 +92,56 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                         }
                     }}
                 >
-                    <span className='acc-info__id' aria-hidden='true'></span>
-                    <div className='acc-info__content'>
-                        <div className='acc-info__account-type-header'>
-                            <Text as='p' size='xs' className='acc-info__account-type'>
+                    <span className='acc-info__id' aria-hidden='true' />
+                    <div className='acc-info__content acc-info__content--compact'>
+                        <span className='acc-info__sr-only'>
+                            {isVirtual ? (
+                                <Localize i18n_default_text='Demo account' />
+                            ) : (
+                                <Localize i18n_default_text='Real account' />
+                            )}
+                        </span>
+                        <div className='acc-info__strip'>
+                            <span
+                                className={classNames('acc-info__mode-badge', {
+                                    'acc-info__mode-badge--virtual': isVirtual,
+                                })}
+                            >
                                 {isVirtual ? (
-                                    <Localize i18n_default_text='Demo account' />
+                                    <Localize i18n_default_text='Practice' />
                                 ) : (
-                                    <Localize i18n_default_text='Real account' />
+                                    <Localize i18n_default_text='Live' />
                                 )}
-                            </Text>
+                            </span>
+                            <span className='acc-info__strip-divider' />
+                            {(typeof balance !== 'undefined' || !currency) && (
+                                <div className='acc-info__figures'>
+                                    {!currency ? (
+                                        <p
+                                            data-testid='dt_balance'
+                                            className='acc-info__balance acc-info__balance--no-currency'
+                                        >
+                                            <Localize i18n_default_text='No currency assigned' />
+                                        </p>
+                                    ) : (
+                                        <>
+                                            <span data-testid='dt_balance' className='acc-info__balance-num'>
+                                                {balance}
+                                            </span>
+                                            <span className='acc-info__balance-ccy'>
+                                                {getCurrencyDisplayCode(currency)}
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                             {showChevron && (
                                 <span
                                     className={classNames('acc-info__select-arrow', {
                                         'acc-info__select-arrow--invert': isOpen,
                                     })}
                                 >
-                                    <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
+                                    <svg width='11' height='11' viewBox='0 0 12 12' fill='none'>
                                         <path
                                             d='M2 4L6 8L10 4'
                                             stroke='currentColor'
@@ -120,28 +153,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                 </span>
                             )}
                         </div>
-                        {(typeof balance !== 'undefined' || !currency) && (
-                            <div className='acc-info__balance-section'>
-                                <div className='acc-info__balance-meta'>
-                                    <span className='acc-info__balance-label' aria-hidden='true'>
-                                        <Localize i18n_default_text='Balance' />
-                                    </span>
-                                    {currency && (
-                                        <span className='acc-info__currency-pill' aria-hidden='true'>
-                                            {getCurrencyDisplayCode(currency)}
-                                        </span>
-                                    )}
-                                </div>
-                                <p
-                                    data-testid='dt_balance'
-                                    className={classNames('acc-info__balance', {
-                                        'acc-info__balance--no-currency': !currency && !isVirtual,
-                                    })}
-                                >
-                                    {!currency ? <Localize i18n_default_text='No currency assigned' /> : `${balance}`}
-                                </p>
-                            </div>
-                        )}
                     </div>
                 </div>
             </AccountInfoWrapper>

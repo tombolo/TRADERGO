@@ -2,33 +2,52 @@
 @use 'components/shared/styles/mixins' as *;
 
 /** @define acc-info */
-// Rectangular “wallet” chip: blue-900 surface, white copy, leaf-green balance
+// Compact wallet strip — fits inside ~5.6rem header (see layout.scss .deriv-header)
 .acc-info {
-    --acc-balance-surface: #1e3a8a; // Tailwind blue-900
-    --acc-balance-surface-hover: #172554; // blue-950
-    --acc-balance-surface-active: #1e40af; // blue-800 (interactive hover)
-    --acc-balance-leaf: #4ade80; // green-400 — readable on blue-900
+    --acc-balance-surface: #1e3a8a;
+    --acc-balance-surface-hover: #172554;
+    --acc-balance-surface-active: #2563eb;
+    --acc-balance-leaf: #4ade80;
     --acc-balance-text: #ffffff;
 
-    align-items: stretch;
+    box-sizing: border-box;
+    align-items: center;
     cursor: default;
-    display: flex;
+    display: inline-flex;
     flex-direction: row;
-    height: 100%;
+    height: 2.65rem;
+    max-height: 2.65rem;
+    min-height: 2.65rem;
     justify-content: center;
-    padding: 0.75rem 1.1rem;
-    min-width: 12rem;
+    padding: 0 0.65rem 0 0.55rem;
+    min-width: 0;
     width: max-content;
-    border-radius: 0.5rem;
-    background: var(--acc-balance-surface);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 0.35rem;
+    background: linear-gradient(145deg, #1e3a8a 0%, #172554 55%, #1e3a8a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     box-shadow:
-        0 4px 14px rgba(15, 23, 42, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        0 2px 8px rgba(15, 23, 42, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            105deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.06) 45%,
+            transparent 70%
+        );
+        pointer-events: none;
+    }
 
     &:hover {
-        background: var(--acc-balance-surface-hover) !important;
+        background: linear-gradient(145deg, var(--acc-balance-surface-hover) 0%, #0f172a 100%) !important;
     }
+
 
     &__preloader {
         position: absolute;
@@ -126,7 +145,8 @@
         align-items: center;
         display: flex;
         flex-direction: row;
-        height: 100%;
+        height: auto;
+        max-height: 100%;
         justify-content: center;
         position: relative;
         margin-right: 0.8rem;
@@ -136,108 +156,124 @@
     }
 
     &__content {
+        margin-inline-start: 0;
+        flex: 1;
+        min-width: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    &__content--compact {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 0.35rem;
-        margin-inline-start: 1rem;
-        flex: 1;
-        min-width: 0;
+        align-items: stretch;
+        min-height: 0;
     }
 
-    &__account-type-header {
+    &__sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    &__strip {
         display: flex;
+        flex-direction: row;
         align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        margin-bottom: 0;
-        width: 100%;
-    }
-
-    &__account-type {
-        @include typeface(--xxsmall-left-normal-green);
-
-        line-height: 1.2;
-        margin: 0;
-        font-size: 1.05rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        color: rgba(255, 255, 255, 0.88);
-    }
-
-    &--is-virtual {
-        .acc-info__account-type {
-            color: #fde047; // amber-300 — readable on blue-900
-        }
-    }
-
-    &__balance-section {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        grid-template-rows: auto auto;
-        align-items: end;
-        column-gap: 0.75rem;
-        row-gap: 0.15rem;
-        width: 100%;
-    }
-
-    &__balance-meta {
-        grid-column: 1 / -1;
-        grid-row: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-        width: 100%;
-    }
-
-    &__balance-label {
-        font-size: 0.95rem;
-        line-height: 1.2;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.72);
-    }
-
-    &__currency-pill {
-        font-size: 0.85rem;
+        gap: 0.45rem;
+        min-height: 0;
         line-height: 1;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        padding: 0.3rem 0.55rem;
-        border-radius: 0.25rem;
-        color: var(--acc-balance-text);
+    }
+
+    &__mode-badge {
+        flex: 0 0 auto;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.92);
+        padding: 0.2rem 0.35rem;
+        border-radius: 0.2rem;
         background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        line-height: 1;
+    }
+
+    &__mode-badge--virtual {
+        color: #fef08a;
+        background: rgba(250, 204, 21, 0.12);
+        border-color: rgba(250, 204, 21, 0.35);
+    }
+
+    &__strip-divider {
+        width: 1px;
+        height: 1.35rem;
+        flex: 0 0 auto;
+        background: linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.35) 50%,
+            transparent 100%
+        );
+        opacity: 0.7;
+    }
+
+    &__figures {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 0.35rem;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    &__balance-num {
+        font-size: 1.2rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+        color: var(--acc-balance-leaf);
+        text-shadow: 0 0 12px rgba(74, 222, 128, 0.35);
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    &__balance-ccy {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.88);
+        opacity: 0.95;
+        line-height: 1;
     }
 
     &__balance {
         @include typeface(--paragraph-left-bold-black);
 
-        grid-column: 1 / -1;
-        grid-row: 2;
-        line-height: 1.1;
         pointer-events: none;
         margin: 0;
-        font-size: 1.95rem;
-        font-variant-numeric: tabular-nums;
-        font-weight: 800;
-        color: var(--acc-balance-leaf);
-        letter-spacing: 0.02em;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+        line-height: 1.15;
 
         &--no-currency {
             @include typeface(--small-left-normal-grey);
 
-            grid-column: 1 / -1;
-            white-space: normal;
-            line-height: 1.35;
-            font-size: 1.05rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.2;
+            color: rgba(255, 255, 255, 0.78);
+            white-space: normal;
+            max-width: 9rem;
         }
     }
+
 
     &__id {
         pointer-events: none;
@@ -270,9 +306,12 @@
         pointer-events: none;
         display: flex;
         align-items: center;
+        flex-shrink: 0;
+        margin-inline-start: 0.1rem;
         transform: rotate(0);
         transform-origin: 50% 50%;
         transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        opacity: 0.9;
 
         svg path { stroke: rgba(255, 255, 255, 0.9); }
 
@@ -290,28 +329,26 @@
     }
 
     @include mobile-screen {
-        padding: 0.65rem 0.85rem;
-        margin-right: -0.8rem;
-        min-width: 0;
-        border-radius: 0.45rem;
+        height: 2.5rem;
+        max-height: 2.5rem;
+        min-height: 2.5rem;
+        padding: 0 0.5rem 0 0.45rem;
+        margin-right: -0.4rem;
 
-        &__balance {
-            font-size: 1.55rem;
-
-            &--no-currency {
-                white-space: normal;
-            }
+        &__balance-num {
+            font-size: 1.05rem;
         }
 
-        &__balance-label,
-        &__currency-pill {
-            font-size: 0.85rem;
+        &__mode-badge {
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            padding: 0.15rem 0.3rem;
         }
-    }
 
-    .acc-info__balance {
-        @include typeface(--paragraph-left-bold-black);
-        color: var(--acc-balance-leaf);
+        &__balance--no-currency {
+            max-width: 7rem;
+            font-size: 0.65rem;
+        }
     }
 
     &--is-disabled {
@@ -322,8 +359,11 @@
         cursor: pointer !important;
 
         &:hover {
-            background: var(--acc-balance-surface-active) !important;
-            border-color: rgba(255, 255, 255, 0.22);
+            background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%) !important;
+            border-color: rgba(255, 255, 255, 0.28);
+            box-shadow:
+                0 3px 12px rgba(37, 99, 235, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
         }
     }
 

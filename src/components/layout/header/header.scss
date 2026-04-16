@@ -24,15 +24,38 @@
 }
 
 .auth-actions {
+    display: flex;
     gap: 0.8rem;
+    align-items: center;
+    padding-block: 0.35rem;
 
     .account-info {
-        // Outer wrapper: flush rectangular frame (inner .acc-info supplies blue-900)
+        display: flex;
+        align-items: center;
+        line-height: 0;
         background: transparent;
         border: none;
-        border-radius: 0.5rem;
+        border-radius: 0;
         padding: 0;
-        overflow: hidden;
+        overflow: visible;
+    }
+
+    button {
+        font-weight: 400;
+        margin-inline-end: 1.6rem;
+        border-radius: 16px;
+    }
+
+    &--loading {
+        align-items: center;
+        margin-inline-end: 1.6rem;
+    }
+
+    &__spinner {
+        width: 2rem;
+        height: 2rem;
+        color: var(--text-prominent);
+        animation: auth-spinner-rotate 0.8s linear infinite;
     }
 }
 
@@ -270,31 +293,6 @@
     .deriv-text {
         color: var(--text-prominent) !important;
     }
-}
-
-.auth-actions {
-    display: flex;
-    padding-block: 8px;
-    align-items: center;
-
-    button {
-        font-weight: 400;
-        margin-inline-end: 1.6rem;
-        border-radius: 16px;
-    }
-
-    &--loading {
-        align-items: center;
-        margin-inline-end: 1.6rem;
-    }
-
-    &__spinner {
-        width: 2rem;
-        height: 2rem;
-        color: var(--text-prominent);
-        animation: auth-spinner-rotate 0.8s linear infinite;
-    }
-
 }
 
 .deriv-accordion--underline {
