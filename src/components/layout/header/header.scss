@@ -27,11 +27,12 @@
     gap: 0.8rem;
 
     .account-info {
-        // Give the balance/account switcher a "card" feel
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--general-section-1);
-        border-radius: 999px;
-        padding: 2px;
+        // Outer wrapper: flush rectangular frame (inner .acc-info supplies blue-900)
+        background: transparent;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0;
+        overflow: hidden;
     }
 }
 

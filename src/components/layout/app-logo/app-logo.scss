@@ -2,10 +2,11 @@
     &__logo {
         padding-inline-start: 1.6rem;
         padding-inline-end: 1.2rem;
-        height: 32px;
+        min-height: 40px;
+        height: auto;
         display: flex;
         align-items: center;
-        gap: 0.8rem;
+        gap: 1rem;
         text-decoration: none;
         user-select: none;
 
@@ -15,9 +16,9 @@
     }
 
     &__logo-img {
-        height: 100%;
+        height: 40px;
         width: auto;
-        max-width: 220px;
+        max-width: 260px;
         object-fit: contain;
         display: block;
     }
@@ -25,12 +26,12 @@
     &__logo-title {
         display: inline-flex;
         align-items: baseline;
-        gap: 0.4rem;
+        gap: 0.45rem;
         font-weight: 800;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.07em;
         text-transform: uppercase;
-        font-size: 1.15rem;
-        line-height: 1;
+        font-size: 1.45rem;
+        line-height: 1.05;
         color: var(--text-prominent);
         white-space: nowrap;
     }
@@ -43,17 +44,18 @@
         .app-header__logo {
             padding-inline-start: 0.8rem;
             padding-inline-end: 0.8rem;
-            height: 24px;
-            gap: 0.6rem;
+            min-height: 30px;
+            gap: 0.65rem;
         }
 
         .app-header__logo-img {
-            max-width: 160px;
+            height: 30px;
+            max-width: 190px;
         }
 
         .app-header__logo-title {
-            font-size: 0.95rem;
-            letter-spacing: 0.06em;
+            font-size: 1.05rem;
+            letter-spacing: 0.05em;
         }
     }
 }
