@@ -2,8 +2,14 @@ import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginSass } from '@rsbuild/plugin-sass';
 import { pluginBasicSsl } from '@rsbuild/plugin-basic-ssl';
+import dotenv from 'dotenv';
 
 const path = require('path');
+
+// Load environment variables for local development.
+// RSBuild reads from `process.env` at build time for `source.define`.
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '.env.local') });
 
 export default defineConfig({
     plugins: [

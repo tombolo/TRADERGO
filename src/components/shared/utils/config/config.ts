@@ -28,6 +28,9 @@ export const WS_SERVERS = {
 
 // Helper to check if we're on production domains
 export const isProduction = () => {
+    // Allow explicit environment override (e.g. Vercel production deployments)
+    if (process.env.APP_ENV === 'production') return true;
+
     const hostname = window.location.hostname;
     const productionDomains = Object.values(PRODUCTION_DOMAINS) as string[];
     return productionDomains.includes(hostname);
