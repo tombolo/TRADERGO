@@ -122,17 +122,23 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                         </div>
                         {(typeof balance !== 'undefined' || !currency) && (
                             <div className='acc-info__balance-section'>
+                                <div className='acc-info__balance-meta'>
+                                    <span className='acc-info__balance-label' aria-hidden='true'>
+                                        <Localize i18n_default_text='Balance' />
+                                    </span>
+                                    {currency && (
+                                        <span className='acc-info__currency-pill' aria-hidden='true'>
+                                            {getCurrencyDisplayCode(currency)}
+                                        </span>
+                                    )}
+                                </div>
                                 <p
                                     data-testid='dt_balance'
                                     className={classNames('acc-info__balance', {
                                         'acc-info__balance--no-currency': !currency && !isVirtual,
                                     })}
                                 >
-                                    {!currency ? (
-                                        <Localize i18n_default_text='No currency assigned' />
-                                    ) : (
-                                        `${balance} ${getCurrencyDisplayCode(currency)}`
-                                    )}
+                                    {!currency ? <Localize i18n_default_text='No currency assigned' /> : `${balance}`}
                                 </p>
                             </div>
                         )}

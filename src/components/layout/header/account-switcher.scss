@@ -158,23 +158,55 @@
 
     &__balance-section {
         display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+    }
+
+    &__balance-meta {
+        display: flex;
         align-items: center;
+        gap: 0.6rem;
+    }
+
+    &__balance-label {
+        font-size: 1.05rem;
+        line-height: 1;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-less-prominent);
+        opacity: 0.9;
+    }
+
+    &__currency-pill {
+        font-size: 1.05rem;
+        line-height: 1;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 0.35rem 0.6rem;
+        border-radius: 999px;
+        color: var(--text-prominent);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(139, 92, 246, 0.28) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     &__balance {
         @include typeface(--paragraph-left-bold-black);
 
-        line-height: 1.4;
+        line-height: 1.15;
         pointer-events: none;
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         color: var(--text-prominent);
         letter-spacing: 0.01em;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 
         &--no-currency {
             @include typeface(--small-left-normal-grey);
 
             white-space: nowrap;
+            line-height: 1.3;
+            font-size: 1.2rem;
         }
     }
 
@@ -236,11 +268,16 @@
         border-radius: 16px;
 
         &__balance {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
 
             &--no-currency {
                 white-space: nowrap;
             }
+        }
+
+        &__balance-label,
+        &__currency-pill {
+            font-size: 0.95rem;
         }
     }
 
