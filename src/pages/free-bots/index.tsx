@@ -31,7 +31,7 @@ const FreeBotsPage = observer(() => {
     };
 
     return (
-        <div className='hub-page hub-page--free-bots'>
+        <div className='free-bots-page'>
             <header className='free-bots__header'>
                 <h1 className='free-bots__title'>
                     <Localize i18n_default_text='Free bots' />
@@ -61,7 +61,11 @@ const FreeBotsPage = observer(() => {
                                     onClick={() => openInBuilder(bot)}
                                 >
                                     <span className='free-bots__card-icon' aria-hidden='true'>
-                                        <LabelPairedPuzzlePieceTwoCaptionBoldIcon height={20} width={20} fill='#c4b5fd' />
+                                        <LabelPairedPuzzlePieceTwoCaptionBoldIcon
+                                            height={22}
+                                            width={22}
+                                            fill='var(--brand-red-coral)'
+                                        />
                                     </span>
                                     <p className='free-bots__card-name'>{bot.name}</p>
                                     <p className='free-bots__card-hint'>

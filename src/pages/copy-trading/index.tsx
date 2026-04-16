@@ -14,7 +14,11 @@ const CopyTradingPage = () => {
         <div className='hub-page hub-page--copy'>
             <div className='hub-page__hero'>
                 <div className='hub-page__hero-icon hub-page__hero-icon--copy' aria-hidden='true'>
-                    <LabelPairedArrowRightArrowLeftCaptionBoldIcon width={28} height={28} fill='#ffffff' />
+                    <LabelPairedArrowRightArrowLeftCaptionBoldIcon
+                        width={28}
+                        height={28}
+                        fill='var(--brand-red-coral)'
+                    />
                 </div>
                 <h1 className='hub-page__title'>
                     <Localize i18n_default_text='Copy trading' />

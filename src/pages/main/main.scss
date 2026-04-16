@@ -44,9 +44,36 @@
         border: none;
         max-width: 100%;
         width: 100%;
+        flex: 1 1 0;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
 
         &.no-scroll {
             overflow: hidden;
+        }
+
+        .main__tab-surface {
+            flex: 1 1 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .dc-tabs.dc-tabs--top {
+            flex: 1 1 0;
+            min-height: 0;
+            width: 100%;
+        }
+
+        .dc-tabs__content.dc-tabs__content--main__tabs {
+            flex: 1 1 0;
+            min-height: 0;
+            width: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         &--active {
@@ -109,8 +136,9 @@
             }
 
             &__content {
+                width: 100%;
+
                 @include mobile-or-tablet-screen {
-                    width: 100%;
                     overflow-x: auto;
 
                     &--no-result {
