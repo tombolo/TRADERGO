@@ -91,6 +91,11 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
         const isOAuthCallback = code !== null || error !== null || state !== null;
 
         if (!isOAuthCallback) {
+            // If user lands on `/callback` without OAuth params (e.g. refresh or direct visit),
+            // return them to the main app route.
+            if (window.location.pathname === '/callback') {
+                window.history.replaceState({}, '', '/');
+            }
             // Not an OAuth callback, mark as complete
             setResult({
                 isProcessing: false,

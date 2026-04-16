@@ -15,7 +15,13 @@ const Layout = observer(() => {
     const { isDesktop } = useDevice();
     const store = useStore();
     const is_quick_strategy_active = store?.quick_strategy?.is_open;
-    const isCallbackPage = window.location.pathname === '/callback';
+    // Only treat `/callback` as a special page while OAuth params are present.
+    // After cleanup (or on refresh), we want the normal layout (header/footer) to render.
+    const isCallbackPage = (() => {
+        if (window.location.pathname !== '/callback') return false;
+        const params = new URLSearchParams(window.location.search);
+        return Boolean(params.get('code') || params.get('state') || params.get('error'));
+    })();
 
     const checkClientAccount = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}');
     const getQueryParams = new URLSearchParams(window.location.search);
