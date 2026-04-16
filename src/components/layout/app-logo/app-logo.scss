@@ -1,0 +1,34 @@
+.app-header {
+    &__logo {
+        padding-inline-start: 1.6rem;
+        padding-inline-end: 1.2rem;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+
+        &-text {
+            margin-left: 8px;
+        }
+    }
+
+    &__logo-img {
+        height: 100%;
+        width: auto;
+        max-width: 220px;
+        object-fit: contain;
+        display: block;
+    }
+
+    &--mobile {
+        .app-header__logo {
+            padding-inline-start: 0.8rem;
+            padding-inline-end: 0.8rem;
+            height: 24px;
+        }
+
+        .app-header__logo-img {
+            max-width: 160px;
+        }
+    }
+}
