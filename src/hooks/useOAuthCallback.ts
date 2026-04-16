@@ -70,6 +70,11 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
         url.searchParams.delete('scope');
         url.searchParams.delete('error');
         url.searchParams.delete('error_description');
+        // The app hides header/footer on `/callback`; after processing OAuth,
+        // always return users to the root route for a normal app experience.
+        if (url.pathname === '/callback') {
+            url.pathname = '/';
+        }
         window.history.replaceState({}, '', url.toString());
     }, []);
 
