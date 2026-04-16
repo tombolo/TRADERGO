@@ -54,6 +54,8 @@ const router = createBrowserRouter(
         >
             {/* All child routes will be passed as children to Layout */}
             <Route index element={<AppRoot />} />
+            {/* OAuth redirect target (must match Deriv-registered redirect_uri) */}
+            <Route path='callback' element={<AppRoot />} />
         </Route>
     )
 );

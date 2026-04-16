@@ -144,7 +144,8 @@ export class OAuthTokenExchangeService {
 
             const protocol = window.location.protocol;
             const host = window.location.host;
-            const redirectUrl = `${protocol}//${host}`;
+            // Must exactly match the redirect_uri used in the authorization request.
+            const redirectUrl = `${protocol}//${host}/callback`;
 
             const requestBody = new URLSearchParams({
                 grant_type: 'authorization_code',
