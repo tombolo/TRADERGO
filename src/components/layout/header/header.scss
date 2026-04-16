@@ -2,6 +2,12 @@
 @use 'components/shared/styles/mixins' as *;
 
 .app-header {
+    // Modern "app bar" look
+    background: linear-gradient(180deg, var(--general-main-1) 0%, var(--general-main-2) 100%);
+    border-bottom: 1px solid var(--general-section-1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    backdrop-filter: saturate(140%) blur(10px);
+
     &__account-settings {
         padding-inline-end: 1.2rem;
         border-inline-end: 0.1rem solid var(--general-section-1);
@@ -14,6 +20,18 @@
         svg > g > path {
             fill: var(--text-prominent);
         }
+    }
+}
+
+.auth-actions {
+    gap: 0.8rem;
+
+    .account-info {
+        // Give the balance/account switcher a "card" feel
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--general-section-1);
+        border-radius: 999px;
+        padding: 2px;
     }
 }
 

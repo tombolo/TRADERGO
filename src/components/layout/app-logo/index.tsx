@@ -22,6 +22,9 @@ export const AppLogo = () => {
                 className='app-header__logo-img'
             />
             {/* [/AI] */}
+            <span className='app-header__logo-title' aria-hidden='true'>
+                MERRICK <span className='app-header__logo-title-accent'>TRADING HUB</span>
+            </span>
         </a>
     );
 };

@@ -9,8 +9,14 @@
     flex-direction: row;
     height: 100%;
     justify-content: center;
-    padding: 8px 1.6rem;
+    padding: 0.9rem 1.4rem;
     width: max-content;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 10px 22px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
     &:hover {
         background: transparent !important;
@@ -141,6 +147,7 @@
         line-height: 1;
         margin: 0;
         font-size: var(--text-size-xxs);
+        opacity: 0.85;
     }
 
     &--is-virtual {
@@ -160,8 +167,9 @@
         line-height: 1.4;
         pointer-events: none;
         margin: 0;
-        font-size: 1.4rem;
-        color: var(--status-success);
+        font-size: 1.5rem;
+        color: var(--text-prominent);
+        letter-spacing: 0.01em;
 
         &--no-currency {
             @include typeface(--small-left-normal-grey);
@@ -205,9 +213,7 @@
         transform-origin: 50% 50%;
         transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 
-        svg path {
-            stroke: var(--text-general);
-        }
+        svg path { stroke: var(--text-prominent); }
 
         &--invert {
             transform: rotate(180deg);
@@ -227,6 +233,7 @@
     @include mobile-screen {
         padding: 0 1rem;
         margin-right: -0.8rem;
+        border-radius: 16px;
 
         &__balance {
             font-size: 1.4rem;
@@ -249,7 +256,7 @@
         cursor: pointer !important;
 
         &:hover {
-            background: var(--state-hover) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
         }
     }
 

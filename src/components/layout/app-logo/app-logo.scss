@@ -6,6 +6,8 @@
         display: flex;
         align-items: center;
         gap: 0.8rem;
+        text-decoration: none;
+        user-select: none;
 
         &-text {
             margin-left: 8px;
@@ -20,15 +22,38 @@
         display: block;
     }
 
+    &__logo-title {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.4rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 1.15rem;
+        line-height: 1;
+        color: var(--text-prominent);
+        white-space: nowrap;
+    }
+
+    &__logo-title-accent {
+        color: var(--brand-primary, var(--status-success));
+    }
+
     &--mobile {
         .app-header__logo {
             padding-inline-start: 0.8rem;
             padding-inline-end: 0.8rem;
             height: 24px;
+            gap: 0.6rem;
         }
 
         .app-header__logo-img {
             max-width: 160px;
+        }
+
+        .app-header__logo-title {
+            font-size: 0.95rem;
+            letter-spacing: 0.06em;
         }
     }
 }
