@@ -1,6 +1,5 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { LabelPairedPuzzlePieceTwoCaptionBoldIcon } from '@deriv/quill-icons/LabelPaired';
 import { Localize } from '@deriv-com/translations';
 import { DBOT_TABS } from '@/constants/bot-contents';
 import { save_types } from '@/external/bot-skeleton';
@@ -8,16 +7,29 @@ import { useStore } from '@/hooks/useStore';
 import { v4 as uuidv4 } from 'uuid';
 import {
     folderBadgeLabel,
-    FREE_BOT_FOLDER_ORDER,
-    getFreeBotsByFolder,
+    getAllFreeBotsSorted,
+    getBotAvatarUrls,
+    getBotDescription,
+    getBotUsingCount,
     type TFreeBotFile,
 } from '@/xml/free-bots/registry';
 import './free-bots.scss';
 
+const BotAvatarStack = ({ bot }: { bot: TFreeBotFile }) => {
+    const [a, b, c] = getBotAvatarUrls(bot);
+    return (
+        <div className='free-bots__avatars' aria-hidden='true'>
+            <img className='free-bots__avatar' src={a} alt='' width={36} height={36} loading='lazy' decoding='async' />
+            <img className='free-bots__avatar' src={b} alt='' width={36} height={36} loading='lazy' decoding='async' />
+            <img className='free-bots__avatar' src={c} alt='' width={36} height={36} loading='lazy' decoding='async' />
+        </div>
+    );
+};
+
 const FreeBotsPage = observer(() => {
     const { dashboard, load_modal } = useStore();
     const { setActiveTab } = dashboard;
-    const byFolder = React.useMemo(() => getFreeBotsByFolder(), []);
+    const bots = React.useMemo(() => getAllFreeBotsSorted(), []);
 
     const openInBuilder = (bot: TFreeBotFile) => {
         load_modal.queueStrategyForBuilder({
@@ -32,51 +44,38 @@ const FreeBotsPage = observer(() => {
 
     return (
         <div className='free-bots-page'>
-            <header className='free-bots__header'>
-                <h1 className='free-bots__title'>
-                    <Localize i18n_default_text='Free bots' />
-                </h1>
-                <p className='free-bots__subtitle'>
-                    <Localize i18n_default_text='Pick a ready-made strategy by collection. Tap a card to open it in Bot Builder.' />
-                </p>
-            </header>
-
-            {FREE_BOT_FOLDER_ORDER.map(folder => {
-                const bots = byFolder[folder] ?? [];
-                if (!bots.length) return null;
-                return (
-                    <section className='free-bots__section' key={folder}>
-                        <div className='free-bots__section-head'>
-                            <span className='free-bots__section-badge'>{folderBadgeLabel(folder)}</span>
-                            <h2 className='free-bots__section-title'>
-                                {folderBadgeLabel(folder)} <Localize i18n_default_text='collection' />
-                            </h2>
-                        </div>
-                        <div className='free-bots__grid'>
-                            {bots.map(bot => (
+            <div className='free-bots__grid'>
+                {bots.map(bot => {
+                    const usingCount = getBotUsingCount(bot);
+                    return (
+                        <article key={`${bot.folder}-${bot.name}`} className='free-bots__card'>
+                            <div className='free-bots__card-top'>
+                                <h3 className='free-bots__card-name'>{bot.name}</h3>
+                                <span className='free-bots__card-folder'>{folderBadgeLabel(bot.folder)}</span>
+                            </div>
+                            <p className='free-bots__card-desc'>{getBotDescription(bot)}</p>
+                            <p className='free-bots__card-meta'>
+                                <Localize i18n_default_text='{{folder}} • XML strategy' values={{ folder: folderBadgeLabel(bot.folder) }} />
+                            </p>
+                            <div className='free-bots__card-footer'>
+                                <div className='free-bots__social'>
+                                    <BotAvatarStack bot={bot} />
+                                    <span className='free-bots__using'>
+                                        <Localize i18n_default_text='+{{count}} using' values={{ count: usingCount }} />
+                                    </span>
+                                </div>
                                 <button
-                                    key={`${folder}-${bot.name}`}
                                     type='button'
-                                    className='free-bots__card'
+                                    className='free-bots__load-btn'
                                     onClick={() => openInBuilder(bot)}
                                 >
-                                    <span className='free-bots__card-icon' aria-hidden='true'>
-                                        <LabelPairedPuzzlePieceTwoCaptionBoldIcon
-                                            height={22}
-                                            width={22}
-                                            fill='var(--brand-red-coral)'
-                                        />
-                                    </span>
-                                    <p className='free-bots__card-name'>{bot.name}</p>
-                                    <p className='free-bots__card-hint'>
-                                        <Localize i18n_default_text='Open in Bot Builder' />
-                                    </p>
+                                    <Localize i18n_default_text='Load bot' />
                                 </button>
-                            ))}
-                        </div>
-                    </section>
-                );
-            })}
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
         </div>
     );
 });
