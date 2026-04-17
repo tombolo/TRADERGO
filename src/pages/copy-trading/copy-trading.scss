@@ -1,16 +1,195 @@
-.hub-page--copy {
-    .hub-page__hero-icon--copy {
-        background: var(--general-main-1);
-        border: 1px solid var(--general-section-1);
+@use 'components/shared/styles/mixins' as *;
+
+.hub-page--copy.copy-trading {
+    max-width: 42rem;
+    margin-inline: auto;
+
+    @include desktop-screen {
+        max-width: 48rem;
+    }
+}
+
+.copy-trading__intro {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+.copy-trading__intro-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.8rem;
+    height: 4.8rem;
+    margin-bottom: 1rem;
+    border-radius: 0.75rem;
+    background: var(--general-main-1);
+    border: 1px solid var(--general-section-1);
+}
+
+.copy-trading__title {
+    margin: 0 0 0.5rem;
+    font-size: var(--text-size-xsm);
+    font-weight: var(--text-weight-bold);
+    color: var(--text-prominent);
+
+    @include desktop-screen {
+        font-size: var(--text-size-sm);
+    }
+}
+
+.copy-trading__lead {
+    margin: 0;
+    font-size: var(--text-size-xxs);
+    line-height: var(--text-lh-m);
+    color: var(--text-general);
+
+    @include desktop-screen {
+        font-size: var(--text-size-xs);
+    }
+}
+
+.copy-trading__panel {
+    padding: 1.5rem 1.35rem;
+    border-radius: 0.75rem;
+    background: var(--general-main-1);
+    border: 1px solid var(--general-section-1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    @include desktop-screen {
+        padding: 1.75rem 1.6rem;
+    }
+}
+
+.copy-trading__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.copy-trading__label {
+    font-size: var(--text-size-xxs);
+    font-weight: var(--text-weight-bold);
+    color: var(--text-prominent);
+}
+
+.copy-trading__input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: var(--text-size-xxs);
+    line-height: var(--text-lh-s);
+    color: var(--text-prominent);
+    background: var(--general-main-2);
+    border: 1px solid var(--general-section-1);
+    border-radius: 0.4rem;
+    outline: none;
+    transition: border-color 0.15s ease;
+
+    &::placeholder {
+        color: var(--text-less-prominent);
     }
 
-    .hub-page__card::before {
-        background: var(--brand-danger);
+    &:focus {
+        border-color: var(--brand-red-coral);
     }
 
-    .hub-page__badge--accent-red {
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+}
+
+.copy-trading__checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.15rem;
+    font-size: var(--text-size-xxxxs);
+    color: var(--text-general);
+    cursor: pointer;
+    user-select: none;
+
+    input {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: var(--brand-red-coral);
+    }
+}
+
+.copy-trading__hint {
+    margin: 0.35rem 0 0.25rem;
+    font-size: var(--text-size-xxxxs);
+    line-height: var(--text-lh-m);
+    color: var(--text-less-prominent);
+}
+
+.copy-trading__btn {
+    margin-top: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    width: 100%;
+    border: none;
+    border-radius: 0.4rem;
+    font-size: var(--text-size-xxs);
+    font-weight: var(--text-weight-bold);
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+    &--primary {
+        color: var(--general-main-1);
+        background: var(--button-primary-default);
+
+        &:hover:not(:disabled) {
+            background: var(--button-primary-hover);
+        }
+    }
+
+    &--secondary {
+        color: var(--text-prominent);
         background: var(--general-section-1);
-        color: var(--brand-danger);
-        border-color: var(--general-hover);
+        border: 1px solid var(--general-hover);
+
+        &:hover {
+            background: var(--general-hover);
+        }
+    }
+}
+
+.copy-trading__active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+}
+
+.copy-trading__active-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: rgba(75, 180, 179, 0.12);
+    border: 1px solid rgba(75, 180, 179, 0.35);
+}
+
+.copy-trading__tips {
+    margin: 1.75rem 0 0;
+    padding-inline-start: 1.25rem;
+    font-size: var(--text-size-xxxxs);
+    line-height: var(--text-lh-m);
+    color: var(--text-general);
+
+    li + li {
+        margin-top: 0.5rem;
+    }
+
+    @include desktop-screen {
+        font-size: var(--text-size-xxxs);
     }
 }
