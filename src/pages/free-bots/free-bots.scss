@@ -90,12 +90,12 @@
 
 .free-bots__card-desc {
     margin: 0 0 0.65rem;
-    font-size: var(--text-size-xxxxs);
+    font-size: var(--text-size-xxs);
     line-height: var(--text-lh-m);
     color: var(--text-general);
 
     @include desktop-screen {
-        font-size: var(--text-size-xxxs);
+        font-size: var(--text-size-xs);
     }
 }
 

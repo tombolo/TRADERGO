@@ -107,13 +107,13 @@ const djb2 = (str: string): number => {
 export const getBotUsingCount = (bot: TFreeBotFile): number => 24 + (djb2(`${bot.folder}:${bot.name}`) % 2847);
 
 const folderDescriptionLine: Record<string, string> = {
-    ARENA: 'Short-cycle digit and volatility flows built for quick in-and-out sessions.',
-    HUNTER: 'Signal-style logic that hunts directional moves with guarded exits and filters.',
-    WIZARD: 'Multi-contract switching and stake rules for exploring different market types.',
+    ARENA: 'Fast-paced digit and volatility blocks for short runs.',
+    HUNTER: 'Directional setups with filters and guarded exits.',
+    WIZARD: 'Switches contracts and stakes in one workspace.',
 };
 
 export const getBotDescription = (bot: TFreeBotFile): string =>
-    `${folderDescriptionLine[bot.folder] ?? 'Pre-built strategy blocks.'} Review every block and stake before running with real funds.`;
+    folderDescriptionLine[bot.folder] ?? 'Ready-made strategy blocks.';
 
 /** Three portrait URLs for overlapping avatars (deterministic per bot). */
 export const getBotAvatarUrls = (bot: TFreeBotFile): [string, string, string] => {
