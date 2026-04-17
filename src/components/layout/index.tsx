@@ -152,9 +152,7 @@ const Layout = observer(() => {
         }
     }, [isAuthenticating, isInitialAuthCheckComplete]);
 
-    const [isInstallBannerVisible, setIsInstallBannerVisible] = useState(
-        () => localStorage.getItem('install_banner_closed') !== 'true'
-    );
+    const [isInstallBannerVisible, setIsInstallBannerVisible] = useState(true);
     const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<TBeforeInstallPromptEvent | null>(null);
 
     useEffect(() => {
@@ -168,7 +166,6 @@ const Layout = observer(() => {
     }, []);
 
     const onCloseInstallBanner = () => {
-        localStorage.setItem('install_banner_closed', 'true');
         setIsInstallBannerVisible(false);
     };
 

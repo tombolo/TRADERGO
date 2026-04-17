@@ -3,18 +3,19 @@
 .layout {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
 
     .install-banner {
-        display: flex;
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         align-items: center;
-        justify-content: space-between;
         gap: 1.6rem;
-        padding: 1.2rem 2rem;
+        padding: 1.2rem 4.8rem 1.2rem 2rem;
         background: linear-gradient(115deg, #0f172a 0%, #1d4ed8 45%, #0891b2 100%);
         box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
         color: #fff;
-        min-height: 7.2rem;
+        min-height: 6.8rem;
         z-index: 12;
 
         &__content {
@@ -86,6 +87,9 @@
         }
 
         &__close {
+            position: absolute;
+            top: 0.9rem;
+            right: 1rem;
             width: 3rem;
             height: 3rem;
             border: none;
@@ -98,20 +102,38 @@
         }
 
         @include mobile-or-tablet-screen {
-            align-items: flex-start;
-            flex-direction: column;
-            padding: 1.2rem 1.6rem;
+            grid-template-columns: 1fr;
+            align-items: stretch;
+            gap: 1rem;
+            padding: 1.2rem 4.4rem 1.2rem 1.2rem;
+
+            &__content {
+                align-items: flex-start;
+            }
+
+            &__icon {
+                width: 4rem;
+                height: 4rem;
+            }
+
+            &__title {
+                font-size: 1.4rem;
+            }
+
+            &__subtitle {
+                font-size: 1.2rem;
+            }
 
             &__actions {
                 width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             &__button {
-                flex: 1;
-            }
-
-            &__close {
-                margin-left: auto;
+                width: 100%;
+                min-height: 3.6rem;
+                padding: 0.8rem 1.2rem;
             }
         }
     }
