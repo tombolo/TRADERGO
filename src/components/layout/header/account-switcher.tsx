@@ -111,8 +111,8 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                         <div className='acc-info__strip'>
                             <span
                                 className={classNames('acc-info__flag', {
-                                    'acc-info__flag--real': !isVirtual,
                                     'acc-info__flag--demo': isVirtual,
+                                    'acc-info__flag--usa': !isVirtual,
                                 })}
                                 aria-hidden='true'
                             />

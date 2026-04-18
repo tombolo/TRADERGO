@@ -146,7 +146,7 @@ const AppHeader = observer(() => {
                 } else if (position === 'right') {
                     // For right section - transfer button (and account switcher on desktop)
                     return (
-                        <div className='auth-actions auth-actions--with-balance'>
+                        <div className='auth-actions'>
                             <Button
                                 primary
                                 className='auth-actions__btn auth-actions__btn--transfer'

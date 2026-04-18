@@ -33,6 +33,7 @@
     display: flex;
     gap: 0.55rem;
     align-items: center;
+    justify-content: flex-end;
     padding-block: 0.25rem;
 
     .account-info {
@@ -44,20 +45,7 @@
         border-radius: 0;
         padding: 0;
         overflow: visible;
-    }
-
-    &--with-balance {
-        width: 100%;
-        min-width: 34rem;
-    }
-
-    &--with-balance .auth-actions__btn--transfer.dc-btn--primary {
-        margin-inline-end: auto;
-    }
-
-    &--with-balance .account-info {
-        margin-inline-start: 1.2rem;
-        margin-inline-end: 0;
+        order: 2;
     }
 
     .dc-btn.auth-actions__btn {
@@ -97,9 +85,10 @@
     }
 
     &__btn--transfer.dc-btn--primary {
+        order: 1;
         border-radius: var(--header-action-radius) !important;
         border: 1px solid rgba(255, 255, 255, 0.12) !important;
-        margin-inline-end: 1.2rem;
+        margin-inline-end: 0.8rem;
     }
 
     &--loading {
