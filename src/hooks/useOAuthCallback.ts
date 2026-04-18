@@ -147,6 +147,7 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
                 params: { code, state, error, error_description },
                 error: 'CSRF token validation failed',
             });
+            cleanupURL();
             return;
         }
 

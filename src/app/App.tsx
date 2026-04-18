@@ -99,6 +99,8 @@ function App() {
                 });
         } else if (!isProcessing && error) {
             console.error('OAuth callback error:', error);
+            // Ensure we never stay stuck on /callback with hidden layout.
+            cleanupURL();
         }
     }, [isProcessing, isValid, params.code, error, cleanupURL]);
 
