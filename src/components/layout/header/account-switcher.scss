@@ -731,6 +731,10 @@
     box-shadow: 0 8px 16px 0 var(--shadow-menu);
     overflow: hidden;
 
+    &--portal {
+        position: fixed;
+    }
+
     &__account {
         display: flex;
         flex-direction: column;

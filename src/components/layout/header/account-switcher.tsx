@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { addComma, getCurrencyDisplayCode, getDecimalPlaces } from '@/components/shared';
@@ -14,6 +15,8 @@ import './account-switcher.scss';
 const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const [isOpen, setIsOpen] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, minWidth: 320 });
     const { accountList, activeLoginid } = useApiBase();
     const { client } = useStore() ?? {};
 
@@ -48,11 +51,15 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         }));
     }, [accountList, client?.account_list]);
 
-    const isSingleAccount = fallbackAccountList.length <= 1;
+    const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
+    const canOpenDropdown = fallbackAccountList.length > 1;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+            const target = e.target as Node;
+            const clickedInsideTrigger = wrapperRef.current?.contains(target);
+            const clickedInsideDropdown = dropdownRef.current?.contains(target);
+            if (!clickedInsideTrigger && !clickedInsideDropdown) {
                 setIsOpen(false);
             }
         };
@@ -67,11 +74,35 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         };
     }, []);
 
-    // FIX: Only block toggle if truly single account — no bot-running restriction
+    const updateDropdownPosition = useCallback(() => {
+        if (!wrapperRef.current) return;
+        const trigger = wrapperRef.current.getBoundingClientRect();
+        const minWidth = Math.max(280, trigger.width + 140);
+        setDropdownPosition({
+            top: trigger.bottom + 6,
+            left: Math.max(8, trigger.right - minWidth),
+            minWidth,
+        });
+    }, []);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        updateDropdownPosition();
+        const onResize = () => updateDropdownPosition();
+        const onScroll = () => updateDropdownPosition();
+        window.addEventListener('resize', onResize);
+        window.addEventListener('scroll', onScroll, true);
+        return () => {
+            window.removeEventListener('resize', onResize);
+            window.removeEventListener('scroll', onScroll, true);
+        };
+    }, [isOpen, updateDropdownPosition]);
+
     const toggleDropdown = useCallback(() => {
-        if (isSingleAccount) return;
+        if (!canOpenDropdown) return;
+        updateDropdownPosition();
         setIsOpen(prev => !prev);
-    }, [isSingleAccount]);
+    }, [canOpenDropdown, updateDropdownPosition]);
 
     const handleAccountSelect = useCallback(
         (loginid: string) => {
@@ -90,10 +121,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 currency: account.currency,
                 balance: addComma(Number(account.balance ?? 0).toFixed(getDecimalPlaces(account.currency))),
                 isVirtual: isDemoAccount(account.loginid),
-                isActive: account.loginid === activeLoginid,
+                isActive: account.loginid === resolvedActiveLoginid,
             }))
             .sort((a, b) => (a.isActive ? -1 : b.isActive ? 1 : 0));
-    }, [fallbackAccountList, activeLoginid]);
+    }, [fallbackAccountList, resolvedActiveLoginid]);
 
     if (!activeAccount) return null;
 
@@ -106,17 +137,18 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 <div
                     data-testid='dt_acc_info'
                     id='dt_core_account-info_acc-info'
-                    role={showChevron ? 'button' : undefined}
-                    tabIndex={showChevron ? 0 : -1}
-                    aria-expanded={showChevron ? isOpen : undefined}
-                    aria-haspopup={showChevron ? 'listbox' : undefined}
+                    role='button'
+                    tabIndex={0}
+                    aria-expanded={isOpen}
+                    aria-haspopup='listbox'
                     className={classNames('acc-info', {
                         'acc-info--is-virtual': isVirtual,
-                        'acc-info--interactive': showChevron,
+                        'acc-info--interactive': canOpenDropdown,
+                        'acc-info--switch-disabled': !canOpenDropdown,
                     })}
                     onClick={toggleDropdown}
                     onKeyDown={e => {
-                        if (showChevron && (e.key === 'Enter' || e.key === ' ')) {
+                        if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             toggleDropdown();
                         }
@@ -135,7 +167,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                             <span
                                 className={classNames('acc-info__select-arrow', {
                                     'acc-info__select-arrow--invert': isOpen,
-                                    'acc-info__select-arrow--disabled': isSingleAccount,
+                                        'acc-info__select-arrow--disabled': !canOpenDropdown,
                                 })}
                             >
                                 <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
@@ -168,49 +200,62 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     </div>
                 </div>
             </AccountInfoWrapper>
-            {isOpen && (
-                <div className='acc-dropdown' role='listbox'>
-                    {formattedAccounts.map(account => (
-                        <div
-                            key={account.loginid}
-                            role='option'
-                            aria-selected={account.isActive}
-                            tabIndex={0}
-                            className={classNames('acc-dropdown__account', {
-                                'acc-dropdown__account--selected': account.isActive,
-                                'acc-dropdown__account--virtual': account.isVirtual,
-                            })}
-                            onClick={() => !account.isActive && handleAccountSelect(account.loginid)}
-                            onKeyDown={e => {
-                                if (!account.isActive && (e.key === 'Enter' || e.key === ' ')) {
-                                    e.preventDefault();
-                                    handleAccountSelect(account.loginid);
-                                }
-                            }}
-                        >
-                            <Text
-                                size='xxxs'
-                                className={classNames('acc-dropdown__account-type', {
-                                    'acc-dropdown__account-type--virtual': account.isVirtual,
+            {isOpen &&
+                canOpenDropdown &&
+                createPortal(
+                    <div
+                        className='acc-dropdown acc-dropdown--portal'
+                        role='listbox'
+                        ref={dropdownRef}
+                        style={{
+                            top: `${dropdownPosition.top}px`,
+                            left: `${dropdownPosition.left}px`,
+                            minWidth: `${dropdownPosition.minWidth}px`,
+                            zIndex: 2147483646,
+                        }}
+                    >
+                        {formattedAccounts.map(account => (
+                            <div
+                                key={account.loginid}
+                                role='option'
+                                aria-selected={account.isActive}
+                                tabIndex={0}
+                                className={classNames('acc-dropdown__account', {
+                                    'acc-dropdown__account--selected': account.isActive,
+                                    'acc-dropdown__account--virtual': account.isVirtual,
                                 })}
+                                onClick={() => !account.isActive && handleAccountSelect(account.loginid)}
+                                onKeyDown={e => {
+                                    if (!account.isActive && (e.key === 'Enter' || e.key === ' ')) {
+                                        e.preventDefault();
+                                        handleAccountSelect(account.loginid);
+                                    }
+                                }}
                             >
-                                {account.isVirtual ? (
-                                    <Localize i18n_default_text='Demo account' />
-                                ) : (
-                                    <Localize i18n_default_text='Real account' />
-                                )}
-                            </Text>
-                            <Text size='xs' weight='bold' className='acc-dropdown__balance'>
-                                {account.currency ? (
-                                    `${account.balance} ${getCurrencyDisplayCode(account.currency)}`
-                                ) : (
-                                    <Localize i18n_default_text='No currency assigned' />
-                                )}
-                            </Text>
-                        </div>
-                    ))}
-                </div>
-            )}
+                                <Text
+                                    size='xxxs'
+                                    className={classNames('acc-dropdown__account-type', {
+                                        'acc-dropdown__account-type--virtual': account.isVirtual,
+                                    })}
+                                >
+                                    {account.isVirtual ? (
+                                        <Localize i18n_default_text='Demo account' />
+                                    ) : (
+                                        <Localize i18n_default_text='Real account' />
+                                    )}
+                                </Text>
+                                <Text size='xs' weight='bold' className='acc-dropdown__balance'>
+                                    {account.currency ? (
+                                        `${account.balance} ${getCurrencyDisplayCode(account.currency)}`
+                                    ) : (
+                                        <Localize i18n_default_text='No currency assigned' />
+                                    )}
+                                </Text>
+                            </div>
+                        ))}
+                    </div>,
+                    document.body
+                )}
         </div>
     );
 });
