@@ -20,6 +20,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, minWidth: 320 });
     const { accountList, activeLoginid } = useApiBase();
     const { client } = useStore() ?? {};
+    const debugPrefix = '[AccountSwitcher]';
 
     const fallbackAccountList = useMemo(() => {
         const by_loginid = new Map<
@@ -68,7 +69,17 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
             addAccount(loginid, acc.currency, acc.balance, acc.is_virtual)
         );
 
-        return Array.from(by_loginid.values());
+        const mergedAccounts = Array.from(by_loginid.values());
+        console.log(`${debugPrefix} merged account sources`, {
+            reactiveAccountList: accountList,
+            clientAccountList: client?.account_list,
+            storedAccounts: DerivWSAccountsService.getStoredAccounts(),
+            localStorageAccountsList: accountsList,
+            localStorageClientAccounts: clientAccounts,
+            mergedAccounts,
+        });
+
+        return mergedAccounts;
     }, [accountList, client?.account_list]);
 
     const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
@@ -123,8 +134,13 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const toggleDropdown = useCallback(() => {
         if (!hasAccounts) return;
         updateDropdownPosition();
+        console.log(`${debugPrefix} toggle dropdown`, {
+            previousIsOpen: isOpen,
+            resolvedActiveLoginid,
+            fallbackAccountList,
+        });
         setIsOpen(prev => !prev);
-    }, [hasAccounts, updateDropdownPosition]);
+    }, [debugPrefix, fallbackAccountList, hasAccounts, isOpen, resolvedActiveLoginid, updateDropdownPosition]);
 
     const handleAccountSelect = useCallback(
         (loginid: string) => {
@@ -137,16 +153,39 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     const formattedAccounts = useMemo(() => {
         if (!fallbackAccountList.length) return [];
-        return fallbackAccountList
+        const mappedAccounts = fallbackAccountList
             .map(account => ({
                 loginid: account.loginid,
                 currency: account.currency,
                 balance: addComma(Number(account.balance ?? 0).toFixed(getDecimalPlaces(account.currency))),
-                isVirtual: isDemoAccount(account.loginid),
+                isVirtual:
+                    typeof account.is_virtual !== 'undefined'
+                        ? Boolean(account.is_virtual)
+                        : isDemoAccount(account.loginid),
                 isActive: account.loginid === resolvedActiveLoginid,
+                raw_is_virtual: account.is_virtual,
             }))
             .sort((a, b) => (a.isActive ? -1 : b.isActive ? 1 : 0));
+
+        console.log(`${debugPrefix} formatted dropdown accounts`, {
+            resolvedActiveLoginid,
+            formattedAccounts: mappedAccounts,
+        });
+
+        return mappedAccounts;
     }, [fallbackAccountList, resolvedActiveLoginid]);
+
+    useEffect(() => {
+        console.log(`${debugPrefix} state snapshot`, {
+            activeLoginidFromStream: activeLoginid,
+            activeLoginidFromLocalStorage: localStorage.getItem('active_loginid'),
+            resolvedActiveLoginid,
+            hasAccounts,
+            canSwitchAccounts,
+            fallbackCount: fallbackAccountList.length,
+            isOpen,
+        });
+    }, [activeLoginid, canSwitchAccounts, fallbackAccountList.length, hasAccounts, isOpen, resolvedActiveLoginid]);
 
     if (!activeAccount) return null;
 
