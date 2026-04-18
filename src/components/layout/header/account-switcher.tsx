@@ -6,6 +6,7 @@ import { addComma, getCurrencyDisplayCode, getDecimalPlaces } from '@/components
 import Text from '@/components/shared_ui/text';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
+import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
 import { isDemoAccount } from '@/utils/account-helpers';
 import { Localize } from '@deriv-com/translations';
 import { TAccountSwitcher } from './common/types';
@@ -23,6 +24,15 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const fallbackAccountList = useMemo(() => {
         if (accountList?.length) return accountList;
         if (client?.account_list?.length) return client.account_list;
+        const storedAccounts = DerivWSAccountsService.getStoredAccounts();
+        if (storedAccounts?.length) {
+            return storedAccounts.map(acc => ({
+                loginid: acc.account_id,
+                currency: acc.currency || 'USD',
+                balance: Number(acc.balance ?? 0),
+                is_virtual: acc.account_type === 'demo' ? 1 : 0,
+            }));
+        }
 
         const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
         const clientAccounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
@@ -52,7 +62,8 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     }, [accountList, client?.account_list]);
 
     const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
-    const canOpenDropdown = fallbackAccountList.length > 1;
+    const hasAccounts = fallbackAccountList.length > 0;
+    const canSwitchAccounts = fallbackAccountList.length > 1;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -78,9 +89,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         if (!wrapperRef.current) return;
         const trigger = wrapperRef.current.getBoundingClientRect();
         const minWidth = Math.max(280, trigger.width + 140);
+        const maxLeft = Math.max(8, window.innerWidth - minWidth - 8);
         setDropdownPosition({
             top: trigger.bottom + 6,
-            left: Math.max(8, trigger.right - minWidth),
+            left: Math.max(8, Math.min(trigger.right - minWidth, maxLeft)),
             minWidth,
         });
     }, []);
@@ -99,10 +111,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     }, [isOpen, updateDropdownPosition]);
 
     const toggleDropdown = useCallback(() => {
-        if (!canOpenDropdown) return;
+        if (!hasAccounts) return;
         updateDropdownPosition();
         setIsOpen(prev => !prev);
-    }, [canOpenDropdown, updateDropdownPosition]);
+    }, [hasAccounts, updateDropdownPosition]);
 
     const handleAccountSelect = useCallback(
         (loginid: string) => {
@@ -143,8 +155,8 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     aria-haspopup='listbox'
                     className={classNames('acc-info', {
                         'acc-info--is-virtual': isVirtual,
-                        'acc-info--interactive': canOpenDropdown,
-                        'acc-info--switch-disabled': !canOpenDropdown,
+                        'acc-info--interactive': hasAccounts,
+                        'acc-info--switch-disabled': !hasAccounts,
                     })}
                     onClick={toggleDropdown}
                     onKeyDown={e => {
@@ -167,7 +179,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                             <span
                                 className={classNames('acc-info__select-arrow', {
                                     'acc-info__select-arrow--invert': isOpen,
-                                        'acc-info__select-arrow--disabled': !canOpenDropdown,
+                                    'acc-info__select-arrow--disabled': !canSwitchAccounts,
                                 })}
                             >
                                 <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
@@ -201,7 +213,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 </div>
             </AccountInfoWrapper>
             {isOpen &&
-                canOpenDropdown &&
+                hasAccounts &&
                 createPortal(
                     <div
                         className='acc-dropdown acc-dropdown--portal'
