@@ -7,6 +7,7 @@
     border-bottom: 1px solid var(--general-section-1);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     backdrop-filter: saturate(140%) blur(10px);
+    overflow: visible;
 
     &__account-settings {
         padding-inline-end: 1.2rem;

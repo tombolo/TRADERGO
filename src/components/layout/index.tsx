@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { api_base } from '@/external/bot-skeleton';
 import { useStore } from '@/hooks/useStore';
 import { useDevice } from '@deriv-com/ui';
@@ -18,13 +18,14 @@ type TBeforeInstallPromptEvent = Event & {
 
 const Layout = observer(() => {
     const { isDesktop } = useDevice();
+    const location = useLocation();
     const store = useStore();
     const is_quick_strategy_active = store?.quick_strategy?.is_open;
     // Only treat `/callback` as a special page while OAuth params are present.
     // After cleanup (or on refresh), we want the normal layout (header/footer) to render.
     const isCallbackPage = (() => {
-        if (window.location.pathname !== '/callback') return false;
-        const params = new URLSearchParams(window.location.search);
+        if (location.pathname !== '/callback') return false;
+        const params = new URLSearchParams(location.search);
         return Boolean(params.get('code') || params.get('state') || params.get('error'));
     })();
 

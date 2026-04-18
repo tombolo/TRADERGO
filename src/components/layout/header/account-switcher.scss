@@ -153,6 +153,8 @@
         user-select: none;
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
+        overflow: visible;
+        z-index: 20;
     }
 
     &__content {
@@ -318,6 +320,10 @@
         &--invert {
             transform: rotate(180deg);
         }
+
+        &--disabled {
+            opacity: 0.45;
+        }
     }
 
     @include desktop-screen {
@@ -365,6 +371,10 @@
                 0 3px 12px rgba(37, 99, 235, 0.35),
                 inset 0 1px 0 rgba(255, 255, 255, 0.14);
         }
+    }
+
+    &--switch-disabled {
+        opacity: 0.92;
     }
 
     &__button {
@@ -840,17 +850,20 @@
     position: absolute;
     top: calc(100% + 4px);
     right: 0;
-    z-index: 3;
-    min-width: 16rem;
+    z-index: 1200;
+    min-width: 24rem;
     background-color: var(--general-main-2);
     border-radius: $BORDER_RADIUS;
-    box-shadow: 0 8px 16px 0 var(--shadow-menu);
+    border: 1px solid var(--general-section-1);
+    box-shadow:
+        0 16px 32px rgba(15, 23, 42, 0.35),
+        0 2px 8px rgba(15, 23, 42, 0.2);
     overflow: hidden;
 
     &__account {
         display: flex;
         flex-direction: column;
-        padding: .8rem 1.6rem;
+        padding: 1rem 1.6rem;
         cursor: pointer;
         background: var(--general-main-2);
 
@@ -865,6 +878,7 @@
         &--selected {
             background: var(--state-active);
             cursor: default;
+            border-inline-start: 3px solid var(--brand-secondary, #1d4ed8);
         }
     }
 

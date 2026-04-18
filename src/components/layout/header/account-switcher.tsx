@@ -69,6 +69,11 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     const { currency, isVirtual, balance } = activeAccount;
     const showChevron = !isSingleAccount && !is_bot_running;
+    const disabledReason = is_bot_running
+        ? 'Stop the bot to switch accounts'
+        : isSingleAccount
+          ? 'Only one account is available'
+          : '';
 
     return (
         <div className='acc-info__wrapper' ref={wrapperRef}>
@@ -83,7 +88,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     className={classNames('acc-info acc-info--compact', {
                         'acc-info--is-virtual': isVirtual,
                         'acc-info--interactive': showChevron,
+                        'acc-info--switch-disabled': !showChevron,
                     })}
+                    title={disabledReason}
                     onClick={toggleDropdown}
                     onKeyDown={e => {
                         if (showChevron && (e.key === 'Enter' || e.key === ' ')) {
@@ -135,23 +142,22 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                     )}
                                 </div>
                             )}
-                            {showChevron && (
-                                <span
-                                    className={classNames('acc-info__select-arrow', {
-                                        'acc-info__select-arrow--invert': isOpen,
-                                    })}
-                                >
-                                    <svg width='11' height='11' viewBox='0 0 12 12' fill='none'>
-                                        <path
-                                            d='M2 4L6 8L10 4'
-                                            stroke='currentColor'
-                                            strokeWidth='1.5'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                    </svg>
-                                </span>
-                            )}
+                            <span
+                                className={classNames('acc-info__select-arrow', {
+                                    'acc-info__select-arrow--invert': isOpen,
+                                    'acc-info__select-arrow--disabled': !showChevron,
+                                })}
+                            >
+                                <svg width='11' height='11' viewBox='0 0 12 12' fill='none'>
+                                    <path
+                                        d='M2 4L6 8L10 4'
+                                        stroke='currentColor'
+                                        strokeWidth='1.5'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
+                                    />
+                                </svg>
+                            </span>
                         </div>
                     </div>
                 </div>
