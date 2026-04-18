@@ -19,6 +19,8 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const { client, run_panel } = useStore() ?? {};
 
     const is_bot_running = run_panel?.is_running || api_base.is_running;
+    const accountsCount = accountList?.length ?? 0;
+    const canSwitch = !is_bot_running && accountsCount > 1;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -67,11 +69,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     if (!activeAccount) return null;
 
     const { currency, isVirtual, balance } = activeAccount;
-    const canSwitch = !is_bot_running && formattedAccounts.length > 1;
     const showChevron = canSwitch;
     const disabledReason = is_bot_running
         ? 'Stop the bot to switch accounts'
-        : formattedAccounts.length <= 1
+        : accountsCount <= 1
           ? 'Only one account is available'
           : '';
 
