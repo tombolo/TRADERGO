@@ -158,11 +158,16 @@ const Layout = observer(() => {
     useEffect(() => {
         const handleBeforeInstallPrompt = (event: Event) => {
             event.preventDefault();
-            setDeferredInstallPrompt(event as TBeforeInstallPromptEvent);
+            const promptEvent = event as TBeforeInstallPromptEvent;
+            setDeferredInstallPrompt(promptEvent);
+            (window as Window & { deferredInstallPrompt?: TBeforeInstallPromptEvent }).deferredInstallPrompt = promptEvent;
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-        return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            (window as Window & { deferredInstallPrompt?: TBeforeInstallPromptEvent }).deferredInstallPrompt = undefined;
+        };
     }, []);
 
     const onCloseInstallBanner = () => {

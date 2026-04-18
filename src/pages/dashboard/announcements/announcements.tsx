@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
-import { isFirefox, isSafari } from '@/components/shared/utils/browser/browser_detect';
+import { isSafariBrowser } from '@/components/shared/utils/browser/browser_detect';
 import Text from '@/components/shared_ui/text';
 import { useStore } from '@/hooks/useStore';
 import { StandaloneBullhornRegularIcon } from '@deriv/quill-icons';
@@ -85,7 +85,8 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
         BOT_ANNOUNCEMENTS_LIST.map(item => {
             // Skip PWA announcement entirely if not Chrome browser
             if (item.id === 'PWA_INSTALL_ANNOUNCE') {
-                const isChrome = /Chrome/.test(navigator.userAgent) && !isFirefox() && !isSafari();
+                const isFirefox = /Firefox/i.test(navigator.userAgent);
+                const isChrome = /Chrome/i.test(navigator.userAgent) && !isFirefox && !isSafariBrowser();
                 if (!isChrome) {
                     return;
                 }
