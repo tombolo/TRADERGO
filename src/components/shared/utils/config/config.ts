@@ -87,17 +87,17 @@ export const getDebugServiceWorker = () => {
 };
 
 const getAuthEnvironment = (): 'production' | 'staging' => {
+    // For this project, all Vercel deployments should use production OAuth.
+    if (process.env.VERCEL_ENV) return 'production';
+    if (/\.vercel\.app$/i.test(window.location.hostname)) return 'production';
+
     const normalized_app_env = (process.env.APP_ENV || '').toLowerCase();
     if (normalized_app_env === 'production') return 'production';
     if (normalized_app_env === 'staging') return 'staging';
 
     const normalized_vercel_env = (process.env.VERCEL_ENV || '').toLowerCase();
     if (normalized_vercel_env === 'production') return 'production';
-    if (normalized_vercel_env === 'preview' || normalized_vercel_env === 'development') return 'staging';
-
-    if (/\.vercel\.app$/i.test(window.location.hostname)) {
-        return 'production';
-    }
+    if (normalized_vercel_env === 'preview' || normalized_vercel_env === 'development') return 'production';
 
     return isProduction() ? 'production' : 'staging';
 };
