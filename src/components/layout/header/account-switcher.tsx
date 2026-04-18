@@ -57,10 +57,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         }));
     }, [accountList, client?.account_list]);
 
-    // FIX 2: Only truly single when we have exactly 1 account — not 0 (loading state)
+    // Treat as "single" only when we truly have exactly one account.
     const isSingleAccount = fallbackAccountList.length === 1;
-    // FIX 3: Separate canSwitch so bot-running also disables the toggle
-    const canSwitch = !isSingleAccount && !is_bot_running;
+    const canOpenDropdown = fallbackAccountList.length > 1;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -79,23 +78,16 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         };
     }, []);
 
-    // FIX 4: toggleDropdown now also checks is_bot_running
     const toggleDropdown = useCallback(() => {
-        if (!canSwitch) return;
+        if (!canOpenDropdown) return;
         setIsOpen(prev => !prev);
-    }, [canSwitch]);
+    }, [canOpenDropdown]);
 
-    // FIX 5: handleAccountSelect now properly switches the account via the store
     const handleAccountSelect = useCallback(
         (loginid: string) => {
             if (loginid === resolvedActiveLoginid) return;
             localStorage.setItem('active_loginid', loginid);
-            // Prefer store switchAccount if available, fall back to WebSocket regeneration
-            if (client?.switchAccount) {
-                client.switchAccount(loginid);
-            } else {
-                client?.checkAndRegenerateWebSocket?.();
-            }
+            client?.checkAndRegenerateWebSocket?.();
             setIsOpen(false);
         },
         [client, resolvedActiveLoginid]
@@ -131,20 +123,19 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 <div
                     data-testid='dt_acc_info'
                     id='dt_core_account-info_acc-info'
-                    // FIX 7: role/tabIndex/aria only when actually interactive (canSwitch, not just !isSingleAccount)
-                    role={canSwitch ? 'button' : undefined}
-                    tabIndex={canSwitch ? 0 : -1}
-                    aria-expanded={canSwitch ? isOpen : undefined}
-                    aria-haspopup={canSwitch ? 'listbox' : undefined}
+                    role={canOpenDropdown ? 'button' : undefined}
+                    tabIndex={canOpenDropdown ? 0 : -1}
+                    aria-expanded={canOpenDropdown ? isOpen : undefined}
+                    aria-haspopup={canOpenDropdown ? 'listbox' : undefined}
                     className={classNames('acc-info acc-info--compact', {
                         'acc-info--is-virtual': isVirtual,
-                        'acc-info--interactive': canSwitch,
-                        'acc-info--switch-disabled': !canSwitch,
+                        'acc-info--interactive': canOpenDropdown,
+                        'acc-info--switch-disabled': !canOpenDropdown,
                     })}
                     title={disabledReason}
                     onClick={toggleDropdown}
                     onKeyDown={e => {
-                        if (canSwitch && (e.key === 'Enter' || e.key === ' ')) {
+                        if (canOpenDropdown && (e.key === 'Enter' || e.key === ' ')) {
                             e.preventDefault();
                             toggleDropdown();
                         }
@@ -200,32 +191,29 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                     )}
                                 </div>
                             )}
-                            {/* FIX 8: Only render chevron when there are multiple accounts */}
-                            {!isSingleAccount && (
-                                <span
-                                    className={classNames('acc-info__select-arrow', {
-                                        'acc-info__select-arrow--invert': isOpen,
-                                        'acc-info__select-arrow--disabled': !canSwitch,
-                                    })}
-                                >
-                                    <svg width='11' height='11' viewBox='0 0 12 12' fill='none'>
-                                        <path
-                                            d='M2 4L6 8L10 4'
-                                            stroke='currentColor'
-                                            strokeWidth='1.5'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                    </svg>
-                                </span>
-                            )}
+                            <span
+                                className={classNames('acc-info__select-arrow', {
+                                    'acc-info__select-arrow--invert': isOpen,
+                                    'acc-info__select-arrow--disabled': isSingleAccount,
+                                })}
+                                aria-hidden='true'
+                            >
+                                <svg width='11' height='11' viewBox='0 0 12 12' fill='none'>
+                                    <path
+                                        d='M2 4L6 8L10 4'
+                                        stroke='currentColor'
+                                        strokeWidth='1.5'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
+                                    />
+                                </svg>
+                            </span>
                         </div>
                     </div>
                 </div>
             </AccountInfoWrapper>
 
-            {/* FIX 9: Guard dropdown render — don't show if bot running or single account */}
-            {isOpen && canSwitch && (
+            {isOpen && !isSingleAccount && (
                 <div className='acc-dropdown' role='listbox'>
                     {formattedAccounts.map(account => (
                         <div
@@ -238,9 +226,11 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                 'acc-dropdown__account--virtual': account.isVirtual,
                             })}
                             onClick={() => {
+                                if (is_bot_running) return;
                                 if (!account.isActive) handleAccountSelect(account.loginid);
                             }}
                             onKeyDown={e => {
+                                if (is_bot_running) return;
                                 if (!account.isActive && (e.key === 'Enter' || e.key === ' ')) {
                                     e.preventDefault();
                                     handleAccountSelect(account.loginid);
