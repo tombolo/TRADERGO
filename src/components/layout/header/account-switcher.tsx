@@ -141,7 +141,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     if (!activeAccount) return null;
 
     const { currency, isVirtual, balance } = activeAccount;
-    const showChevron = true;
 
     return (
         <div className='acc-info__wrapper' ref={wrapperRef}>

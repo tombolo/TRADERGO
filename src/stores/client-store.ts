@@ -387,10 +387,9 @@ export default class ClientStore {
 
                 this.all_accounts_balance = null;
 
-                localStorage.removeItem('accountsList');
                 localStorage.removeItem('authToken');
-                localStorage.removeItem('clientAccounts');
-                localStorage.removeItem('account_type'); // Clear account type on logout
+                // Keep accountsList/clientAccounts during account switch so switcher can still
+                // display all available accounts (demo + real) after regeneration.
                 removeCookies('client_information');
 
                 setIsAuthorized(false);

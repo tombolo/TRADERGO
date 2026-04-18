@@ -211,6 +211,27 @@ export class OAuthTokenExchangeService {
                         // Store accounts
                         DerivWSAccountsService.storeAccounts(accounts);
 
+                        // Keep backward-compatible local account maps populated.
+                        // Several UI flows (account switcher, URL account switching, DTrader embed)
+                        // still read these keys.
+                        const accountsListMap: Record<string, string> = {};
+                        const clientAccountsMap: Record<
+                            string,
+                            { currency: string; is_virtual: number; balance: number; token: string }
+                        > = {};
+                        accounts.forEach(account => {
+                            const token_value = data.access_token as string;
+                            accountsListMap[account.account_id] = token_value;
+                            clientAccountsMap[account.account_id] = {
+                                currency: account.currency || 'USD',
+                                is_virtual: account.account_type === 'demo' ? 1 : 0,
+                                balance: Number(account.balance || 0),
+                                token: token_value,
+                            };
+                        });
+                        localStorage.setItem('accountsList', JSON.stringify(accountsListMap));
+                        localStorage.setItem('clientAccounts', JSON.stringify(clientAccountsMap));
+
                         // Set the first account as active in localStorage
                         const firstAccount = accounts[0];
                         localStorage.setItem('active_loginid', firstAccount.account_id);
