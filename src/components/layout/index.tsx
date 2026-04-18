@@ -1,56 +1,40 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import Cookies from 'js-cookie';
 import { observer } from 'mobx-react-lite';
-import { Outlet } from 'react-router-dom';
-import PWAUpdateNotification from '@/components/pwa-update-notification';
-import CommunityBanner from '@/components/community-banner/community-banner';
+import { Outlet, useLocation } from 'react-router-dom';
 import { api_base } from '@/external/bot-skeleton';
-import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useStore } from '@/hooks/useStore';
-import useTMB from '@/hooks/useTMB';
-import { handleOidcAuthFailure } from '@/utils/auth-utils';
-import { requestOidcAuthentication } from '@deriv-com/auth-client';
 import { useDevice } from '@deriv-com/ui';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '../shared';
 import Footer from './footer';
 import AppHeader from './header';
 import Body from './main-body';
-import RiskDisclaimer from './footer/RiskDisclaimer';
 import './layout.scss';
+import RiskDisclaimer from './footer/RiskDisclaimer';
+
+type TBeforeInstallPromptEvent = Event & {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+};
 
 const Layout = observer(() => {
     const { isDesktop } = useDevice();
-    const { isOnline } = useOfflineDetection();
+    const location = useLocation();
     const store = useStore();
     const is_quick_strategy_active = store?.quick_strategy?.is_open;
+    // Only treat `/callback` as a special page while OAuth params are present.
+    // After cleanup (or on refresh), we want the normal layout (header/footer) to render.
+    const isCallbackPage = (() => {
+        if (location.pathname !== '/callback') return false;
+        const params = new URLSearchParams(location.search);
+        return Boolean(params.get('code') || params.get('state') || params.get('error'));
+    })();
 
-    const isCallbackPage = window.location.pathname === '/callback';
-    const { onRenderTMBCheck, is_tmb_enabled: tmb_enabled_from_hook, isTmbEnabled } = useTMB();
-    const is_tmb_enabled = useMemo(
-        () => window.is_tmb_enabled === true || tmb_enabled_from_hook,
-        [tmb_enabled_from_hook]
-    );
-
-    // Make these reactive to detect auth state changes after login
-    const [isLoggedInCookie, setIsLoggedInCookie] = useState(() => Cookies.get('logged_state') === 'true');
-    const [isClientAccountsPopulated, setIsClientAccountsPopulated] = useState(() => {
-        const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}');
-        return Object.keys(accountsList).length > 0;
-    });
-
-    const isEndpointPage = window.location.pathname.includes('endpoint');
     const checkClientAccount = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}');
     const getQueryParams = new URLSearchParams(window.location.search);
     const currency = getQueryParams.get('account') ?? '';
-    // Use reactive state for accountsList instead of reading directly
-    const accountsList = (() => {
-        try {
-            return JSON.parse(localStorage.getItem('accountsList') ?? '{}');
-        } catch {
-            return {};
-        }
-    })();
+    const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}');
+    const isClientAccountsPopulated = Object.keys(accountsList).length > 0;
     const ifClientAccountHasCurrency =
         Object.values(checkClientAccount).some((account: any) => account.currency === currency) ||
         currency === 'demo' ||
@@ -74,6 +58,7 @@ const Layout = observer(() => {
     let subscription: { unsubscribe: () => void };
 
     const validateApiAccounts = ({ data }: any) => {
+        //TO do work on this with account switcher
         if (data.msg_type === 'authorize') {
             const account_list = data?.authorize?.account_list || [];
             const account_list_filter = account_list.filter((acc: any) => acc.is_disabled === 0);
@@ -86,7 +71,6 @@ const Layout = observer(() => {
             let detected_currency = '';
             const hasMissingCurrency = accounts.some(data => {
                 if (!allCurrencies.has(data.currency)) {
-                    console.log('Missing currency:', data.currency);
                     sessionStorage.setItem('query_param_currency', data.currency);
                     return true;
                 }
@@ -143,57 +127,6 @@ const Layout = observer(() => {
         }
     }, []);
 
-    // Effect to reactively check auth state changes (cookie and localStorage)
-    useEffect(() => {
-        const checkAuthState = () => {
-            const loggedState = Cookies.get('logged_state') === 'true';
-            const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}');
-            const hasAccounts = Object.keys(accountsList).length > 0;
-
-            setIsLoggedInCookie(prev => {
-                if (prev !== loggedState) {
-                    return loggedState;
-                }
-                return prev;
-            });
-            setIsClientAccountsPopulated(prev => {
-                if (prev !== hasAccounts) {
-                    return hasAccounts;
-                }
-                return prev;
-            });
-        };
-
-        // Check immediately on mount and after redirects
-        checkAuthState();
-
-        // Check when window gains focus (user returns to tab after OAuth redirect)
-        const handleFocus = () => {
-            checkAuthState();
-        };
-        window.addEventListener('focus', handleFocus);
-
-        // Listen for storage events (when localStorage changes)
-        const handleStorageChange = (e: StorageEvent) => {
-            // Only react to changes in accountsList or authToken
-            if (e.key === 'accountsList' || e.key === 'authToken' || e.key === 'active_loginid') {
-                checkAuthState();
-            }
-        };
-        window.addEventListener('storage', handleStorageChange);
-
-        // Also check periodically (but less frequently) to catch cookie changes
-        // Cookies don't trigger storage events, so we need polling for them
-        const interval = setInterval(checkAuthState, 1000);
-
-        // Cleanup
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('focus', handleFocus);
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
-
     useEffect(() => {
         // Always set the currency in session storage, even if the user is not logged in
         // This ensures the currency is available on the callback page
@@ -202,86 +135,9 @@ const Layout = observer(() => {
             sessionStorage.setItem('query_param_currency', currency);
         }
 
-        const checkOIDCEnabledWithMissingAccount = !isEndpointPage && !isCallbackPage && !clientHasCurrency;
-        const shouldAuthenticate =
-            (isLoggedInCookie && !isClientAccountsPopulated && !isEndpointPage && !isCallbackPage) ||
-            checkOIDCEnabledWithMissingAccount;
-
-        // Skip authentication when offline
-        if (!isOnline) {
-            console.log('[Layout] Offline detected, skipping authentication');
-            setIsAuthenticating(false);
-            setClientHasCurrency(true); // Allow access in offline mode
-            return;
-        }
-
-        // Create an async IIFE to handle authentication
-        (async () => {
-            try {
-                // First, explicitly wait for TMB status to be determined
-                // This ensures we have the correct TMB status before proceeding
-                const tmbEnabled = await isTmbEnabled();
-
-                // Now use the result of the explicit check
-                if (tmbEnabled) {
-                    await onRenderTMBCheck();
-                } else if (shouldAuthenticate) {
-                    const query_param_currency = currency || sessionStorage.getItem('query_param_currency') || 'USD';
-
-                    // Make sure we have the currency in session storage before redirecting
-                    if (query_param_currency) {
-                        sessionStorage.setItem('query_param_currency', query_param_currency);
-                    }
-                    try {
-                        await requestOidcAuthentication({
-                            redirectCallbackUri: `${window.location.origin}/callback`,
-                            ...(query_param_currency
-                                ? {
-                                      state: {
-                                          account: query_param_currency,
-                                      },
-                                  }
-                                : {}),
-                        });
-                    } catch (err) {
-                        setIsAuthenticating(false);
-                        handleOidcAuthFailure(err);
-                    }
-                }
-            } catch (err) {
-                // eslint-disable-next-line no-console
-                setIsAuthenticating(false);
-                console.error('Authentication error:', err);
-            } finally {
-                setIsAuthenticating(false);
-            }
-        })();
-    }, [
-        isLoggedInCookie,
-        isClientAccountsPopulated,
-        isEndpointPage,
-        isCallbackPage,
-        clientHasCurrency,
-        tmb_enabled_from_hook,
-        onRenderTMBCheck,
-        currency,
-        is_tmb_enabled,
-        isOnline, // Add isOnline to dependencies
-    ]);
-
-    // Add offline timeout to prevent infinite authentication
-    useEffect(() => {
-        if (!isOnline && isAuthenticating) {
-            console.log('[Layout] Setting offline timeout for authentication');
-            const timeout = setTimeout(() => {
-                console.log('[Layout] Offline timeout reached, stopping authentication');
-                setIsAuthenticating(false);
-                setClientHasCurrency(true);
-            }, 2000);
-
-            return () => clearTimeout(timeout);
-        }
-    }, [isOnline, isAuthenticating]);
+        // Authentication is now handled by the OAuth flow
+        setIsAuthenticating(false);
+    }, [isClientAccountsPopulated, isCallbackPage, clientHasCurrency, currency]);
 
     // Add a state to track if initial authentication check is complete
     const [isInitialAuthCheckComplete, setIsInitialAuthCheckComplete] = useState(false);
@@ -298,6 +154,48 @@ const Layout = observer(() => {
         }
     }, [isAuthenticating, isInitialAuthCheckComplete]);
 
+    const [isInstallBannerVisible, setIsInstallBannerVisible] = useState(true);
+    const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<TBeforeInstallPromptEvent | null>(null);
+
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (event: Event) => {
+            event.preventDefault();
+            const promptEvent = event as TBeforeInstallPromptEvent;
+            setDeferredInstallPrompt(promptEvent);
+            (window as Window & { deferredInstallPrompt?: TBeforeInstallPromptEvent }).deferredInstallPrompt = promptEvent;
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            (window as Window & { deferredInstallPrompt?: TBeforeInstallPromptEvent }).deferredInstallPrompt = undefined;
+        };
+    }, []);
+
+    const onCloseInstallBanner = () => {
+        setIsInstallBannerVisible(false);
+    };
+
+    const onInstallApp = async () => {
+        if (deferredInstallPrompt) {
+            await deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            setDeferredInstallPrompt(null);
+            return;
+        }
+
+        if (window.location.protocol === 'https:') {
+            alert('Use your browser menu and choose "Install app" to complete installation.');
+            return;
+        }
+
+        alert('Installation is available when this app is running over HTTPS.');
+    };
+
+    const onDownloadApp = () => {
+        window.open(window.location.origin, '_blank');
+    };
+
     return (
         <div
             className={clsx('layout', {
@@ -305,17 +203,41 @@ const Layout = observer(() => {
                 'quick-strategy-active': is_quick_strategy_active && !isDesktop,
             })}
         >
-            {!isCallbackPage && <AppHeader isAuthenticating={isAuthenticating || !isInitialAuthCheckComplete} />}
+            {!isCallbackPage && isInstallBannerVisible && (
+                <div className='install-banner' role='region' aria-label='Application install options'>
+                    <div className='install-banner__content'>
+                        <img src='/assets/images/MERRICK.png' alt='TRADER app icon' className='install-banner__icon' />
+                        <div className='install-banner__text'>
+                            <span className='install-banner__title'>Install TRADER GO</span>
+                            <span className='install-banner__subtitle'>
+                                Download and install the app for a fast, full-screen trading experience.
+                            </span>
+                        </div>
+                    </div>
+                    <div className='install-banner__actions'>
+                        <button type='button' className='install-banner__button install-banner__button--ghost' onClick={onDownloadApp}>
+                            Download
+                        </button>
+                        <button type='button' className='install-banner__button install-banner__button--primary' onClick={onInstallApp}>
+                            Install
+                        </button>
+                        <button
+                            type='button'
+                            className='install-banner__close'
+                            aria-label='Close install banner'
+                            onClick={onCloseInstallBanner}
+                        >
+                            ×
+                        </button>
+                    </div>
+                </div>
+            )}
+            {!isCallbackPage && <AppHeader />}
             <Body>
                 <Outlet />
             </Body>
+            {!isCallbackPage && <RiskDisclaimer />}
             {!isCallbackPage && isDesktop && <Footer />}
-            <RiskDisclaimer />
-            {!isCallbackPage &&
-                !isEndpointPage &&
-                !isAuthenticating &&
-                isInitialAuthCheckComplete && <CommunityBanner />}
-            <PWAUpdateNotification />
         </div>
     );
 });
