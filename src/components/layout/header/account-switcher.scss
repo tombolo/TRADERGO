@@ -4,10 +4,7 @@
 /** @define acc-info */
 // Compact wallet strip — fits inside ~5.6rem header (see layout.scss .deriv-header)
 .acc-info {
-    --acc-balance-surface: #f3f4f6;
-    --acc-balance-surface-hover: #e5e7eb;
-    --acc-balance-surface-active: #d1d5db;
-    --acc-balance-leaf: #111827;
+    --acc-balance-leaf: #00a79d;
     --acc-balance-text: #111827;
 
     box-sizing: border-box;
@@ -15,37 +12,24 @@
     cursor: default;
     display: inline-flex;
     flex-direction: row;
-    height: 3.35rem;
-    max-height: 3.35rem;
-    min-height: 3.35rem;
+    height: 3rem;
+    max-height: 3rem;
+    min-height: 3rem;
     justify-content: center;
-    padding: 0 0.85rem 0 0.65rem;
+    padding: 0 0.25rem 0 0.25rem;
     min-width: 0;
     width: max-content;
-    border-radius: var(--header-action-radius, 0.45rem);
-    background: linear-gradient(145deg, #f9fafb 0%, #f3f4f6 55%, #e5e7eb 100%);
-    border: 1px solid #d4af37;
-    box-shadow:
-        0 2px 8px rgba(15, 23, 42, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    border-radius: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 
-    &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-            105deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.06) 45%,
-            transparent 70%
-        );
-        pointer-events: none;
-    }
+    &::after { content: none; }
 
     &:hover {
-        background: linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 100%) !important;
+        background: transparent !important;
     }
 
 
@@ -195,36 +179,15 @@
     }
 
     &__mode-badge {
-        flex: 0 0 auto;
-        font-size: 0.7rem;
-        font-weight: 800;
-        letter-spacing: 0.11em;
-        text-transform: uppercase;
-        color: #111827;
-        padding: 0.26rem 0.45rem;
-        border-radius: calc(var(--header-action-radius, 0.45rem) * 0.45);
-        background: rgba(17, 24, 39, 0.08);
-        border: 1px solid rgba(17, 24, 39, 0.16);
-        line-height: 1;
+        display: none;
     }
 
     &__mode-badge--virtual {
-        color: #8a6d1d;
-        background: rgba(212, 175, 55, 0.16);
-        border-color: rgba(212, 175, 55, 0.45);
+        display: none;
     }
 
     &__strip-divider {
-        width: 1px;
-        height: 1.75rem;
-        flex: 0 0 auto;
-        background: linear-gradient(
-            180deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.35) 50%,
-            transparent 100%
-        );
-        opacity: 0.7;
+        display: none;
     }
 
     &__figures {
@@ -237,23 +200,23 @@
     }
 
     &__balance-num {
-        font-size: 1.48rem;
-        font-weight: 800;
+        font-size: 2.1rem;
+        font-weight: 700;
         font-variant-numeric: tabular-nums;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.01em;
         color: var(--acc-balance-leaf);
-        text-shadow: 0 0 12px rgba(74, 222, 128, 0.35);
+        text-shadow: none;
         line-height: 1;
         white-space: nowrap;
     }
 
     &__balance-ccy {
-        font-size: 0.84rem;
+        font-size: 2.1rem;
         font-weight: 700;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.01em;
         text-transform: uppercase;
-        color: #374151;
-        opacity: 0.95;
+        color: var(--acc-balance-leaf);
+        opacity: 1;
         line-height: 1;
     }
 
@@ -315,14 +278,14 @@
         transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
         opacity: 0.9;
 
-        svg path { stroke: #374151; }
+        svg path { stroke: #111827; }
 
         &--invert {
             transform: rotate(180deg);
         }
 
         &--disabled {
-            opacity: 0.45;
+            opacity: 0.35;
         }
     }
 
@@ -342,13 +305,7 @@
         margin-right: -0.4rem;
 
         &__balance-num {
-            font-size: 1.22rem;
-        }
-
-        &__mode-badge {
-            font-size: 0.62rem;
-            letter-spacing: 0.1em;
-            padding: 0.2rem 0.34rem;
+            font-size: 1.6rem;
         }
 
         &__balance--no-currency {
@@ -365,11 +322,9 @@
         cursor: pointer !important;
 
         &:hover {
-            background: linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 55%, #d1d5db 100%) !important;
-            border-color: #c8a23a;
-            box-shadow:
-                0 3px 12px rgba(15, 23, 42, 0.18),
-                inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            background: transparent !important;
+            border-color: transparent;
+            box-shadow: none;
         }
     }
 
