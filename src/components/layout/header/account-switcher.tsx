@@ -19,7 +19,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const { client, run_panel } = useStore() ?? {};
 
     const is_bot_running = run_panel?.is_running || api_base.is_running;
-    const isSingleAccount = !accountList || accountList.length <= 1;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -39,9 +38,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     }, []);
 
     const toggleDropdown = useCallback(() => {
-        if (is_bot_running || isSingleAccount) return;
+        if (!canSwitch) return;
         setIsOpen(prev => !prev);
-    }, [is_bot_running, isSingleAccount]);
+    }, [canSwitch]);
 
     const handleAccountSelect = useCallback(
         (loginid: string) => {
@@ -68,10 +67,11 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     if (!activeAccount) return null;
 
     const { currency, isVirtual, balance } = activeAccount;
-    const showChevron = !isSingleAccount && !is_bot_running;
+    const canSwitch = !is_bot_running && formattedAccounts.length > 1;
+    const showChevron = canSwitch;
     const disabledReason = is_bot_running
         ? 'Stop the bot to switch accounts'
-        : isSingleAccount
+        : formattedAccounts.length <= 1
           ? 'Only one account is available'
           : '';
 
