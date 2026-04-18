@@ -12,12 +12,15 @@ interface DTraderAutoLoginProps {
     dtraderUrl?: string;
     appId?: number;
     defaultSymbol?: string;
+    /** OAuth-style client id passed to the embedded DTrader page */
+    clientId?: string;
 }
 
 const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
     dtraderUrl = 'https://dtradergo.vercel.app/',
     appId = 114793,
     defaultSymbol = '1HZ100V',
+    clientId = '331HG8bYWhTamAKBhuryf',
 }) => {
     const [iframeSrc, setIframeSrc] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -27,9 +30,14 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
     const validateDtraderUrl = (url: string): boolean => {
         try {
             const { hostname } = new URL(url);
-            // Add your trusted domains here
-            const trustedDomains = ['deriv-dta.vercel.app', 'deriv.com', 'deriv-dtrader.vercel.app'];
-            return trustedDomains.some(domain => hostname.endsWith(domain));
+            // Embedded DTrader origin must be allowlisted (default: https://dtradergo.vercel.app/)
+            const trustedDomains = [
+                'dtradergo.vercel.app',
+                'deriv-dta.vercel.app',
+                'deriv.com',
+                'deriv-dtrader.vercel.app',
+            ];
+            return trustedDomains.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
         } catch {
             return false;
         }
@@ -63,6 +71,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     cur1: currency,
                     lang: 'EN',
                     app_id: appId.toString(),
+                    client_id: clientId,
                     chart_type: 'area',
                     interval: '1t',
                     symbol: defaultSymbol,
@@ -79,7 +88,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                 setIsLoading(false);
             }
         },
-        [appId, defaultSymbol, dtraderUrl]
+        [appId, clientId, defaultSymbol, dtraderUrl]
     );
 
     const checkAuthAndUpdate = useCallback(() => {
@@ -98,7 +107,15 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
             if (token && activeLoginId) {
                 buildIframeUrl(token, activeLoginId);
             } else {
-                setIframeSrc(`${dtraderUrl}?chart_type=area&interval=1t&symbol=${defaultSymbol}&trade_type=over_under`);
+                const guestParams = new URLSearchParams({
+                    chart_type: 'area',
+                    interval: '1t',
+                    symbol: defaultSymbol,
+                    trade_type: 'over_under',
+                    app_id: appId.toString(),
+                    client_id: clientId,
+                });
+                setIframeSrc(`${dtraderUrl}?${guestParams.toString()}`);
                 setIsLoading(false);
             }
         } catch (err) {
@@ -106,7 +123,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
             setError('Authentication check failed');
             setIsLoading(false);
         }
-    }, [buildIframeUrl, defaultSymbol, dtraderUrl]);
+    }, [appId, buildIframeUrl, clientId, defaultSymbol, dtraderUrl]);
 
     useEffect(() => {
         checkAuthAndUpdate();
