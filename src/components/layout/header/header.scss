@@ -33,7 +33,6 @@
     display: flex;
     gap: 0.55rem;
     align-items: center;
-    justify-content: flex-end;
     padding-block: 0.25rem;
 
     .account-info {
@@ -45,7 +44,6 @@
         border-radius: 0;
         padding: 0;
         overflow: visible;
-        margin-inline-start: auto;
     }
 
     .dc-btn.auth-actions__btn {
@@ -87,7 +85,7 @@
     &__btn--transfer.dc-btn--primary {
         border-radius: var(--header-action-radius) !important;
         border: 1px solid rgba(255, 255, 255, 0.12) !important;
-        margin-inline-end: 0.8rem;
+        margin-inline-end: 1.2rem;
     }
 
     &--loading {

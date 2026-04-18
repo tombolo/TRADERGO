@@ -186,31 +186,16 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        font-size: 1.2rem;
         background: #ffffff;
         border: 1px solid #d1d5db;
         box-shadow: 0 1px 2px rgba(17, 24, 39, 0.12);
         overflow: hidden;
     }
 
-    &__flag--usa {
-        background:
-            linear-gradient(#3c3b6e, #3c3b6e) 0 0 / 50% 55% no-repeat,
-            repeating-linear-gradient(
-                to bottom,
-                #b22234 0 8%,
-                #ffffff 8% 16%
-            );
-        border-color: #bfc4cf;
-    }
-
     &__flag--demo {
-        background:
-            linear-gradient(45deg, #111827 25%, transparent 25%) -2px 0 / 8px 8px,
-            linear-gradient(-45deg, #111827 25%, transparent 25%) -2px 0 / 8px 8px,
-            linear-gradient(45deg, transparent 75%, #111827 75%) -2px 0 / 8px 8px,
-            linear-gradient(-45deg, transparent 75%, #111827 75%) -2px 0 / 8px 8px,
-            #f9fafb;
-        border-color: #9ca3af;
+        background: #eef2ff;
+        border-color: #c7d2fe;
     }
 
     &__mode-badge {
