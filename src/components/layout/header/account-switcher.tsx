@@ -23,11 +23,28 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         if (accountList?.length) return accountList;
         if (client?.account_list?.length) return client.account_list;
 
-        // Last-resort fallback: build from localStorage clientAccounts map.
+        // Last-resort fallback: derive accounts from oauth storage.
+        // `accountsList` holds tokens keyed by loginid (demo + real).
+        const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
         const clientAccounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
             string,
             { currency?: string; is_virtual?: number; balance?: number | string }
         >;
+
+        const loginids = Object.keys(accountsList);
+        if (loginids.length) {
+            return loginids.map(loginid => {
+                const acc = clientAccounts[loginid] || {};
+                return {
+                    loginid,
+                    currency: acc.currency || 'USD',
+                    balance: Number(acc.balance ?? 0),
+                    is_virtual: Number(acc.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0)),
+                };
+            });
+        }
+
+        // Fallback of fallback: just whatever clientAccounts has.
         return Object.entries(clientAccounts).map(([loginid, acc]) => ({
             loginid,
             currency: acc.currency || 'USD',

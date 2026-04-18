@@ -84,11 +84,19 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
 
     const checkAuthAndUpdate = useCallback(() => {
         try {
-            const authToken = localStorage.getItem('authToken');
             const activeLoginId = localStorage.getItem('active_loginid');
+            const accountsListStr = localStorage.getItem('accountsList') || '{}';
+            let token = '';
 
-            if (authToken && activeLoginId) {
-                buildIframeUrl(authToken, activeLoginId);
+            try {
+                const accountsList = JSON.parse(accountsListStr) as Record<string, string>;
+                token = (activeLoginId && accountsList[activeLoginId]) || '';
+            } catch (parseError) {
+                console.error('Error parsing accountsList:', parseError);
+            }
+
+            if (token && activeLoginId) {
+                buildIframeUrl(token, activeLoginId);
             } else {
                 setIframeSrc(`${dtraderUrl}?chart_type=area&interval=1t&symbol=${defaultSymbol}&trade_type=over_under`);
                 setIsLoading(false);
@@ -104,7 +112,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
         checkAuthAndUpdate();
 
         const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === 'authToken' || e.key === 'active_loginid' || e.key === 'clientAccounts') {
+            if (e.key === 'accountsList' || e.key === 'active_loginid' || e.key === 'clientAccounts') {
                 checkAuthAndUpdate();
             }
         };
@@ -167,7 +175,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
             >
                 <div className='spinner'></div>
                 <p>Loading DTrader...</p>
-                <style jsx>{`
+                <style>{`
                     @keyframes spin {
                         0% {
                             transform: rotate(0deg);
@@ -200,7 +208,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                 overflow: 'hidden',
             }}
         >
-            <style jsx>{`
+            <style>{`
                 @media (max-width: 768px) {
                     .trader-container {
                         height: 71vh !important;
