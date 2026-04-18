@@ -8,24 +8,24 @@ export type TSidebarItem = {
 
 export const SIDEBAR_INTRO = (): TSidebarItem[] => [
     {
-        label: localize('Welcome to Deriv Bot!'),
+        label: localize('Welcome to TRADING TOOL'),
         content: [
             {
                 data: localize(
-                    'Ready to automate your trading strategy without writing any code? You’ve come to the right place.'
+                    'Build and deploy automated trades without coding'
                 ),
             },
-            { data: localize('Check out these guides and FAQs to learn more about building your bot:') },
+            { data: localize('Create sophisticated trading bots using our drag-and-drop visual interface. No programming experience needed.') },
         ],
         link: false,
     },
     {
-        label: localize('Guide'),
-        content: [{ data: localize('Deriv Bot - your automated trading partner') }],
+        label: localize('Get Started'),
+        content: [{ data: localize('Learn how to build your first automated trading bot') }],
         link: true,
     },
     {
-        label: localize('FAQs'),
+        label: localize('Quick Answers'),
         content: [
             {
                 data: localize('What is Deriv Bot?'),

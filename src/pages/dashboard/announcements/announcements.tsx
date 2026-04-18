@@ -2,13 +2,17 @@ import React from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
+import { isFirefox, isSafari } from '@/components/shared/utils/browser/browser_detect';
 import Text from '@/components/shared_ui/text';
 import { useStore } from '@/hooks/useStore';
 import { StandaloneBullhornRegularIcon } from '@deriv/quill-icons';
 import { localize } from '@deriv-com/translations';
 import { Notifications as Announcement } from '@deriv-com/ui';
-/* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-/* [/AI] */
+import { rudderStackSendOpenEvent } from '../../../analytics/rudderstack-common-events';
+import {
+    rudderStackSendAnnouncementActionEvent,
+    rudderStackSendAnnouncementClickEvent,
+} from '../../../analytics/rudderstack-dashboard';
 import { guide_content } from '../../tutorials/constants';
 import { performButtonAction } from './utils/accumulator-helper-functions';
 import { MessageAnnounce, TitleAnnounce } from './announcement-components';
@@ -54,8 +58,7 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
         setSelectedAnnouncement(announcement);
         setIsAnnounceDialogOpen(true);
         setIsOpenAnnounceList(prev => !prev);
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
+        rudderStackSendAnnouncementClickEvent({ announcement_name: announcement.announcement.main_title });
         updateLocalStorage(announce_id);
     };
 
@@ -80,14 +83,25 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
         }
 
         BOT_ANNOUNCEMENTS_LIST.map(item => {
+            // Skip PWA announcement entirely if not Chrome browser
+            if (item.id === 'PWA_INSTALL_ANNOUNCE') {
+                const isChrome = /Chrome/.test(navigator.userAgent) && !isFirefox() && !isSafari();
+                if (!isChrome) {
+                    return;
+                }
+            }
+
             let is_not_read = true;
             if (data && Object.prototype.hasOwnProperty.call(data, item.id)) {
                 is_not_read = data[item.id];
             }
             const notificationDate = new Date(item.date);
-            if (accountDate && notificationDate > accountDate) {
+            // Always show PWA announcement regardless of account creation date
+            const shouldShow = item.id === 'PWA_INSTALL_ANNOUNCE' || (accountDate && notificationDate > accountDate);
+
+            if (shouldShow) {
                 tmp_notifications.push({
-                    id: item.id,
+                    key: item.id,
                     icon: <item.icon announce={is_not_read} />,
                     title: <TitleAnnounce title={item.title} announce={is_not_read} />,
                     message: <MessageAnnounce message={item.message} date={item.date} announce={is_not_read} />,
@@ -108,6 +122,22 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Listen for close announcements panel event
+    React.useEffect(() => {
+        const handleCloseAnnouncementsPanel = () => {
+            setIsOpenAnnounceList(false);
+            // Refresh notifications after closing to update read status
+            const temp_notifications = updateNotifications();
+            setReadAnnouncementsMap(temp_notifications);
+        };
+
+        window.addEventListener('closeAnnouncementsPanel', handleCloseAnnouncementsPanel);
+        return () => {
+            window.removeEventListener('closeAnnouncementsPanel', handleCloseAnnouncementsPanel);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     React.useEffect(() => {
         const number_ammount_active_announce = Object.values(read_announcements_map).filter(value => value).length;
         setAmountActiveAnnounce(number_ammount_active_announce);
@@ -122,8 +152,10 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
     };
 
     const handleOnCancel = () => {
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
+        rudderStackSendAnnouncementActionEvent({
+            announcement_name: selected_announcement?.announcement.main_title,
+            announcement_action: selected_announcement?.announcement.cancel_button_text,
+        });
         if (selected_announcement?.switch_tab_on_cancel) {
             handleTabChange(selected_announcement.switch_tab_on_cancel);
             if (selected_announcement.announcement.id === 'ACCUMULATOR_ANNOUNCE') {
@@ -135,8 +167,10 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
     };
 
     const handleOnConfirm = () => {
-        /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-        /* [/AI] */
+        rudderStackSendAnnouncementActionEvent({
+            announcement_name: selected_announcement?.announcement.main_title,
+            announcement_action: selected_announcement?.announcement.confirm_button_text,
+        });
         if (selected_announcement?.switch_tab_on_confirm) {
             handleTabChange(selected_announcement.switch_tab_on_confirm);
         }
@@ -165,8 +199,12 @@ const Announcements = observer(({ is_mobile, is_tablet, handleTabChange }: TAnno
                 className='announcements__button'
                 onClick={() => {
                     setIsOpenAnnounceList(prevState => !prevState);
-                    /* [AI] - Analytics event tracking removed - see migrate-docs/MONITORING_PACKAGES.md for re-implementation guide */
-                    /* [/AI] */
+                    if (!is_open_announce_list) {
+                        rudderStackSendOpenEvent({
+                            subform_name: 'announcements',
+                            subform_source: 'dashboard',
+                        });
+                    }
                 }}
                 data-testid='btn-announcements'
             >

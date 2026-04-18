@@ -1,8 +1,8 @@
-// Removed unused React import - React 17+ JSX transform doesn't require it
+import React from 'react';
 import Dialog from '@/components/shared_ui/dialog';
 import Text from '@/components/shared_ui/text';
 import { LabelPairedCheckCaptionFillIcon } from '@deriv/quill-icons';
-// Removed import for rudderStackSendCloseEvent as per V2 requirements - no close events needed
+import { rudderStackSendCloseEvent } from '../../../analytics/rudderstack-common-events';
 import { IconAnnounceModal } from './announcement-components';
 import { TAnnounce, TContentItem } from './config';
 import './announcement-dialog.scss';
@@ -52,7 +52,10 @@ const AnnouncementDialog = ({
             has_close_icon
             onClose={() => {
                 setIsAnnounceDialogOpen(false);
-                // Removed close event tracking as per V2 requirements
+                rudderStackSendCloseEvent({
+                    subform_name: 'announcements',
+                    announcement_name: main_title,
+                });
             }}
             className={is_tablet ? `${base_classname} ${base_classname}--tablet` : base_classname}
         >
