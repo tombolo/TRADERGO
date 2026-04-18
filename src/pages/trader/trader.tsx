@@ -12,15 +12,12 @@ interface DTraderAutoLoginProps {
     dtraderUrl?: string;
     appId?: number;
     defaultSymbol?: string;
-    /** OAuth-style client id passed to the embedded DTrader page */
-    clientId?: string;
 }
 
 const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
-    dtraderUrl = 'https://dtradergo.vercel.app/',
-    appId = 114793,
+    dtraderUrl = 'https://deriv-dtrader.vercel.app/dtrader',
+    appId = 121364,
     defaultSymbol = '1HZ100V',
-    clientId = '331HG8bYWhTamAKBhuryf',
 }) => {
     const [iframeSrc, setIframeSrc] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -30,14 +27,9 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
     const validateDtraderUrl = (url: string): boolean => {
         try {
             const { hostname } = new URL(url);
-            // Embedded DTrader origin must be allowlisted (default: https://dtradergo.vercel.app/)
-            const trustedDomains = [
-                'dtradergo.vercel.app',
-                'deriv-dta.vercel.app',
-                'deriv.com',
-                'deriv-dtrader.vercel.app',
-            ];
-            return trustedDomains.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
+            // Add your trusted domains here
+            const trustedDomains = ['deriv-dta.vercel.app', 'deriv.com', 'deriv-dtrader.vercel.app'];
+            return trustedDomains.some(domain => hostname.endsWith(domain));
         } catch {
             return false;
         }
@@ -60,9 +52,9 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     if (clientAccounts[loginId]?.currency) {
                         currency = clientAccounts[loginId].currency!;
                     }
-                } catch (parseErr) {
-                    console.error('Error parsing client accounts:', parseErr);
-                    // Keep default currency; still load iframe so the tab is not blank
+                } catch (error) {
+                    console.error('Error parsing client accounts:', error);
+                    setError('Error loading account information');
                 }
 
                 const params = new URLSearchParams({
@@ -71,7 +63,6 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     cur1: currency,
                     lang: 'EN',
                     app_id: appId.toString(),
-                    client_id: clientId,
                     chart_type: 'area',
                     interval: '1t',
                     symbol: defaultSymbol,
@@ -88,34 +79,18 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                 setIsLoading(false);
             }
         },
-        [appId, clientId, defaultSymbol, dtraderUrl]
+        [appId, defaultSymbol, dtraderUrl]
     );
 
     const checkAuthAndUpdate = useCallback(() => {
         try {
+            const authToken = localStorage.getItem('authToken');
             const activeLoginId = localStorage.getItem('active_loginid');
-            const accountsListStr = localStorage.getItem('accountsList') || '{}';
-            let token = '';
 
-            try {
-                const accountsList = JSON.parse(accountsListStr) as Record<string, string>;
-                token = (activeLoginId && accountsList[activeLoginId]) || '';
-            } catch (parseError) {
-                console.error('Error parsing accountsList:', parseError);
-            }
-
-            if (token && activeLoginId) {
-                buildIframeUrl(token, activeLoginId);
+            if (authToken && activeLoginId) {
+                buildIframeUrl(authToken, activeLoginId);
             } else {
-                const guestParams = new URLSearchParams({
-                    chart_type: 'area',
-                    interval: '1t',
-                    symbol: defaultSymbol,
-                    trade_type: 'over_under',
-                    app_id: appId.toString(),
-                    client_id: clientId,
-                });
-                setIframeSrc(`${dtraderUrl}?${guestParams.toString()}`);
+                setIframeSrc(`${dtraderUrl}?chart_type=area&interval=1t&symbol=${defaultSymbol}&trade_type=over_under`);
                 setIsLoading(false);
             }
         } catch (err) {
@@ -123,13 +98,13 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
             setError('Authentication check failed');
             setIsLoading(false);
         }
-    }, [appId, buildIframeUrl, clientId, defaultSymbol, dtraderUrl]);
+    }, [buildIframeUrl, defaultSymbol, dtraderUrl]);
 
     useEffect(() => {
         checkAuthAndUpdate();
 
         const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === 'accountsList' || e.key === 'active_loginid' || e.key === 'clientAccounts') {
+            if (e.key === 'authToken' || e.key === 'active_loginid' || e.key === 'clientAccounts') {
                 checkAuthAndUpdate();
             }
         };
@@ -185,14 +160,14 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    minHeight: '40vh',
+                    height: '300px',
                     flexDirection: 'column',
                     gap: '15px',
                 }}
             >
                 <div className='spinner'></div>
                 <p>Loading DTrader...</p>
-                <style>{`
+                <style jsx>{`
                     @keyframes spin {
                         0% {
                             transform: rotate(0deg);
@@ -225,7 +200,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                 overflow: 'hidden',
             }}
         >
-            <style>{`
+            <style jsx>{`
                 @media (max-width: 768px) {
                     .trader-container {
                         height: 71vh !important;
@@ -242,9 +217,8 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     backgroundColor: '#f5f5f5',
                     minHeight: 0, // Allows the iframe to shrink below its content size
                 }}
-                // No sandbox: third-party DTrader needs full API/WebSocket; strict sandbox often yields a blank iframe
-                allow='clipboard-read; clipboard-write; fullscreen *'
-                allowFullScreen
+                sandbox='allow-same-origin allow-scripts allow-popups allow-forms'
+                allow='clipboard-read; clipboard-write'
                 loading='eager'
             />
         </div>
