@@ -19,12 +19,17 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const { client, run_panel } = useStore() ?? {};
 
     const is_bot_running = run_panel?.is_running || api_base.is_running;
+
+    // FIX 1: Memoize resolvedActiveLoginid so it doesn't read stale localStorage on every render
+    const resolvedActiveLoginid = useMemo(
+        () => activeLoginid || localStorage.getItem('active_loginid') || '',
+        [activeLoginid]
+    );
+
     const fallbackAccountList = useMemo(() => {
         if (accountList?.length) return accountList;
         if (client?.account_list?.length) return client.account_list;
 
-        // Last-resort fallback: derive accounts from oauth storage.
-        // `accountsList` holds tokens keyed by loginid (demo + real).
         const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
         const clientAccounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
             string,
@@ -44,7 +49,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
             });
         }
 
-        // Fallback of fallback: just whatever clientAccounts has.
         return Object.entries(clientAccounts).map(([loginid, acc]) => ({
             loginid,
             currency: acc.currency || 'USD',
@@ -53,8 +57,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         }));
     }, [accountList, client?.account_list]);
 
-    const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
-    const isSingleAccount = !fallbackAccountList || fallbackAccountList.length <= 1;
+    // FIX 2: Only truly single when we have exactly 1 account — not 0 (loading state)
+    const isSingleAccount = fallbackAccountList.length === 1;
+    // FIX 3: Separate canSwitch so bot-running also disables the toggle
+    const canSwitch = !isSingleAccount && !is_bot_running;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -73,22 +79,30 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         };
     }, []);
 
+    // FIX 4: toggleDropdown now also checks is_bot_running
     const toggleDropdown = useCallback(() => {
-        if (isSingleAccount) return;
+        if (!canSwitch) return;
         setIsOpen(prev => !prev);
-    }, [isSingleAccount]);
+    }, [canSwitch]);
 
+    // FIX 5: handleAccountSelect now properly switches the account via the store
     const handleAccountSelect = useCallback(
         (loginid: string) => {
+            if (loginid === resolvedActiveLoginid) return;
             localStorage.setItem('active_loginid', loginid);
-            client?.checkAndRegenerateWebSocket();
+            // Prefer store switchAccount if available, fall back to WebSocket regeneration
+            if (client?.switchAccount) {
+                client.switchAccount(loginid);
+            } else {
+                client?.checkAndRegenerateWebSocket?.();
+            }
             setIsOpen(false);
         },
-        [client]
+        [client, resolvedActiveLoginid]
     );
 
     const formattedAccounts = useMemo(() => {
-        if (!fallbackAccountList) return [];
+        if (!fallbackAccountList?.length) return [];
         return fallbackAccountList
             .map(account => ({
                 loginid: account.loginid,
@@ -103,7 +117,8 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     if (!activeAccount) return null;
 
     const { currency, isVirtual, balance } = activeAccount;
-    const showChevron = !isSingleAccount;
+
+    // FIX 6: Compute disabledReason correctly — bot running takes priority over single account
     const disabledReason = is_bot_running
         ? 'Stop the bot to switch accounts'
         : isSingleAccount
@@ -116,19 +131,20 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 <div
                     data-testid='dt_acc_info'
                     id='dt_core_account-info_acc-info'
-                    role={!isSingleAccount ? 'button' : undefined}
-                    tabIndex={!isSingleAccount ? 0 : -1}
-                    aria-expanded={!isSingleAccount ? isOpen : undefined}
-                    aria-haspopup={!isSingleAccount ? 'listbox' : undefined}
+                    // FIX 7: role/tabIndex/aria only when actually interactive (canSwitch, not just !isSingleAccount)
+                    role={canSwitch ? 'button' : undefined}
+                    tabIndex={canSwitch ? 0 : -1}
+                    aria-expanded={canSwitch ? isOpen : undefined}
+                    aria-haspopup={canSwitch ? 'listbox' : undefined}
                     className={classNames('acc-info acc-info--compact', {
                         'acc-info--is-virtual': isVirtual,
-                        'acc-info--interactive': !isSingleAccount,
-                        'acc-info--switch-disabled': isSingleAccount,
+                        'acc-info--interactive': canSwitch,
+                        'acc-info--switch-disabled': !canSwitch,
                     })}
                     title={disabledReason}
                     onClick={toggleDropdown}
                     onKeyDown={e => {
-                        if (!isSingleAccount && (e.key === 'Enter' || e.key === ' ')) {
+                        if (canSwitch && (e.key === 'Enter' || e.key === ' ')) {
                             e.preventDefault();
                             toggleDropdown();
                         }
@@ -150,8 +166,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                     'acc-info__flag--demo': isVirtual,
                                 })}
                                 aria-hidden='true'
-                            >
-                            </span>
+                            />
                             <span
                                 className={classNames('acc-info__mode-badge', {
                                     'acc-info__mode-badge--virtual': isVirtual,
@@ -185,41 +200,48 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                     )}
                                 </div>
                             )}
-                            <span
-                                className={classNames('acc-info__select-arrow', {
-                                    'acc-info__select-arrow--invert': isOpen,
-                                    'acc-info__select-arrow--disabled': isSingleAccount,
-                                })}
-                            >
-                                <svg width='11' height='11' viewBox='0 0 12 12' fill='none'>
-                                    <path
-                                        d='M2 4L6 8L10 4'
-                                        stroke='currentColor'
-                                        strokeWidth='1.5'
-                                        strokeLinecap='round'
-                                        strokeLinejoin='round'
-                                    />
-                                </svg>
-                            </span>
+                            {/* FIX 8: Only render chevron when there are multiple accounts */}
+                            {!isSingleAccount && (
+                                <span
+                                    className={classNames('acc-info__select-arrow', {
+                                        'acc-info__select-arrow--invert': isOpen,
+                                        'acc-info__select-arrow--disabled': !canSwitch,
+                                    })}
+                                >
+                                    <svg width='11' height='11' viewBox='0 0 12 12' fill='none'>
+                                        <path
+                                            d='M2 4L6 8L10 4'
+                                            stroke='currentColor'
+                                            strokeWidth='1.5'
+                                            strokeLinecap='round'
+                                            strokeLinejoin='round'
+                                        />
+                                    </svg>
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
             </AccountInfoWrapper>
-            {isOpen && (
+
+            {/* FIX 9: Guard dropdown render — don't show if bot running or single account */}
+            {isOpen && canSwitch && (
                 <div className='acc-dropdown' role='listbox'>
                     {formattedAccounts.map(account => (
                         <div
                             key={account.loginid}
                             role='option'
                             aria-selected={account.isActive}
-                            tabIndex={0}
+                            tabIndex={account.isActive ? -1 : 0}
                             className={classNames('acc-dropdown__account', {
                                 'acc-dropdown__account--selected': account.isActive,
                                 'acc-dropdown__account--virtual': account.isVirtual,
                             })}
-                            onClick={() => !account.isActive && !is_bot_running && handleAccountSelect(account.loginid)}
+                            onClick={() => {
+                                if (!account.isActive) handleAccountSelect(account.loginid);
+                            }}
                             onKeyDown={e => {
-                                if (!is_bot_running && !account.isActive && (e.key === 'Enter' || e.key === ' ')) {
+                                if (!account.isActive && (e.key === 'Enter' || e.key === ' ')) {
                                     e.preventDefault();
                                     handleAccountSelect(account.loginid);
                                 }
