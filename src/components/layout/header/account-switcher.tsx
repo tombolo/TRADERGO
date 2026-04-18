@@ -57,9 +57,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     }, []);
 
     const toggleDropdown = useCallback(() => {
-        if (is_bot_running || isSingleAccount) return;
+        if (isSingleAccount) return;
         setIsOpen(prev => !prev);
-    }, [is_bot_running, isSingleAccount]);
+    }, [isSingleAccount]);
 
     const handleAccountSelect = useCallback(
         (loginid: string) => {
@@ -86,7 +86,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     if (!activeAccount) return null;
 
     const { currency, isVirtual, balance } = activeAccount;
-    const showChevron = !isSingleAccount && !is_bot_running;
+    const showChevron = !isSingleAccount;
     const disabledReason = is_bot_running
         ? 'Stop the bot to switch accounts'
         : isSingleAccount
@@ -99,19 +99,19 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 <div
                     data-testid='dt_acc_info'
                     id='dt_core_account-info_acc-info'
-                    role={showChevron ? 'button' : undefined}
-                    tabIndex={showChevron ? 0 : -1}
-                    aria-expanded={showChevron ? isOpen : undefined}
-                    aria-haspopup={showChevron ? 'listbox' : undefined}
+                    role={!isSingleAccount ? 'button' : undefined}
+                    tabIndex={!isSingleAccount ? 0 : -1}
+                    aria-expanded={!isSingleAccount ? isOpen : undefined}
+                    aria-haspopup={!isSingleAccount ? 'listbox' : undefined}
                     className={classNames('acc-info acc-info--compact', {
                         'acc-info--is-virtual': isVirtual,
-                        'acc-info--interactive': showChevron,
-                        'acc-info--switch-disabled': !showChevron,
+                        'acc-info--interactive': !isSingleAccount,
+                        'acc-info--switch-disabled': isSingleAccount,
                     })}
                     title={disabledReason}
                     onClick={toggleDropdown}
                     onKeyDown={e => {
-                        if (showChevron && (e.key === 'Enter' || e.key === ' ')) {
+                        if (!isSingleAccount && (e.key === 'Enter' || e.key === ' ')) {
                             e.preventDefault();
                             toggleDropdown();
                         }
@@ -171,7 +171,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                             <span
                                 className={classNames('acc-info__select-arrow', {
                                     'acc-info__select-arrow--invert': isOpen,
-                                    'acc-info__select-arrow--disabled': !showChevron,
+                                    'acc-info__select-arrow--disabled': isSingleAccount,
                                 })}
                             >
                                 <svg width='11' height='11' viewBox='0 0 12 12' fill='none'>
@@ -200,9 +200,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                 'acc-dropdown__account--selected': account.isActive,
                                 'acc-dropdown__account--virtual': account.isVirtual,
                             })}
-                            onClick={() => !account.isActive && handleAccountSelect(account.loginid)}
+                            onClick={() => !account.isActive && !is_bot_running && handleAccountSelect(account.loginid)}
                             onKeyDown={e => {
-                                if (!account.isActive && (e.key === 'Enter' || e.key === ' ')) {
+                                if (!is_bot_running && !account.isActive && (e.key === 'Enter' || e.key === ' ')) {
                                     e.preventDefault();
                                     handleAccountSelect(account.loginid);
                                 }
