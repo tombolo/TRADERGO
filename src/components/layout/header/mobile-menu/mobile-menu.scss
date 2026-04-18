@@ -141,11 +141,17 @@
     }
 
     .deriv-drawer__container {
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        height: 100vh !important;
         background: var(--general-main-1);
         z-index: 10040 !important;
     }
 
     .deriv-drawer {
+        position: fixed !important;
+        inset: 0 !important;
         z-index: 10035 !important;
     }
 

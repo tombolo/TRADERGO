@@ -17,8 +17,8 @@ export const AppLogo = () => {
         <a href={logoUrl} className='app-header__logo' aria-label={localize('Home')}>
             {/* [AI] Use configurable brand logo from brand.config.json */}
             <BrandLogo
-                width={isDesktop ? 184 : 136}
-                height={isDesktop ? 36 : 28}
+                width={isDesktop ? 168 : 124}
+                height={isDesktop ? 32 : 24}
                 className='app-header__logo-img'
             />
             {/* [/AI] */}

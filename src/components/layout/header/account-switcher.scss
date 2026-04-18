@@ -4,11 +4,11 @@
 /** @define acc-info */
 // Compact wallet strip — fits inside ~5.6rem header (see layout.scss .deriv-header)
 .acc-info {
-    --acc-balance-surface: #1e3a8a;
-    --acc-balance-surface-hover: #172554;
-    --acc-balance-surface-active: #2563eb;
-    --acc-balance-leaf: #4ade80;
-    --acc-balance-text: #ffffff;
+    --acc-balance-surface: #f3f4f6;
+    --acc-balance-surface-hover: #e5e7eb;
+    --acc-balance-surface-active: #d1d5db;
+    --acc-balance-leaf: #111827;
+    --acc-balance-text: #111827;
 
     box-sizing: border-box;
     align-items: center;
@@ -23,11 +23,11 @@
     min-width: 0;
     width: max-content;
     border-radius: var(--header-action-radius, 0.45rem);
-    background: linear-gradient(145deg, #1e3a8a 0%, #172554 55%, #1e3a8a 100%);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: linear-gradient(145deg, #f9fafb 0%, #f3f4f6 55%, #e5e7eb 100%);
+    border: 1px solid #d4af37;
     box-shadow:
-        0 2px 8px rgba(15, 23, 42, 0.28),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        0 2px 8px rgba(15, 23, 42, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
     position: relative;
     overflow: hidden;
 
@@ -45,7 +45,7 @@
     }
 
     &:hover {
-        background: linear-gradient(145deg, var(--acc-balance-surface-hover) 0%, #0f172a 100%) !important;
+        background: linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 100%) !important;
     }
 
 
@@ -200,18 +200,18 @@
         font-weight: 800;
         letter-spacing: 0.11em;
         text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.92);
+        color: #111827;
         padding: 0.26rem 0.45rem;
         border-radius: calc(var(--header-action-radius, 0.45rem) * 0.45);
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(17, 24, 39, 0.08);
+        border: 1px solid rgba(17, 24, 39, 0.16);
         line-height: 1;
     }
 
     &__mode-badge--virtual {
-        color: #fef08a;
-        background: rgba(250, 204, 21, 0.12);
-        border-color: rgba(250, 204, 21, 0.35);
+        color: #8a6d1d;
+        background: rgba(212, 175, 55, 0.16);
+        border-color: rgba(212, 175, 55, 0.45);
     }
 
     &__strip-divider {
@@ -252,7 +252,7 @@
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.88);
+        color: #374151;
         opacity: 0.95;
         line-height: 1;
     }
@@ -315,7 +315,7 @@
         transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
         opacity: 0.9;
 
-        svg path { stroke: rgba(255, 255, 255, 0.9); }
+        svg path { stroke: #374151; }
 
         &--invert {
             transform: rotate(180deg);
@@ -365,11 +365,11 @@
         cursor: pointer !important;
 
         &:hover {
-            background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%) !important;
-            border-color: rgba(255, 255, 255, 0.28);
+            background: linear-gradient(145deg, #f3f4f6 0%, #e5e7eb 55%, #d1d5db 100%) !important;
+            border-color: #c8a23a;
             box-shadow:
-                0 3px 12px rgba(37, 99, 235, 0.35),
-                inset 0 1px 0 rgba(255, 255, 255, 0.14);
+                0 3px 12px rgba(15, 23, 42, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.7);
         }
     }
 
