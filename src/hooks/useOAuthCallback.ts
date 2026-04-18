@@ -76,6 +76,8 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
             url.pathname = '/';
         }
         window.history.replaceState({}, '', url.toString());
+        // Ensure router/layout reacts to manual history replacement.
+        window.dispatchEvent(new PopStateEvent('popstate'));
     }, []);
 
     useEffect(() => {
@@ -95,6 +97,7 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
             // return them to the main app route.
             if (window.location.pathname === '/callback') {
                 window.history.replaceState({}, '', '/');
+                window.dispatchEvent(new PopStateEvent('popstate'));
             }
             // Not an OAuth callback, mark as complete
             setResult({
