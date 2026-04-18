@@ -19,7 +19,25 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const { client, run_panel } = useStore() ?? {};
 
     const is_bot_running = run_panel?.is_running || api_base.is_running;
-    const isSingleAccount = !accountList || accountList.length <= 1;
+    const fallbackAccountList = useMemo(() => {
+        if (accountList?.length) return accountList;
+        if (client?.account_list?.length) return client.account_list;
+
+        // Last-resort fallback: build from localStorage clientAccounts map.
+        const clientAccounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
+            string,
+            { currency?: string; is_virtual?: number; balance?: number | string }
+        >;
+        return Object.entries(clientAccounts).map(([loginid, acc]) => ({
+            loginid,
+            currency: acc.currency || 'USD',
+            balance: Number(acc.balance ?? 0),
+            is_virtual: Number(acc.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0)),
+        }));
+    }, [accountList, client?.account_list]);
+
+    const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
+    const isSingleAccount = !fallbackAccountList || fallbackAccountList.length <= 1;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -53,17 +71,17 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     );
 
     const formattedAccounts = useMemo(() => {
-        if (!accountList) return [];
-        return accountList
+        if (!fallbackAccountList) return [];
+        return fallbackAccountList
             .map(account => ({
                 loginid: account.loginid,
                 currency: account.currency,
                 balance: addComma(Number(account.balance ?? 0).toFixed(getDecimalPlaces(account.currency))),
                 isVirtual: isDemoAccount(account.loginid),
-                isActive: account.loginid === activeLoginid,
+                isActive: account.loginid === resolvedActiveLoginid,
             }))
             .sort((a, b) => (a.isActive ? -1 : b.isActive ? 1 : 0));
-    }, [accountList, activeLoginid]);
+    }, [fallbackAccountList, resolvedActiveLoginid]);
 
     if (!activeAccount) return null;
 
