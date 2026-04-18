@@ -22,43 +22,53 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const { client } = useStore() ?? {};
 
     const fallbackAccountList = useMemo(() => {
-        if (accountList?.length) return accountList;
-        if (client?.account_list?.length) return client.account_list;
-        const storedAccounts = DerivWSAccountsService.getStoredAccounts();
-        if (storedAccounts?.length) {
-            return storedAccounts.map(acc => ({
-                loginid: acc.account_id,
-                currency: acc.currency || 'USD',
-                balance: Number(acc.balance ?? 0),
-                is_virtual: acc.account_type === 'demo' ? 1 : 0,
-            }));
-        }
+        const by_loginid = new Map<
+            string,
+            { loginid: string; currency: string; balance: number; is_virtual: number }
+        >();
 
+        const addAccount = (
+            loginid?: string,
+            currency?: string,
+            balance?: number | string,
+            is_virtual?: number | boolean
+        ) => {
+            if (!loginid) return;
+            by_loginid.set(loginid, {
+                loginid,
+                currency: currency || by_loginid.get(loginid)?.currency || 'USD',
+                balance: Number(balance ?? by_loginid.get(loginid)?.balance ?? 0),
+                is_virtual: Number(
+                    typeof is_virtual !== 'undefined'
+                        ? is_virtual
+                        : by_loginid.get(loginid)?.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0)
+                ),
+            });
+        };
+
+        // 1) reactive stream accounts
+        accountList?.forEach(acc => addAccount(acc.loginid, acc.currency, acc.balance, acc.is_virtual));
+        // 2) mobx client cache
+        client?.account_list?.forEach(acc => addAccount(acc.loginid, acc.currency, acc.balance, acc.is_virtual));
+        // 3) oauth stored accounts in session storage
+        DerivWSAccountsService.getStoredAccounts()?.forEach(acc =>
+            addAccount(acc.account_id, acc.currency, acc.balance, acc.account_type === 'demo')
+        );
+        // 4) local storage maps
         const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
         const clientAccounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
             string,
             { currency?: string; is_virtual?: number; balance?: number | string }
         >;
-        const loginids = Object.keys(accountsList);
+        Object.keys(accountsList).forEach(loginid => {
+            const acc = clientAccounts[loginid] || {};
+            addAccount(loginid, acc.currency, acc.balance, acc.is_virtual);
+        });
+        Object.entries(clientAccounts).forEach(([loginid, acc]) =>
+            addAccount(loginid, acc.currency, acc.balance, acc.is_virtual)
+        );
 
-        if (loginids.length) {
-            return loginids.map(loginid => {
-                const acc = clientAccounts[loginid] || {};
-                return {
-                    loginid,
-                    currency: acc.currency || 'USD',
-                    balance: Number(acc.balance ?? 0),
-                    is_virtual: Number(acc.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0)),
-                };
-            });
-        }
-
-        return Object.entries(clientAccounts).map(([loginid, acc]) => ({
-            loginid,
-            currency: acc.currency || 'USD',
-            balance: Number(acc.balance ?? 0),
-            is_virtual: Number(acc.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0)),
-        }));
+        return Array.from(by_loginid.values());
     }, [accountList, client?.account_list]);
 
     const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
