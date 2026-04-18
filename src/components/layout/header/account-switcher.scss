@@ -228,17 +228,41 @@
         padding: 0 1rem;
         margin-right: -0.8rem;
 
+        &__content {
+            margin-inline-start: 0.6rem;
+        }
+
+        &__account-type {
+            display: none;
+        }
+
+        &__account-type-header {
+            margin-bottom: 0;
+            gap: 0.2rem;
+        }
+
         &__balance {
-            font-size: 1.4rem;
+            font-size: 2rem;
+            line-height: 1.1;
+            color: var(--status-success) !important;
+            font-weight: 700;
 
             &--no-currency {
                 white-space: nowrap;
+            }
+        }
+
+        &__select-arrow {
+            svg path {
+                stroke: #1f4ad2;
             }
         }
     }
 
     .acc-info__balance {
         @include typeface(--paragraph-left-bold-black);
+        color: var(--status-success) !important;
+        font-weight: 700;
     }
 
     &--is-disabled {

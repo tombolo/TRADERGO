@@ -99,6 +99,28 @@
         color: var(--text-prominent);
         animation: auth-spinner-rotate 0.8s linear infinite;
     }
+
+    &--mobile-balance {
+        position: relative;
+        justify-content: flex-end;
+        min-width: 16rem;
+        padding-inline-end: 0.8rem;
+
+        .auth-actions__btn--transfer.dc-btn--primary {
+            position: absolute;
+            inset-inline-end: 4.8rem;
+            z-index: 1;
+            margin-inline-end: 0;
+            min-height: 3.2rem;
+            padding-inline: 1.1rem;
+        }
+
+        .account-info--mobile-corner {
+            position: relative;
+            z-index: 2;
+            margin-inline-start: auto;
+        }
+    }
 }
 
 .account-switcher {

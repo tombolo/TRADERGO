@@ -135,18 +135,12 @@ const AppHeader = observer(() => {
             // Show account switcher and logout when user is fully authenticated
             if (activeLoginid && !is_account_regenerating) {
                 if (position === 'left' && !isDesktop) {
-                    // For mobile left section - only account switcher
-                    return (
-                        <div className='auth-actions'>
-                            <div className='account-info'>
-                                <AccountSwitcher activeAccount={activeAccount} />
-                            </div>
-                        </div>
-                    );
+                    // Keep mobile left section clean (menu + logo only).
+                    return null;
                 } else if (position === 'right') {
                     // For right section - transfer button (and account switcher on desktop)
                     return (
-                        <div className='auth-actions'>
+                        <div className={clsx('auth-actions', { 'auth-actions--mobile-balance': !isDesktop })}>
                             <Button
                                 primary
                                 className='auth-actions__btn auth-actions__btn--transfer'
@@ -155,8 +149,12 @@ const AppHeader = observer(() => {
                             >
                                 <Localize i18n_default_text='Transfer' />
                             </Button>
-                            {isDesktop && (
+                            {isDesktop ? (
                                 <div className='account-info'>
+                                    <AccountSwitcher activeAccount={activeAccount} />
+                                </div>
+                            ) : (
+                                <div className='account-info account-info--mobile-corner'>
                                     <AccountSwitcher activeAccount={activeAccount} />
                                 </div>
                             )}
