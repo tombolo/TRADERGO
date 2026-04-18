@@ -11,7 +11,7 @@ export const BrandLogo = ({
 }: TBrandLogoProps) => {
     return (
         <img
-            src='/assets/images/TRADER.png'
+            src='/assets/images/MERRICK.png'
             alt='TRADER'
             width={width}
             height={height}
@@ -24,9 +24,9 @@ export const BrandLogo = ({
 
                 // Try a few common locations/extensions before falling back.
                 const candidates = [
-                    '/assets/images/TRADER.png',
+                    '/assets/images/MERRICK.png',
                     '/assets/images/TRADER.pnd',
-                    '/images/TRADER.png',
+                    '/images/MERRICK.png',
                     '/images/TRADER.pnd',
                     '/deriv-logo.svg',
                 ];
