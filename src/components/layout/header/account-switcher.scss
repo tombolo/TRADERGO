@@ -154,7 +154,7 @@
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
         overflow: visible;
-        z-index: 20;
+        z-index: 10010;
     }
 
     &__content {
@@ -850,7 +850,7 @@
     position: absolute;
     top: calc(100% + 4px);
     right: 0;
-    z-index: 1200;
+    z-index: 10020;
     min-width: 24rem;
     background-color: var(--general-main-2);
     border-radius: $BORDER_RADIUS;
