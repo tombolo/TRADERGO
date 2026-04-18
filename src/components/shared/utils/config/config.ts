@@ -102,6 +102,15 @@ const getAuthEnvironment = (): 'production' | 'staging' => {
     return isProduction() ? 'production' : 'staging';
 };
 
+const getOAuthClientId = () => {
+    // Prefer explicit OAuth client id; fall back to APP_ID for legacy setups.
+    const candidate = (process.env.CLIENT_ID || process.env.APP_ID || '').trim();
+    if (!candidate) return '';
+
+    // Remove accidental surrounding quotes and whitespace artifacts from env providers.
+    return candidate.replace(/^['"]|['"]$/g, '').trim();
+};
+
 /**
  * Generates a cryptographically secure CSRF token
  * @returns A random base64url-encoded string
@@ -244,7 +253,7 @@ export const generateOAuthURL = async (prompt?: string) => {
         // Use brand config for login URLs
         const environment = getAuthEnvironment();
         const hostname = brandConfig?.platform.auth2_url?.[environment];
-        const clientId = (process.env.CLIENT_ID || '').trim();
+        const clientId = getOAuthClientId();
 
         if (hostname && clientId) {
             // Generate CSRF token for security
@@ -271,7 +280,7 @@ export const generateOAuthURL = async (prompt?: string) => {
             // - state: CSRF token for security
             // - code_challenge: SHA-256 hash of code_verifier
             // - code_challenge_method: S256 (SHA-256)
-            let oauthUrl = `${hostname}auth?scope=${scopes}&response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+            let oauthUrl = `${hostname}auth?scope=${scopes}&response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUrl)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 
             // Optional: prompt parameter (e.g. 'registration' for signup flow)
             if (prompt) {
@@ -286,6 +295,13 @@ export const generateOAuthURL = async (prompt?: string) => {
 
             return oauthUrl;
         }
+
+        console.error('OAuth URL generation failed: missing auth hostname or client id', {
+            environment,
+            has_hostname: !!hostname,
+            has_client_id: !!clientId,
+            host: window.location.host,
+        });
     } catch (error) {
         console.error('Error generating OAuth URL:', error);
     }
