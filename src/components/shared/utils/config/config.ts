@@ -86,6 +86,22 @@ export const getDebugServiceWorker = () => {
     return false;
 };
 
+const getAuthEnvironment = (): 'production' | 'staging' => {
+    const normalized_app_env = (process.env.APP_ENV || '').toLowerCase();
+    if (normalized_app_env === 'production') return 'production';
+    if (normalized_app_env === 'staging') return 'staging';
+
+    const normalized_vercel_env = (process.env.VERCEL_ENV || '').toLowerCase();
+    if (normalized_vercel_env === 'production') return 'production';
+    if (normalized_vercel_env === 'preview' || normalized_vercel_env === 'development') return 'staging';
+
+    if (/\.vercel\.app$/i.test(window.location.hostname)) {
+        return 'production';
+    }
+
+    return isProduction() ? 'production' : 'staging';
+};
+
 /**
  * Generates a cryptographically secure CSRF token
  * @returns A random base64url-encoded string
@@ -226,9 +242,9 @@ export const clearCSRFToken = (): void => {
 export const generateOAuthURL = async (prompt?: string) => {
     try {
         // Use brand config for login URLs
-        const environment = isProduction() ? 'production' : 'staging';
+        const environment = getAuthEnvironment();
         const hostname = brandConfig?.platform.auth2_url?.[environment];
-        const clientId = process.env.CLIENT_ID;
+        const clientId = (process.env.CLIENT_ID || '').trim();
 
         if (hostname && clientId) {
             // Generate CSRF token for security

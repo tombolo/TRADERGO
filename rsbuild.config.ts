@@ -33,6 +33,7 @@ export default defineConfig({
         define: {
             'process.env': {
                 APP_ENV: JSON.stringify(process.env.APP_ENV),
+                VERCEL_ENV: JSON.stringify(process.env.VERCEL_ENV),
                 CLIENT_ID: JSON.stringify(process.env.CLIENT_ID),
                 APP_ID: JSON.stringify(process.env.APP_ID),
                 GD_CLIENT_ID: JSON.stringify(process.env.GD_CLIENT_ID),
