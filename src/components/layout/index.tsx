@@ -154,48 +154,6 @@ const Layout = observer(() => {
         }
     }, [isAuthenticating, isInitialAuthCheckComplete]);
 
-    const [isInstallBannerVisible, setIsInstallBannerVisible] = useState(true);
-    const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<TBeforeInstallPromptEvent | null>(null);
-
-    useEffect(() => {
-        const handleBeforeInstallPrompt = (event: Event) => {
-            event.preventDefault();
-            const promptEvent = event as TBeforeInstallPromptEvent;
-            setDeferredInstallPrompt(promptEvent);
-            (window as Window & { deferredInstallPrompt?: TBeforeInstallPromptEvent }).deferredInstallPrompt = promptEvent;
-        };
-
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-        return () => {
-            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-            (window as Window & { deferredInstallPrompt?: TBeforeInstallPromptEvent }).deferredInstallPrompt = undefined;
-        };
-    }, []);
-
-    const onCloseInstallBanner = () => {
-        setIsInstallBannerVisible(false);
-    };
-
-    const onInstallApp = async () => {
-        if (deferredInstallPrompt) {
-            await deferredInstallPrompt.prompt();
-            await deferredInstallPrompt.userChoice;
-            setDeferredInstallPrompt(null);
-            return;
-        }
-
-        if (window.location.protocol === 'https:') {
-            alert('Use your browser menu and choose "Install app" to complete installation.');
-            return;
-        }
-
-        alert('Installation is available when this app is running over HTTPS.');
-    };
-
-    const onDownloadApp = () => {
-        window.open(window.location.origin, '_blank');
-    };
-
     return (
         <div
             className={clsx('layout', {
@@ -203,35 +161,6 @@ const Layout = observer(() => {
                 'quick-strategy-active': is_quick_strategy_active && !isDesktop,
             })}
         >
-            {!isCallbackPage && isInstallBannerVisible && (
-                <div className='install-banner' role='region' aria-label='Application install options'>
-                    <div className='install-banner__content'>
-                        <img src='/assets/images/MERRICK.png' alt='TRADER app icon' className='install-banner__icon' />
-                        <div className='install-banner__text'>
-                            <span className='install-banner__title'>Install TRADER GO</span>
-                            <span className='install-banner__subtitle'>
-                                Download and install the app for a fast, full-screen trading experience.
-                            </span>
-                        </div>
-                    </div>
-                    <div className='install-banner__actions'>
-                        <button type='button' className='install-banner__button install-banner__button--ghost' onClick={onDownloadApp}>
-                            Download
-                        </button>
-                        <button type='button' className='install-banner__button install-banner__button--primary' onClick={onInstallApp}>
-                            Install
-                        </button>
-                        <button
-                            type='button'
-                            className='install-banner__close'
-                            aria-label='Close install banner'
-                            onClick={onCloseInstallBanner}
-                        >
-                            ×
-                        </button>
-                    </div>
-                </div>
-            )}
             {!isCallbackPage && <AppHeader />}
             <Body>
                 <Outlet />
