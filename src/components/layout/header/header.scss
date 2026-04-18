@@ -46,6 +46,20 @@
         overflow: visible;
     }
 
+    &--with-balance {
+        width: 100%;
+        min-width: 34rem;
+    }
+
+    &--with-balance .auth-actions__btn--transfer.dc-btn--primary {
+        margin-inline-end: auto;
+    }
+
+    &--with-balance .account-info {
+        margin-inline-start: 1.2rem;
+        margin-inline-end: 0;
+    }
+
     .dc-btn.auth-actions__btn {
         font-weight: 600;
         border-radius: var(--header-action-radius) !important;
