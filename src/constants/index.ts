@@ -4,6 +4,7 @@ export * from './button-status';
 export * from './contract';
 export * from './contract-stage';
 export * from './dashboard';
+export * from './mirror-copy-trading';
 export * from './run-panel';
 export * from './transactions';
 export * from './z-indexes';

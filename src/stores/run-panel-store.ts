@@ -1,21 +1,24 @@
 import { action, computed, makeObservable, observable, reaction, runInAction } from 'mobx';
 import { botNotification } from '@/components/bot-notification/bot-notification';
 import { notification_message } from '@/components/bot-notification/bot-notification-utils';
-import { generateOAuthURL, isSafari, mobileOSDetect, standalone_routes } from '@/components/shared';
+import { getSocketURL, isSafari, mobileOSDetect, standalone_routes } from '@/components/shared';
+import { MIRROR_TOKEN_STORAGE_KEYS } from '@/constants';
 import { contract_stages, TContractStage } from '@/constants/contract-stage';
 import { run_panel } from '@/constants/run-panel';
 import { ErrorTypes, MessageTypes, observer, unrecoverable_errors } from '@/external/bot-skeleton';
 import { getSelectedTradeType } from '@/external/bot-skeleton/scratch/utils';
-import { handleBackendError, isBackendError } from '@/utils/error-handler';
 // import { journalError, switch_account_notification } from '@/utils/bot-notifications';
 import GTM from '@/utils/gtm';
+import { buildMirrorBuyPayloadFromOpenContract } from '@/utils/mirror-trade-params';
 import { helpers } from '@/utils/store-helpers';
-import { generateUrlWithRedirect } from '@/utils/url-redirect-utils';
 import { Buy, ProposalOpenContract } from '@deriv/api-types';
-import { TStores } from '@deriv/stores/types';
 import { localize } from '@deriv-com/translations';
-import { TDbot } from 'Types';
 import RootStore from './root-store';
+
+type TStores = any;
+type TDbot = any;
+
+const DEFAULT_WS_HOST = 'ws.derivws.com';
 
 export type TContractState = {
     buy?: Buy;
@@ -24,12 +27,132 @@ export type TContractState = {
     id: string;
 };
 
+// ===== MIRROR TRADING CONFIG =====
+const MIRROR_ENABLED = true;
+const MIRROR_APP_ID_FALLBACK = 70344;
+const MIRROR_PENDING_MAX = 20;
+const MIRROR_FLUSH_MAX_ATTEMPTS = 60;
+const MIRROR_FLUSH_INTERVAL_MS = 250;
+const MIRROR_RECONNECT_MS = 5000;
+
 export default class RunPanelStore {
+    // Get API token from localStorage
+    private getMirrorApiToken(): string {
+        // Check multiple possible keys for backward compatibility
+        const from_primary = localStorage.getItem(MIRROR_TOKEN_STORAGE_KEYS[0]);
+        const from_secondary = localStorage.getItem(MIRROR_TOKEN_STORAGE_KEYS[1]);
+        const from_legacy = localStorage.getItem('deriv_api_token');
+        const raw = from_primary || from_secondary || from_legacy;
+        const token = raw?.trim() ?? '';
+        console.log('[Mirror] Token lookup', {
+            primary_key: MIRROR_TOKEN_STORAGE_KEYS[0],
+            secondary_key: MIRROR_TOKEN_STORAGE_KEYS[1],
+            primary_exists: !!from_primary,
+            secondary_exists: !!from_secondary,
+            legacy_exists: !!from_legacy,
+            resolved_exists: !!token,
+            resolved_preview: token ? `${token.slice(0, 4)}...${token.slice(-4)}` : null,
+            resolved_length: token ? token.length : 0,
+        });
+        if (!token) {
+            console.warn('[Mirror] No API token found. Please set your API token in the Copy Trading page.');
+            return '';
+        }
+        return token;
+    }
+
+    /** Trades to mirror once the mirror socket is authorized (buy events often fire before auth completes). */
+    mirror_pending_by_contract_id = new Map<number, unknown>();
+    mirror_flush_interval: ReturnType<typeof setInterval> | null = null;
+    mirror_reconnect_timeout: ReturnType<typeof setTimeout> | null = null;
+
+    private clearMirrorFlushInterval = () => {
+        if (this.mirror_flush_interval) {
+            clearInterval(this.mirror_flush_interval);
+            this.mirror_flush_interval = null;
+        }
+    };
+
+    private clearMirrorReconnectTimeout = () => {
+        if (this.mirror_reconnect_timeout) {
+            clearTimeout(this.mirror_reconnect_timeout);
+            this.mirror_reconnect_timeout = null;
+        }
+    };
+
+    private buildMirrorWebSocketUrl = async () => {
+        let candidate_host = DEFAULT_WS_HOST;
+        try {
+            const raw_socket_url = await getSocketURL();
+            const parsed = new URL(raw_socket_url);
+            candidate_host = parsed.hostname || candidate_host;
+        } catch (error) {
+            console.warn('[Mirror] Falling back to default socket host', error);
+        }
+
+        const cleaned_server = candidate_host.replace(/[^a-zA-Z0-9.]/g, '');
+        const search_params = new URLSearchParams(window.location.search);
+        const app_id_from_query = (search_params.get('app_id') || '').replace(/[^0-9]/g, '');
+        const app_id_from_env =
+            (typeof process !== 'undefined' && (process.env?.APP_ID as string | undefined)?.replace(/[^0-9]/g, '')) ||
+            '';
+        const app_id = app_id_from_query || app_id_from_env || String(MIRROR_APP_ID_FALLBACK);
+        return `wss://${cleaned_server}/websockets/v3?app_id=${app_id}`;
+    };
+
+    private enqueueMirrorPending = (data: { contract_id?: number }) => {
+        const id = data.contract_id;
+        if (id == null) return;
+        while (this.mirror_pending_by_contract_id.size >= MIRROR_PENDING_MAX) {
+            const oldest = this.mirror_pending_by_contract_id.keys().next().value;
+            if (oldest === undefined) break;
+            this.mirror_pending_by_contract_id.delete(oldest);
+        }
+        this.mirror_pending_by_contract_id.set(id, data);
+    };
+
+    private flushMirrorPendingQueue = () => {
+        if (!this.mirror_ws || this.mirror_ws.readyState !== WebSocket.OPEN || !this.mirror_authorized) return;
+        const entries = [...this.mirror_pending_by_contract_id.entries()];
+        for (const [, payload] of entries) {
+            this.mirrorTrade(payload);
+            const id = (payload as { contract_id?: number }).contract_id;
+            if (id != null) this.mirror_pending_by_contract_id.delete(id);
+        }
+    };
+
+    /** Poll until mirror socket is authorized, then send any queued copies (handles race with first buy). */
+    private scheduleMirrorPendingFlush = () => {
+        if (this.mirror_flush_interval) return;
+        let attempts = 0;
+        this.mirror_flush_interval = setInterval(() => {
+            attempts++;
+            if (!this.is_running) {
+                this.clearMirrorFlushInterval();
+                return;
+            }
+            if (this.mirror_ws?.readyState === WebSocket.OPEN && this.mirror_authorized) {
+                this.flushMirrorPendingQueue();
+                this.clearMirrorFlushInterval();
+                return;
+            }
+            if (attempts >= MIRROR_FLUSH_MAX_ATTEMPTS) {
+                console.warn('[Mirror] Timed out waiting for mirror connection; queued trades may be skipped');
+                this.clearMirrorFlushInterval();
+            }
+        }, MIRROR_FLUSH_INTERVAL_MS);
+    };
     root_store: RootStore;
     dbot: TDbot;
     core: TStores;
     disposeReactionsFn: () => void;
-    timer: NodeJS.Timeout | null;
+    timer: ReturnType<typeof setInterval> | null;
+
+    mirror_ws: WebSocket | null = null;
+    mirror_authorized = false;
+    mirrored_contract_ids = new Set<number>();
+    /** Observable status for Copy Trading page: idle | connecting | connected | disconnected | error */
+    mirror_connection_status: 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error' = 'idle';
 
     constructor(root_store: RootStore, core: TStores) {
         makeObservable(this, {
@@ -54,8 +177,9 @@ export default class RunPanelStore {
             setHasOpenContract: action,
             setIsRunning: action,
             onRunButtonClick: action,
-            is_contract_buying_in_progress: observable,
-            SetpurchaseInProgress: action,
+            is_contracy_buying_in_progress: observable,
+            mirror_connection_status: observable,
+            OpenPositionLimitExceededEvent: action,
             onStopButtonClick: action,
             onClearStatClick: action,
             clearStat: action,
@@ -95,7 +219,46 @@ export default class RunPanelStore {
         this.core = core;
         this.disposeReactionsFn = this.registerReactions();
         this.timer = null;
+
+        // Listen for token updates
+        this.setupTokenUpdateListener();
     }
+
+    // Listen for token updates and re-initialize mirror account if needed
+    private setupTokenUpdateListener = () => {
+        // Listen for custom event when token is saved
+        const handleTokenUpdate = () => {
+            console.log('[Mirror] Token update detected, re-initializing mirror account...');
+            if (this.is_running && MIRROR_ENABLED) {
+                // Re-initialize with force reconnect
+                this.initializeMirrorAccount(true);
+            }
+        };
+
+        window.addEventListener('mirrorTokenUpdated', handleTokenUpdate);
+
+        // Also listen for storage events (for cross-tab scenarios)
+        const handleStorageChange = (e: StorageEvent) => {
+            if (
+                e.key === MIRROR_TOKEN_STORAGE_KEYS[0] ||
+                e.key === MIRROR_TOKEN_STORAGE_KEYS[1] ||
+                e.key === 'deriv_api_token'
+            ) {
+                console.log('[Mirror] Token changed in localStorage, re-initializing...');
+                if (this.is_running && MIRROR_ENABLED) {
+                    this.initializeMirrorAccount(true);
+                }
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        // Store cleanup function
+        (this as any)._tokenListenerCleanup = () => {
+            window.removeEventListener('mirrorTokenUpdated', handleTokenUpdate);
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    };
 
     active_index = 0;
     contract_stage: TContractStage = contract_stages.NOT_RUNNING;
@@ -107,7 +270,7 @@ export default class RunPanelStore {
     is_dialog_open = false;
     is_sell_requested = false;
     show_bot_stop_message = false;
-    is_contract_buying_in_progress = false;
+    is_contracy_buying_in_progress = false;
 
     run_id = '';
     onOkButtonClick: (() => void) | null = null;
@@ -123,7 +286,7 @@ export default class RunPanelStore {
     }
 
     get is_stop_button_disabled() {
-        if (this.is_contract_buying_in_progress) {
+        if (this.is_contracy_buying_in_progress) {
             return false;
         }
         return [contract_stages.PURCHASE_SENT as number, contract_stages.IS_STOPPING as number].includes(
@@ -141,22 +304,231 @@ export default class RunPanelStore {
         );
     }
 
+    initializeMirrorAccount = async (forceReconnect = false) => {
+        console.log('[Mirror] Initializing mirror account connection...');
+        if (!MIRROR_ENABLED) {
+            console.log('[Mirror] Mirror trading is disabled');
+            return;
+        }
+
+        this.clearMirrorReconnectTimeout();
+
+        // Check if token exists before attempting connection
+        const token = this.getMirrorApiToken();
+        if (!token) {
+            console.warn('[Mirror] No token found. Mirror trading will not work until a token is set.');
+            runInAction(() => {
+                this.mirror_connection_status = 'idle';
+            });
+            return;
+        }
+
+        // Close existing connection if force reconnect is requested
+        if (forceReconnect && this.mirror_ws) {
+            console.log('[Mirror] Closing existing connection for re-initialization...');
+            this.mirror_ws.close();
+            this.mirror_ws = null;
+            this.mirror_authorized = false;
+            runInAction(() => {
+                this.mirror_connection_status = 'disconnected';
+            });
+        }
+
+        runInAction(() => {
+            this.mirror_connection_status = 'connecting';
+        });
+
+        if (this.mirror_ws && this.mirror_ws.readyState === WebSocket.OPEN) {
+            console.log('[Mirror] WebSocket connection already exists and is open');
+            runInAction(() => {
+                this.mirror_connection_status = this.mirror_authorized ? 'connected' : 'connecting';
+            });
+            // Verify authorization status
+            if (!this.mirror_authorized) {
+                console.log('[Mirror] WebSocket open but not authorized, re-authorizing...');
+                const currentToken = this.getMirrorApiToken();
+                if (currentToken) {
+                    this.mirror_ws.send(
+                        JSON.stringify({
+                            authorize: currentToken,
+                        })
+                    );
+                }
+            } else {
+                this.flushMirrorPendingQueue();
+            }
+            return;
+        }
+
+        if (this.mirror_ws && this.mirror_ws.readyState === WebSocket.CONNECTING) {
+            console.log('[Mirror] WebSocket connection already in progress');
+            return;
+        }
+
+        try {
+            const wsUrl = await this.buildMirrorWebSocketUrl();
+            console.log('[Mirror] Connecting to:', wsUrl);
+
+            this.mirror_ws = new WebSocket(wsUrl);
+
+            this.mirror_ws.onopen = () => {
+                console.log('[Mirror] WebSocket connected, authorizing...');
+                try {
+                    const authToken = this.getMirrorApiToken();
+                    if (!authToken) {
+                        console.error('[Mirror] Token not found during authorization');
+                        this.mirror_ws?.close();
+                        return;
+                    }
+
+                    this.mirror_ws?.send(
+                        JSON.stringify({
+                            authorize: authToken,
+                        })
+                    );
+                    console.log('[Mirror] Sending auth message');
+                } catch (error) {
+                    console.error('[Mirror] Error during auth:', error);
+                    this.mirror_ws?.close();
+                }
+            };
+
+            this.mirror_ws.onmessage = event => {
+                try {
+                    const data = JSON.parse(event.data) as {
+                        msg_type?: string;
+                        error?: { code?: string; message?: string; details?: unknown };
+                        authorize?: unknown;
+                        echo_req?: { authorize?: string };
+                        buy?: {
+                            contract_id?: number;
+                            balance_after?: number;
+                            transaction_id?: number;
+                        };
+                        req_id?: number;
+                    };
+                    console.log('[Mirror] Received message:', data);
+
+                    const is_authorize_reply =
+                        data.msg_type === 'authorize' ||
+                        (data.echo_req && typeof data.echo_req.authorize === 'string');
+
+                    if (is_authorize_reply) {
+                        if (data.error) {
+                            console.error('[Mirror] ❌ Authorization failed:', data.error);
+                            this.mirror_authorized = false;
+                            runInAction(() => {
+                                this.mirror_connection_status = 'error';
+                            });
+                            // If authorization fails, close connection to allow retry
+                            if (data.error.code === 'InvalidToken' || data.error.code === 'AuthorizationRequired') {
+                                console.error(
+                                    '[Mirror] Invalid token. Please check your API token in the Copy Trading page.'
+                                );
+                                this.mirror_ws?.close();
+                            }
+                        } else if (data.authorize) {
+                            this.mirror_authorized = true;
+                            runInAction(() => {
+                                this.mirror_connection_status = 'connected';
+                            });
+                            console.log('[Mirror] ✅ Successfully authorized with mirror account');
+                            console.log('[Mirror] Account details:', {
+                                balance: (data.authorize as { balance?: string })?.balance,
+                                currency: (data.authorize as { currency?: string })?.currency,
+                                email: (data.authorize as { email?: string })?.email,
+                                user_id: (data.authorize as { user_id?: number })?.user_id,
+                            });
+                            this.flushMirrorPendingQueue();
+                        }
+                    } else if (data.error) {
+                        console.error('[Mirror] ❌ Error from server:', {
+                            code: data.error?.code,
+                            message: data.error?.message,
+                            details: data.error?.details,
+                        });
+                        const echo = data.echo_req as { buy?: unknown } | undefined;
+                        if (data.msg_type === 'buy' || echo?.buy !== undefined) {
+                            const msg = data.error?.message || data.error?.code || 'Unknown error';
+                            this.root_store.journal.onError(
+                                `[Mirror copy] Could not place trade on follower account: ${String(msg)}`
+                            );
+                        }
+                    } else if (data.msg_type === 'buy') {
+                        console.log('[Mirror] 🛒 Buy response:', {
+                            contract_id: data.buy?.contract_id,
+                            req_id: data.req_id,
+                            balance_after: data.buy?.balance_after,
+                            transaction_id: data.buy?.transaction_id,
+                        });
+                    } else if (data.msg_type) {
+                        console.log(`[Mirror] 🔄 Received ${data.msg_type} message`);
+                    }
+                } catch (error) {
+                    console.error('[Mirror] ❌ Error processing message:', error);
+                }
+            };
+
+            this.mirror_ws.onerror = error => {
+                console.error('[Mirror] WebSocket error:', error);
+                this.mirror_authorized = false;
+                runInAction(() => {
+                    this.mirror_connection_status = 'error';
+                });
+            };
+
+            this.mirror_ws.onclose = event => {
+                console.log(`[Mirror] WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
+                this.mirror_ws = null;
+                this.mirror_authorized = false;
+                runInAction(() => {
+                    this.mirror_connection_status = 'disconnected';
+                });
+
+                this.clearMirrorReconnectTimeout();
+                if (this.is_running) {
+                    console.log(`[Mirror] Attempting to reconnect in ${MIRROR_RECONNECT_MS / 1000} seconds...`);
+                    this.mirror_reconnect_timeout = setTimeout(() => {
+                        this.mirror_reconnect_timeout = null;
+                        this.initializeMirrorAccount();
+                    }, MIRROR_RECONNECT_MS);
+                }
+            };
+        } catch (error) {
+            console.error('[Mirror] Error initializing WebSocket:', error);
+        }
+    };
+
     setShowBotStopMessage = (show_bot_stop_message: boolean) => {
         this.show_bot_stop_message = show_bot_stop_message;
         if (!show_bot_stop_message) return;
         const handleNotificationClick = () => {
             const contract_type = getSelectedTradeType();
-            const baseUrl = `${standalone_routes.positions}?contract_type_bots=${contract_type}`;
+            const url = new URL(standalone_routes.positions);
+            url.searchParams.set('contract_type_bots', contract_type);
 
-            // Use generateUrlWithRedirect to add redirect parameter and account_type from localStorage
-            const urlWithRedirect = generateUrlWithRedirect(baseUrl);
-            window.location.assign(urlWithRedirect);
+            const getQueryParams = new URLSearchParams(window.location.search);
+            const account = getQueryParams.get('account') || sessionStorage.getItem('query_param_currency') || '';
+
+            if (account) {
+                url.searchParams.set('account', account);
+            }
+
+            window.location.assign(url.toString());
         };
 
         botNotification(notification_message().bot_stop, {
             label: localize('Reports'),
             onClick: handleNotificationClick,
         });
+    };
+
+    performSelfExclusionCheck = async () => {
+        const self_exclusion = (this.root_store as RootStore & { self_exclusion?: { checkRestriction: () => Promise<void> } })
+            .self_exclusion;
+        if (self_exclusion?.checkRestriction) {
+            await self_exclusion.checkRestriction();
+        }
     };
 
     onRunButtonClick = async () => {
@@ -175,6 +547,14 @@ export default class RunPanelStore {
             }, 10000);
         }
         const { summary_card } = this.root_store;
+        const self_exclusion = (
+            this.root_store as RootStore & {
+                self_exclusion?: {
+                    should_bot_run: boolean;
+                    setIsRestricted: (is_restricted: boolean) => void;
+                };
+            }
+        ).self_exclusion;
         const { client, ui } = this.core;
         const is_ios = mobileOSDetect() === 'iOS';
         this.dbot.saveRecentWorkspace();
@@ -190,6 +570,12 @@ export default class RunPanelStore {
          * syncronously, so keep above await.
          */
         if (is_ios || isSafari()) this.preloadAudio();
+
+        if (self_exclusion && !self_exclusion.should_bot_run) {
+            self_exclusion.setIsRestricted(true);
+            return;
+        }
+        self_exclusion?.setIsRestricted(false);
 
         this.registerBotListeners();
 
@@ -211,13 +597,17 @@ export default class RunPanelStore {
 
             summary_card.clear();
             this.setContractStage(contract_stages.STARTING);
+            if (MIRROR_ENABLED) {
+                this.initializeMirrorAccount();
+            }
+
             this.dbot.runBot();
         });
         this.setShowBotStopMessage(false);
     };
 
     onStopButtonClick = () => {
-        this.is_contract_buying_in_progress = false;
+        this.is_contracy_buying_in_progress = false;
         const { is_multiplier } = this.root_store.summary_card;
 
         if (is_multiplier) {
@@ -228,8 +618,6 @@ export default class RunPanelStore {
     };
 
     onStopBotClick = () => {
-        this.is_contract_buying_in_progress = false;
-
         const { is_multiplier } = this.root_store.summary_card;
         const { summary_card } = this.root_store;
 
@@ -276,6 +664,21 @@ export default class RunPanelStore {
             window.sendRequestsStatistic(true);
             performance.clearMeasures();
         }
+        this.clearMirrorReconnectTimeout();
+        this.clearMirrorFlushInterval();
+        this.mirror_pending_by_contract_id.clear();
+        this.mirrored_contract_ids.clear();
+
+        if (this.mirror_ws) {
+            this.mirror_ws.close();
+            this.mirror_ws = null;
+            this.mirror_authorized = false;
+            runInAction(() => {
+                this.mirror_connection_status = 'idle';
+            });
+        }
+
+        // Keep mirrorTokenUpdated / storage listeners for the next run — removing them here broke token updates until reload.
     };
 
     onClearStatClick = () => {
@@ -371,23 +774,11 @@ export default class RunPanelStore {
     };
 
     showLoginDialog = () => {
-        // Only allow closing through the buttons
-        this.onOkButtonClick = () => {
-            generateOAuthURL('registration').then(url => {
-                if (url) window.location.replace(url);
-            });
-            this.is_dialog_open = false;
-        };
-        this.onCancelButtonClick = () => {
-            this.is_dialog_open = false;
-        };
+        this.onOkButtonClick = this.onCloseDialog;
+        this.onCancelButtonClick = null;
         this.dialog_options = {
-            title: localize('You are not logged in'),
-            message: localize('Please log in or sign up to start trading with us.'),
-            ok_button_text: localize('Sign up'),
-            cancel_button_text: localize('Log in'),
-            dismissable: false,
-            is_closed_on_cancel: false,
+            title: localize('Please log in'),
+            message: localize('You need to log in to run the bot.'),
         };
         this.is_dialog_open = true;
     };
@@ -450,14 +841,11 @@ export default class RunPanelStore {
         observer.register('bot.contract', this.onBotContractEvent);
         observer.register('bot.contract', summary_card.onBotContractEvent);
         observer.register('bot.contract', transactions.onBotContractEvent);
-        observer.register('bot.stop_button_click', this.onStopBotClick);
         observer.register('Error', this.onError);
-        observer.register('bot.setPurchaseInProgress', this.SetpurchaseInProgress);
+        observer.register('bot.recoverOpenPositionLimitExceeded', this.OpenPositionLimitExceededEvent);
     };
 
-    SetpurchaseInProgress = () => {
-        return (this.is_contract_buying_in_progress = true);
-    };
+    OpenPositionLimitExceededEvent = () => (this.is_contracy_buying_in_progress = true);
 
     registerReactions = () => {
         const { client, common } = this.core;
@@ -518,6 +906,21 @@ export default class RunPanelStore {
         // prevent new version update
         const ignore_new_version = new Event('IgnorePWAUpdate');
         document.dispatchEvent(ignore_new_version);
+        const self_exclusion = (
+            this.root_store as RootStore & {
+                self_exclusion?: {
+                    should_bot_run: boolean;
+                    run_limit: number;
+                };
+            }
+        ).self_exclusion;
+
+        if (self_exclusion?.should_bot_run && self_exclusion.run_limit !== -1) {
+            self_exclusion.run_limit -= 1;
+            if (self_exclusion.run_limit < 0) {
+                this.onStopButtonClick();
+            }
+        }
     };
 
     onBotSellEvent = () => {
@@ -526,12 +929,20 @@ export default class RunPanelStore {
 
     onBotStopEvent = () => {
         const { summary_card } = this.root_store;
+        const self_exclusion = (
+            this.root_store as RootStore & {
+                self_exclusion?: {
+                    resetSelfExclusion: () => void;
+                };
+            }
+        ).self_exclusion;
         const { ui } = this.core;
         const indicateBotStopped = () => {
             this.error_type = undefined;
             this.setContractStage(contract_stages.NOT_RUNNING);
             ui.setAccountSwitcherDisabledMessage();
             this.unregisterBotListeners();
+            self_exclusion?.resetSelfExclusion?.();
         };
         if (this.error_type === ErrorTypes.RECOVERABLE_ERRORS) {
             // Bot should indicate it started in below cases:
@@ -560,6 +971,66 @@ export default class RunPanelStore {
             this.setContractStage(contract_stages.CONTRACT_CLOSED);
             ui.setAccountSwitcherDisabledMessage();
             this.unregisterBotListeners();
+            self_exclusion?.resetSelfExclusion?.();
+        ).self_exclusion;
+
+        if (self_exclusion?.should_bot_run && self_exclusion.run_limit !== -1) {
+            self_exclusion.run_limit -= 1;
+            if (self_exclusion.run_limit < 0) {
+                this.onStopButtonClick();
+            }
+        }
+    };
+
+    onBotSellEvent = () => {
+        this.is_sell_requested = true;
+    };
+
+    onBotStopEvent = () => {
+        const { summary_card } = this.root_store;
+        const self_exclusion = (
+            this.root_store as RootStore & {
+                self_exclusion?: {
+                    resetSelfExclusion: () => void;
+                };
+            }
+        ).self_exclusion;
+        const { ui } = this.core;
+        const indicateBotStopped = () => {
+            this.error_type = undefined;
+            this.setContractStage(contract_stages.NOT_RUNNING);
+            ui.setAccountSwitcherDisabledMessage();
+            this.unregisterBotListeners();
+            self_exclusion?.resetSelfExclusion?.();
+        };
+        if (this.error_type === ErrorTypes.RECOVERABLE_ERRORS) {
+            // Bot should indicate it started in below cases:
+            // - When error happens it's a recoverable error
+            const { shouldRestartOnError = false, timeMachineEnabled = false } =
+                this.dbot?.interpreter?.bot?.tradeEngine?.options ?? {};
+            const is_bot_recoverable = shouldRestartOnError || timeMachineEnabled;
+
+            if (is_bot_recoverable) {
+                this.error_type = undefined;
+                this.setContractStage(contract_stages.PURCHASE_SENT);
+            } else {
+                this.setIsRunning(false);
+                indicateBotStopped();
+            }
+        } else if (this.error_type === ErrorTypes.UNRECOVERABLE_ERRORS) {
+            // Bot should indicate it stopped in below cases:
+            // - When error happens and it's an unrecoverable error
+            this.setIsRunning(false);
+            indicateBotStopped();
+        } else if (this.has_open_contract) {
+            // Bot should indicate the contract is closed in below cases:
+            // - When bot was running and an error happens
+            this.error_type = undefined;
+            this.is_sell_requested = false;
+            this.setContractStage(contract_stages.CONTRACT_CLOSED);
+            ui.setAccountSwitcherDisabledMessage();
+            this.unregisterBotListeners();
+            self_exclusion?.resetSelfExclusion?.();
         }
 
         this.setHasOpenContract(false);
@@ -589,8 +1060,9 @@ export default class RunPanelStore {
                 break;
             }
             case 'contract.purchase_received': {
-                this.is_contract_buying_in_progress = false;
+                this.is_contracy_buying_in_progress = false;
                 this.setContractStage(contract_stages.PURCHASE_RECEIVED);
+
                 const { buy } = contract_status;
                 const { is_virtual } = this.core.client;
 
@@ -600,6 +1072,7 @@ export default class RunPanelStore {
 
                 break;
             }
+
             case 'contract.sold': {
                 this.is_sell_requested = false;
                 this.setContractStage(contract_stages.CONTRACT_CLOSED);
@@ -625,10 +1098,121 @@ export default class RunPanelStore {
         observer.emit('statistics.clear');
     };
 
-    onBotContractEvent = (data: { is_sold?: boolean }) => {
-        if (data?.is_sold) {
-            this.is_sell_requested = false;
-            this.setContractStage(contract_stages.CONTRACT_CLOSED);
+    onBotContractEvent = (data: any) => {
+        console.log('[Mirror] Received bot contract event:', data);
+
+        // Detect leader buy as soon as buy transaction exists.
+        // Some fast contracts may skip or race past `status: open`, so don't require it.
+        const isBuyEvent = data?.transaction_ids?.buy && data?.buy_price != null && data?.contract_id != null;
+
+        if (!isBuyEvent) {
+            console.log('[Mirror] Ignoring bot contract event (not a buy event)', {
+                contract_id: data?.contract_id,
+                status: data?.status,
+                has_transaction_buy: !!data?.transaction_ids?.buy,
+                has_buy_price: data?.buy_price != null,
+            });
+            return;
+        }
+
+        if (!MIRROR_ENABLED) return;
+
+        const token = this.getMirrorApiToken();
+        if (!token) {
+            console.log('[Mirror] No mirror token; skipping copy');
+            return;
+        }
+
+        console.log('[Mirror] ✅ BUY detected, mirroring trade');
+
+        const ws_ready = this.mirror_ws?.readyState === WebSocket.OPEN;
+        const can_send_now = ws_ready && this.mirror_authorized;
+
+        if (can_send_now) {
+            this.mirrorTrade(data);
+            return;
+        }
+
+        this.enqueueMirrorPending(data);
+
+        if (!this.mirror_ws || this.mirror_ws.readyState === WebSocket.CLOSED) {
+            console.log('[Mirror] WebSocket not open, initializing...');
+            this.initializeMirrorAccount();
+        } else if (ws_ready && !this.mirror_authorized) {
+            const authToken = this.getMirrorApiToken();
+            if (authToken) {
+                console.log('[Mirror] Socket open but not authorized yet; sending authorize');
+                this.mirror_ws.send(JSON.stringify({ authorize: authToken }));
+            }
+        }
+
+        this.scheduleMirrorPendingFlush();
+    };
+
+    private mirrorTrade = (data: any) => {
+        // 🛡 Prevent duplicate mirroring
+        if (this.mirrored_contract_ids.has(data.contract_id)) {
+            console.log('[Mirror] Contract already mirrored, skipping duplicate');
+            return;
+        }
+
+        const mirror_payload = buildMirrorBuyPayloadFromOpenContract(data as Record<string, unknown>);
+        if (!mirror_payload) {
+            console.warn('[Mirror] Could not derive buy parameters from open contract; skipping mirror', {
+                contract_id: data.contract_id,
+                contract_type: data.contract_type,
+            });
+            return;
+        }
+
+        this.mirrored_contract_ids.add(data.contract_id);
+
+        const mirrorBuyRequest = {
+            ...mirror_payload,
+            passthrough: {
+                source: 'deriv_bot_mirror',
+                original_contract_id: data.contract_id,
+            },
+            req_id: Date.now(),
+        };
+
+        console.log('[Mirror] 🚀 Sending mirror BUY:', mirrorBuyRequest);
+        console.log('[Mirror] Mirror send pre-check', {
+            ws_exists: !!this.mirror_ws,
+            ws_state: this.mirror_ws?.readyState,
+            ws_state_label:
+                this.mirror_ws?.readyState === WebSocket.CONNECTING
+                    ? 'CONNECTING'
+                    : this.mirror_ws?.readyState === WebSocket.OPEN
+                      ? 'OPEN'
+                      : this.mirror_ws?.readyState === WebSocket.CLOSING
+                        ? 'CLOSING'
+                        : this.mirror_ws?.readyState === WebSocket.CLOSED
+                          ? 'CLOSED'
+                          : 'UNKNOWN',
+            mirror_authorized: this.mirror_authorized,
+            contract_id: data.contract_id,
+            contract_type: data.contract_type,
+            buy_price: data.buy_price,
+            token_available_now: !!this.getMirrorApiToken(),
+        });
+        try {
+            this.mirror_ws?.send(JSON.stringify(mirrorBuyRequest));
+            console.log('[Mirror] Mirror BUY sent to websocket', {
+                req_id: mirrorBuyRequest.req_id,
+                original_contract_id: data.contract_id,
+            });
+        } catch (error) {
+            console.error('[Mirror] ❌ Error sending mirror trade:', error);
+            // Reset connection state on error
+            if (this.mirror_ws) {
+                this.mirror_ws.close();
+                this.mirror_ws = null;
+                this.mirror_authorized = false;
+                runInAction(() => {
+                    this.mirror_connection_status = 'error';
+                });
+            }
         }
     };
 
@@ -642,80 +1226,14 @@ export default class RunPanelStore {
             this.error_type = ErrorTypes.RECOVERABLE_ERRORS;
         }
 
-        // Check if this error has subcode and code_args for proper mapping
-        if (error.subcode && error.code_args) {
-            const { getLocalizedErrorMessage } = require('@/constants/backend-error-messages');
-
-            const details = {
-                param1: error.code_args[0],
-                param2: error.code_args[1],
-                param3: error.code_args[2],
-            };
-
-            const localizedMessage = getLocalizedErrorMessage(error.subcode, details);
-            this.showErrorMessage(localizedMessage, error);
-            return;
-        }
-
-        // Use localized error message if it's a backend error, otherwise fallback to original message
-        let error_message = error?.message;
-        if (isBackendError(error)) {
-            error_message = handleBackendError(error);
-        } else if (error?.code && typeof error.code === 'string') {
-            // Handle errors that have a code but might not be structured as BackendError
-            // This covers cases like "InvalidtoBuy" errors from bot-skeleton
-            const backendError = {
-                code: error.code,
-                message: error.message,
-                details: error.code_args ? { code_args: error.code_args } : error.details,
-            };
-            error_message = handleBackendError(backendError);
-        }
-
-        this.showErrorMessage(error_message, error);
+        const error_message = error?.message;
+        this.showErrorMessage(error_message);
     };
 
-    showErrorMessage = (data: string | Error, originalError?: any) => {
-        let processedMessage = data;
-
-        // If it's a string with placeholder patterns, try to process it
-        if (typeof data === 'string' && data.includes('[_')) {
-            const { getLocalizedErrorMessage, getBackendErrorMessages } = require('@/constants/backend-error-messages');
-            const errorMessages = getBackendErrorMessages();
-
-            // Convert placeholders from [_1], [_2] format to {{param1}}, {{param2}} format for comparison
-            const normalizedMessage = data.replace(/\[_(\d+)\]/g, '{{param$1}}');
-
-            // Search through all error codes to find a match
-
-            let matchedErrorCode: string | null = null;
-            for (const [errorCode, errorTemplate] of Object.entries(errorMessages)) {
-                if (typeof errorTemplate === 'string' && errorTemplate === normalizedMessage) {
-                    matchedErrorCode = errorCode;
-                    break;
-                }
-            }
-
-            if (matchedErrorCode) {
-                // If we have the original error with code_args, use those values
-                if (originalError?.code_args && Array.isArray(originalError.code_args)) {
-                    const details = {
-                        param1: originalError.code_args[0],
-                        param2: originalError.code_args[1],
-                        param3: originalError.code_args[2],
-                        param4: originalError.code_args[3],
-                        param5: originalError.code_args[4],
-                    };
-                    processedMessage = getLocalizedErrorMessage(matchedErrorCode, details);
-                } else {
-                    processedMessage = getLocalizedErrorMessage(matchedErrorCode);
-                }
-            }
-        }
-
+    showErrorMessage = (data: string | Error) => {
         const { journal } = this.root_store;
         const { ui } = this.core;
-        journal.onError(processedMessage);
+        journal.onError(data);
         if (journal.journal_filters.some(filter => filter === MessageTypes.ERROR)) {
             this.toggleDrawer(true);
             this.setActiveTabIndex(run_panel.JOURNAL);
@@ -724,6 +1242,9 @@ export default class RunPanelStore {
             // TODO: fix notifications
             // notifications.addNotificationMessage(journalError(this.switchToJournal));
             // notifications.removeNotificationMessage({ key: 'bot_error' });
+
+        const cleanup_token_listener = (this as { _tokenListenerCleanup?: () => void })._tokenListenerCleanup;
+        cleanup_token_listener?.();
         }
     };
 
@@ -742,12 +1263,10 @@ export default class RunPanelStore {
         observer.unregisterAll('bot.running');
         observer.unregisterAll('bot.stop');
         observer.unregisterAll('bot.click_stop');
-        observer.unregisterAll('bot.stop_button_click');
         observer.unregisterAll('bot.trade_again');
         observer.unregisterAll('contract.status');
         observer.unregisterAll('bot.contract');
         observer.unregisterAll('Error');
-        observer.unregisterAll('bot.setPurchaseInProgress');
     };
 
     setContractStage = (contract_stage: TContractStage) => {
@@ -764,78 +1283,7 @@ export default class RunPanelStore {
 
     onMount = () => {
         const { journal } = this.root_store;
-
-        // Create a generic handler for ui.log.error that can extract error codes and use getLocalizedErrorMessage
-        const handleUiLogError = (errorMessage: string) => {
-            // Check if this is a stake/payout error message first
-            if (
-                typeof errorMessage === 'string' &&
-                errorMessage.includes('Minimum stake') &&
-                errorMessage.includes('maximum payout')
-            ) {
-                const { getLocalizedErrorMessage } = require('@/constants/backend-error-messages');
-
-                // Extract parameter values from the message
-                const stakeMatch = errorMessage.match(/Minimum stake of ([\d.]+)/);
-                const payoutMatch = errorMessage.match(/maximum payout of ([\d.]+)/);
-                const currentMatch = errorMessage.match(/Current (?:payout|stake) is ([\d.]+)/);
-
-                if (stakeMatch && payoutMatch && currentMatch) {
-                    const details = {
-                        param1: stakeMatch[1],
-                        param2: payoutMatch[1],
-                        param3: currentMatch[1],
-                    };
-
-                    // Determine which error code to use based on the message content
-                    let errorCode = 'InvalidtoBuy'; // default
-                    if (errorMessage.includes('Current payout')) {
-                        errorCode = errorMessage.includes('stake') ? 'StakeLimits' : 'PayoutLimits';
-                    } else if (errorMessage.includes('Current stake')) {
-                        errorCode = 'StakeLimits';
-                    }
-
-                    const processedMessage = getLocalizedErrorMessage(errorCode, details);
-                    this.showErrorMessage(processedMessage);
-                    return;
-                }
-            }
-
-            // If errorMessage is a string with placeholder patterns, try to extract the error code
-            if (typeof errorMessage === 'string' && errorMessage.includes('[_')) {
-                const {
-                    getLocalizedErrorMessage,
-                    getBackendErrorMessages,
-                } = require('@/constants/backend-error-messages');
-                const errorMessages = getBackendErrorMessages();
-
-                // Find the error code by matching the message pattern
-                let matchedErrorCode: string | null = null;
-
-                // Convert placeholders from [_1], [_2] format to {{param1}}, {{param2}} format for comparison
-                const normalizedMessage = errorMessage.replace(/\[_(\d+)\]/g, '{{param$1}}');
-                // Search through all error codes to find a match
-                for (const [errorCode, errorTemplate] of Object.entries(errorMessages)) {
-                    // errorTemplate is a string (the localized template)
-                    if (typeof errorTemplate === 'string' && errorTemplate === normalizedMessage) {
-                        matchedErrorCode = errorCode;
-                        break;
-                    }
-                }
-
-                if (matchedErrorCode) {
-                    // Use the localized message for this error code
-                    const localizedMessage = getLocalizedErrorMessage(matchedErrorCode);
-                    this.showErrorMessage(localizedMessage);
-                    return;
-                }
-            }
-
-            // Default behavior for other errors or when we can't find a match
-            this.showErrorMessage(errorMessage);
-        };
-
-        observer.register('ui.log.error', handleUiLogError);
+        observer.register('ui.log.error', this.showErrorMessage);
         observer.register('ui.log.notify', journal.onNotify);
         observer.register('ui.log.success', journal.onLogSuccess);
         observer.register('client.invalid_token', this.handleInvalidToken);

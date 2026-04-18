@@ -8,9 +8,13 @@
     }
 }
 
+.tabs-shadow {
+    display: none;
+}
+
 .main {
     display: flex;
-    overflow: hidden;
+    overflow: auto;
     width: 100%;
     height: calc(100vh - 9rem);
     padding: 1.6rem;
@@ -25,36 +29,42 @@
         border: none;
         max-width: 100%;
         width: 100%;
-        flex: 1 1 0;
         min-height: 0;
+        flex: 1;
+        align-self: stretch;
         display: flex;
         flex-direction: column;
 
-        &.no-scroll {
-            overflow: hidden;
-        }
-
-        .main__tab-surface {
-            flex: 1 1 0;
+        /* Let tab panels (e.g. Copy Trading) fill height and scroll internally instead of growing .main */
+        > div {
+            flex: 1 1 auto;
             min-height: 0;
             display: flex;
             flex-direction: column;
-            width: 100%;
         }
 
-        .dc-tabs.dc-tabs--top {
-            flex: 1 1 0;
+        .dc-tabs.dc-tabs--top.dc-tabs--main__tabs {
+            flex: 1 1 auto;
             min-height: 0;
-            width: 100%;
+            overflow: hidden;
         }
 
         .dc-tabs__content.dc-tabs__content--main__tabs {
-            flex: 1 1 0;
             min-height: 0;
-            width: 100%;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
+            overflow: hidden;
+            flex: 1 1 auto;
+
+            /* Free Bots: fill tab row (grid 1fr) and scroll inside, not clip at fixed vh */
+            .free-bots {
+                min-height: 0;
+                height: 100%;
+                max-height: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+        &.no-scroll {
+            overflow: hidden;
         }
 
         &--active {
@@ -67,30 +77,134 @@
                 width: 100%;
                 height: 100%;
                 background: rgb(0 0 0 / 72%);
-                opacity: 0.7;
+                opacity: 0.8;
                 z-index: 100;
             }
         }
 
         .dc-tabs {
+            /* accent gradient stops that will be reused for borders/backgrounds */
+            --tab-accent-from: color-mix(in srgb, var(--general-main-2) 78%, var(--accent-blue-900, #1e3a8a) 22%);
+            --tab-accent-mid: color-mix(in srgb, var(--general-main-2) 70%, var(--accent-leaf-700, #15803d) 30%);
+            --tab-accent-to: color-mix(in srgb, var(--general-main-2) 82%, var(--accent-blue-900, #1e3a8a) 18%);
+            --tab-blue-900: var(--accent-blue-900, #1e3a8a);
+            --tab-glow: rgba(30, 58, 138, 0.18);
+            --tab-hover-bg: rgba(21, 128, 61, 0.08);
+            --tab-active-bg: rgba(30, 58, 138, 0.1);
+            /* convenience vars for borders and gradients */
+            --tab-border-default: 1px solid transparent;
+            --tab-border-hover: 1px solid var(--tab-accent-mid);
+            /* Eco-Tech: clean blue-900 → leaf gradient */
+            /* More creative, but still Eco‑Tech */
+            --tab-active-gradient: linear-gradient(
+                135deg,
+                var(--accent-blue-900, #1e3a8a) 0%,
+                var(--accent-blue-700, #1d4ed8) 45%,
+                var(--accent-leaf-700, #15803d) 100%
+            );
+
+            &__list--header--main__tabs {
+                @include desktop-screen {
+                    background:
+                        linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 12%),
+                        linear-gradient(
+                            135deg,
+                            color-mix(in srgb, var(--general-main-2) 86%, rgba(30, 58, 138, 0.12) 14%) 0%,
+                            var(--general-main-2) 45%,
+                            color-mix(in srgb, var(--general-main-2) 82%, rgba(21, 128, 61, 0.12) 18%) 100%
+                        );
+                    border-radius: 0;
+                    padding: 0.25rem 0.5rem 0 0.5rem;
+                    box-shadow:
+                        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                        0 4px 24px rgba(76, 29, 149, 0.12),
+                        0 1px 0 var(--border-normal);
+                    border: 1px solid var(--border-divider);
+                    border-bottom: none;
+                }
+
+                @include mobile-or-tablet-screen {
+                    background: linear-gradient(
+                        180deg,
+                        color-mix(in srgb, var(--general-section-1) 90%, var(--tab-blue-900) 10%) 0%,
+                        var(--general-section-1) 100%
+                    );
+                    padding: 0;
+                    border: none;
+                    border-radius: 0;
+                    box-shadow: 0 2px 12px rgba(76, 29, 149, 0.08);
+                }
+            }
+
             &__active-line {
-                background-color: var(--general-main-1);
-                transition: none;
+                @include desktop-screen {
+                    height: 3px;
+                    bottom: -3px;
+                    border-radius: 0;
+                    background: linear-gradient(
+                        90deg,
+                        var(--tab-accent-from) 0%,
+                        var(--tab-accent-mid) 50%,
+                        var(--tab-accent-to) 100%
+                    );
+                    box-shadow: 0 0 20px var(--tab-glow);
+                    transition:
+                        left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                        width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                @include mobile-or-tablet-screen {
+                    height: 2px;
+                    bottom: -2px;
+                    background: var(--tab-accent-mid);
+                }
             }
 
             &__active {
-                background: var(--general-main-1);
+                /* active tab is black */
+                background: #000 !important;
+                font-weight: 700;
+                color: #fff !important;
+
+                @include desktop-screen {
+                    box-shadow: none;
+                    border: var(--tab-border-hover);
+
+                    svg {
+                        fill: #fff !important;
+                        filter: none;
+                    }
+                }
+
+                @include mobile-or-tablet-screen {
+                    box-shadow: none;
+                    border: var(--tab-border-hover);
+
+                    svg {
+                        fill: #fff !important;
+                    }
+                }
             }
 
             &__list {
-                background: var(--general-section-1);
+                background: white;
                 justify-content: start;
+                border-bottom: none;
+
+                @include desktop-screen {
+                    gap: 0.5rem; // ← increased for visible spacing between tabs
+                }
 
                 @include mobile-or-tablet-screen {
+                    gap: 0.4rem; // ← added spacing on mobile too
                     overflow-x: auto;
                     overflow-y: hidden;
                     -ms-overflow-style: none;
                     scrollbar-width: none;
+                    padding: 0 1.6rem;
+                    margin: 0 -1.6rem;
+                    min-width: 100%;
+                    flex-wrap: nowrap;
 
                     &::-webkit-scrollbar {
                         display: none;
@@ -103,7 +217,7 @@
                             @include mobile-or-tablet-screen {
                                 width: 100%;
                                 overflow-x: auto;
-                                padding: 0.8rem 1.6rem 0;
+                                padding: 0.8rem 0 0;
                             }
                         }
                     }
@@ -117,9 +231,23 @@
             }
 
             &__content {
-                width: 100%;
+                background: var(--general-main-1);
+
+                @include desktop-screen {
+                    border: 1px solid var(--border-normal);
+                    border-top: none;
+                    border-radius: 0 0 1rem 1rem;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+                }
 
                 @include mobile-or-tablet-screen {
+                    border: none;
+                    border-radius: 0;
+                    box-shadow: none;
+                }
+
+                @include mobile-or-tablet-screen {
+                    width: 100%;
                     overflow-x: auto;
 
                     &--no-result {
@@ -150,6 +278,20 @@
                         display: flex;
                         justify-content: space-between;
 
+                        @include desktop-screen {
+                            flex-direction: row;
+                            align-items: stretch;
+                            flex-wrap: nowrap;
+                            min-height: 0;
+
+                            /* Dashboard + info panel side-by-side; drop fixed 100% width on main column */
+                            .tab__dashboard {
+                                flex: 1 1 0%;
+                                min-width: 0;
+                                width: auto;
+                            }
+                        }
+
                         @include mobile-or-tablet-screen {
                             flex-direction: column;
                             background-color: var(--general-section-1);
@@ -159,22 +301,161 @@
             }
 
             &__item {
-                border-top-left-radius: 1rem;
-                border-top-right-radius: 1rem;
-                height: 4.8rem;
-                padding: 0 2rem;
-                width: auto;
                 font-weight: 700;
+                transition:
+                    background 0.2s ease,
+                    color 0.2s ease,
+                    box-shadow 0.2s ease,
+                    border-color 0.2s ease;
+                position: relative;
+                border: 1px solid color-mix(in srgb, var(--border-divider) 65%, transparent);
+                background: color-mix(in srgb, var(--general-main-2) 85%, rgba(30, 58, 138, 0.06) 15%);
+                color: var(--text-prominent) !important;
 
                 @include flex-center;
 
+                @include desktop-screen {
+                    border-radius: 0.6rem;
+                    margin: 0.2rem;
+                    height: 4rem;
+                    padding: 0 1rem;
+                    width: auto;
+                    min-width: 5rem;
+                    transform: translateY(0);
+                    font-size: 1.4rem;
+                    letter-spacing: -0.02em;
+                    color: var(--text-prominent) !important;
+
+                    svg {
+                        fill: currentColor !important;
+                    }
+
+                    &:hover:not(.dc-tabs__active) {
+                        background: color-mix(in srgb, var(--general-main-2) 78%, rgba(22, 163, 74, 0.1) 22%);
+                        color: var(--text-prominent) !important;
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 12px var(--tab-glow);
+                        border-color: var(--tab-accent-mid);
+
+                        svg {
+                            fill: currentColor !important;
+                        }
+                    }
+
+                    &:active:not(.dc-tabs__active) {
+                        transform: translateY(0);
+                        box-shadow: none;
+                    }
+                }
+
+                @include mobile-or-tablet-screen {
+                    flex: 0 0 auto;
+                    width: max-content;
+                    min-width: 8rem;
+                    height: 4.4rem;
+                    padding: 0 0.8rem;
+                    border-radius: 0.6rem;
+                    margin: 0.2rem;
+                    font-size: 1.3rem;
+                    color: var(--text-prominent) !important;
+                    border: 1px solid color-mix(in srgb, var(--border-divider) 65%, transparent);
+
+                    svg {
+                        fill: currentColor !important;
+                    }
+
+                    &:hover:not(.dc-tabs__active) {
+                        background: color-mix(in srgb, var(--general-main-2) 78%, rgba(29, 78, 216, 0.09) 22%);
+                        box-shadow: none;
+                        border-color: var(--tab-accent-mid);
+                    }
+
+                    &:active:not(.dc-tabs__active) {
+                        box-shadow: none;
+                    }
+
+                    &:last-child {
+                        margin-inline-end: 1.6rem;
+                    }
+
+                    &:first-child {
+                        margin-inline-start: 0;
+                    }
+                }
+
                 svg {
                     padding-inline-end: 0;
-                    margin-inline-end: 0.8rem;
+                    margin-inline-end: 0.75rem;
+                    transition:
+                        fill 0.2s ease,
+                        filter 0.2s ease;
 
                     @include mobile-or-tablet-screen {
                         margin-inline-end: 0.4rem;
                     }
+                }
+
+                /* react-icons (MainTabIcon): per-tab accent when inactive; active tab = white + glow */
+                .main-tab-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    margin-inline-end: 0.4rem;
+                    transition:
+                        color 0.2s ease,
+                        filter 0.2s ease;
+
+                    @include desktop-screen {
+                        margin-inline-end: 0.55rem;
+                    }
+
+                    svg {
+                        display: block;
+                        margin-inline-end: 0 !important;
+                        padding-inline-end: 0 !important;
+                        fill: currentColor !important;
+                    }
+
+                    &--dashboard {
+                        color: #93c5fd;
+                    }
+
+                    &--bot-builder {
+                        color: #d8b4fe;
+                    }
+
+                    &--free-bots {
+                        color: #6ee7b7;
+                    }
+
+                    &--trader {
+                        color: #fcd34d;
+                    }
+
+                    &--copy-trading {
+                        color: #67e8f9;
+                    }
+
+                    &--charts {
+                        color: #fda4af;
+                    }
+
+                    &--analysis {
+                        color: #a5b4fc;
+                    }
+                }
+
+                &.dc-tabs__active {
+                    background: var(--tab-active-gradient);
+                    color: #fff !important;
+                    border-color: transparent;
+                    box-shadow: 0 8px 22px rgba(30, 58, 138, 0.18);
+                }
+
+                &.dc-tabs__active .main-tab-icon {
+                    color: #fff !important;
+                    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.22));
                 }
 
                 &__icon {
@@ -614,6 +895,7 @@
     &__content {
         text-align: center;
         padding: 0 1.6rem;
+        margin-bottom: 1.6rem;
 
         @include mobile-or-tablet-screen {
             line-height: 1.8;
@@ -630,7 +912,7 @@
         text-align: center;
         width: 100%;
         height: 55%;
-        margin-bottom: auto;
+        margin-bottom: 1.6rem;
     }
 
     img {
@@ -648,6 +930,8 @@
 
     &__status {
         width: 100%;
+        position: fixed;
+        bottom: 1.6rem;
     }
 
     &__button-group {
@@ -684,15 +968,11 @@
     }
 
     &__bot-builder-tour {
-        height: auto;
+        height: 16rem;
         background: var(--general-section-1);
 
         .dbot-slider {
             width: 100%;
-
-            &__content {
-                margin-bottom: auto;
-            }
 
             &__status {
                 @include flex-center(flex-start);
@@ -715,7 +995,6 @@
                 width: 50%;
                 display: flex;
                 justify-content: center;
-                padding: 1rem 0;
 
                 .default {
                     background: transparent;
