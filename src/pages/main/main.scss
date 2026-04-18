@@ -55,7 +55,7 @@
             flex: 1 1 auto;
 
             /* Free Bots: fill tab row (grid 1fr) and scroll inside, not clip at fixed vh */
-            .free-bots {
+            .free-bots-page {
                 min-height: 0;
                 height: 100%;
                 max-height: 100%;
