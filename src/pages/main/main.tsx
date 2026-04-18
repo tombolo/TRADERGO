@@ -344,7 +344,11 @@ const AppWrapper = observer(() => {
                                 }
                                 id='id-trader'
                             >
-                                <Trader />
+                                <Suspense
+                                    fallback={<TabLoader message={localize('Loading D Trader...')} />}
+                                >
+                                    <Trader />
+                                </Suspense>
                             </div>
                             <div
                                 label={

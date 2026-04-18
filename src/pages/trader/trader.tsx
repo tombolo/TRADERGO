@@ -17,7 +17,7 @@ interface DTraderAutoLoginProps {
 }
 
 const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
-    dtraderUrl = 'https://dtradergo.vercel.app/dtrader/',
+    dtraderUrl = 'https://dtradergo.vercel.app/',
     appId = 114793,
     defaultSymbol = '1HZ100V',
     clientId = '331HG8bYWhTamAKBhuryf',
@@ -60,9 +60,9 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     if (clientAccounts[loginId]?.currency) {
                         currency = clientAccounts[loginId].currency!;
                     }
-                } catch (error) {
-                    console.error('Error parsing client accounts:', error);
-                    setError('Error loading account information');
+                } catch (parseErr) {
+                    console.error('Error parsing client accounts:', parseErr);
+                    // Keep default currency; still load iframe so the tab is not blank
                 }
 
                 const params = new URLSearchParams({
@@ -185,7 +185,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    height: '300px',
+                    minHeight: '40vh',
                     flexDirection: 'column',
                     gap: '15px',
                 }}
@@ -242,8 +242,9 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     backgroundColor: '#f5f5f5',
                     minHeight: 0, // Allows the iframe to shrink below its content size
                 }}
-                sandbox='allow-same-origin allow-scripts allow-popups allow-forms'
-                allow='clipboard-read; clipboard-write'
+                // No sandbox: third-party DTrader needs full API/WebSocket; strict sandbox often yields a blank iframe
+                allow='clipboard-read; clipboard-write; fullscreen *'
+                allowFullScreen
                 loading='eager'
             />
         </div>
