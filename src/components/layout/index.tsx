@@ -201,7 +201,7 @@ const Layout = observer(() => {
                     <div className='install-banner__content'>
                         <img src='/assets/images/MERRICK.png' alt='Merrick app icon' className='install-banner__icon' />
                         <div className='install-banner__text'>
-                            <span className='install-banner__title'>Install Merrick Trading Hub</span>
+                            <span className='install-banner__title'>Install TRADER GO</span>
                             <span className='install-banner__subtitle'>
                                 Download and install the app for a fast, full-screen trading experience.
                             </span>
