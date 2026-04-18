@@ -18,9 +18,7 @@ import { useOauth2 } from '@/hooks/auth/useOauth2';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
 import useTMB from '@/hooks/useTMB';
-import { handleOidcAuthFailure } from '@/utils/auth-utils';
 import { MainTabIcon } from './main-tab-icons';
-import { requestOidcAuthentication } from '@deriv-com/auth-client';
 import { Localize, localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
 import RunPanel from '../../components/run-panel';
@@ -33,7 +31,7 @@ const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
 const Trader = lazy(() => import('../trader/trader'));
 const FreeBots = lazy(() => import('../free-bots'));
 const CopyTrading = lazy(() => import('../copy/copy'));
-const AnalysisTools = lazy(() => import('../tools-hub'));
+const AnalysisTools = lazy(() => import('../analysis-tools'));
 
 const AppWrapper = observer(() => {
     const { connectionStatus } = useApiBase();
@@ -239,19 +237,14 @@ const AppWrapper = observer(() => {
                 if (tmbEnabled) {
                     await onRenderTMBCheck();
                 } else {
-                    try {
-                        await requestOidcAuthentication({
-                            redirectCallbackUri: `${window.location.origin}/callback`,
-                            ...(query_param_currency
-                                ? {
-                                      state: {
-                                          account: query_param_currency,
-                                      },
-                                  }
-                                : {}),
-                        });
-                    } catch (err) {
-                        handleOidcAuthFailure(err);
+                    const oauth_url = await generateOAuthURL(query_param_currency ? 'login' : undefined);
+                    if (oauth_url) {
+                        window.location.replace(oauth_url);
+                    } else {
+                        const fallback_oauth_url = await generateOAuthURL();
+                        if (fallback_oauth_url) {
+                            window.location.replace(fallback_oauth_url);
+                        }
                     }
                 }
             } catch (error) {

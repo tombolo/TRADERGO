@@ -410,8 +410,7 @@ export default class RunPanelStore {
                     console.log('[Mirror] Received message:', data);
 
                     const is_authorize_reply =
-                        data.msg_type === 'authorize' ||
-                        (data.echo_req && typeof data.echo_req.authorize === 'string');
+                        data.msg_type === 'authorize' || typeof data.echo_req?.authorize === 'string';
 
                     if (is_authorize_reply) {
                         if (data.error) {
@@ -972,13 +971,6 @@ export default class RunPanelStore {
             ui.setAccountSwitcherDisabledMessage();
             this.unregisterBotListeners();
             self_exclusion?.resetSelfExclusion?.();
-        ).self_exclusion;
-
-        if (self_exclusion?.should_bot_run && self_exclusion.run_limit !== -1) {
-            self_exclusion.run_limit -= 1;
-            if (self_exclusion.run_limit < 0) {
-                this.onStopButtonClick();
-            }
         }
     };
 
@@ -1245,6 +1237,65 @@ export default class RunPanelStore {
 
         const cleanup_token_listener = (this as { _tokenListenerCleanup?: () => void })._tokenListenerCleanup;
         cleanup_token_listener?.();
+        }
+    };
+
+    switchToJournal = () => {
+        const { journal } = this.root_store;
+        journal.journal_filters.push(MessageTypes.ERROR);
+        this.setActiveTabIndex(run_panel.JOURNAL);
+        this.toggleDrawer(true);
+
+        // TODO: fix notifications
+        // notifications.toggleNotificationsModal();
+        // notifications.removeNotificationByKey({ key: 'bot_error' });
+    };
+
+    unregisterBotListeners = () => {
+        observer.unregisterAll('bot.running');
+        observer.unregisterAll('bot.stop');
+        observer.unregisterAll('bot.click_stop');
+        observer.unregisterAll('bot.trade_again');
+        observer.unregisterAll('contract.status');
+        observer.unregisterAll('bot.contract');
+        observer.unregisterAll('Error');
+    };
+
+    setContractStage = (contract_stage: TContractStage) => {
+        this.contract_stage = contract_stage;
+    };
+
+    setHasOpenContract = (has_open_contract: boolean) => {
+        this.has_open_contract = has_open_contract;
+    };
+
+    setIsRunning = (is_running: boolean) => {
+        this.is_running = is_running;
+    };
+
+    onMount = () => {
+        const { journal } = this.root_store;
+        observer.register('ui.log.error', this.showErrorMessage);
+        observer.register('ui.log.notify', journal.onNotify);
+        observer.register('ui.log.success', journal.onLogSuccess);
+        observer.register('client.invalid_token', this.handleInvalidToken);
+    };
+
+    onUnmount = () => {
+        const { journal, summary_card, transactions } = this.root_store;
+
+        if (!this.is_running) {
+            this.unregisterBotListeners();
+            this.disposeReactionsFn();
+            journal.disposeReactionsFn();
+            summary_card.disposeReactionsFn();
+            transactions.disposeReactionsFn();
+        }
+
+        observer.unregisterAll('ui.log.error');
+        observer.unregisterAll('ui.log.notify');
+        observer.unregisterAll('ui.log.success');
+        observer.unregisterAll('client.invalid_token');
         }
     };
 
