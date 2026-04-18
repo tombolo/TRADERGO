@@ -17,9 +17,38 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const { accountList, activeLoginid } = useApiBase();
     const { client } = useStore() ?? {};
 
-    // Always allow switching — no bot-running restriction
-    // Show chevron whenever there is more than 1 account
-    const isSingleAccount = !accountList || accountList.length <= 1;
+    const fallbackAccountList = useMemo(() => {
+        if (accountList?.length) return accountList;
+        if (client?.account_list?.length) return client.account_list;
+
+        const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
+        const clientAccounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
+            string,
+            { currency?: string; is_virtual?: number; balance?: number | string }
+        >;
+        const loginids = Object.keys(accountsList);
+
+        if (loginids.length) {
+            return loginids.map(loginid => {
+                const acc = clientAccounts[loginid] || {};
+                return {
+                    loginid,
+                    currency: acc.currency || 'USD',
+                    balance: Number(acc.balance ?? 0),
+                    is_virtual: Number(acc.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0)),
+                };
+            });
+        }
+
+        return Object.entries(clientAccounts).map(([loginid, acc]) => ({
+            loginid,
+            currency: acc.currency || 'USD',
+            balance: Number(acc.balance ?? 0),
+            is_virtual: Number(acc.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0)),
+        }));
+    }, [accountList, client?.account_list]);
+
+    const isSingleAccount = fallbackAccountList.length <= 1;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -44,23 +73,18 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         setIsOpen(prev => !prev);
     }, [isSingleAccount]);
 
-    // FIX: Properly switch account via store switchAccount or fallback
     const handleAccountSelect = useCallback(
         (loginid: string) => {
             localStorage.setItem('active_loginid', loginid);
-            if (client?.switchAccount) {
-                client.switchAccount(loginid);
-            } else {
-                client?.checkAndRegenerateWebSocket?.();
-            }
+            client?.checkAndRegenerateWebSocket?.();
             setIsOpen(false);
         },
         [client]
     );
 
     const formattedAccounts = useMemo(() => {
-        if (!accountList) return [];
-        return accountList
+        if (!fallbackAccountList.length) return [];
+        return fallbackAccountList
             .map(account => ({
                 loginid: account.loginid,
                 currency: account.currency,
@@ -69,13 +93,12 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 isActive: account.loginid === activeLoginid,
             }))
             .sort((a, b) => (a.isActive ? -1 : b.isActive ? 1 : 0));
-    }, [accountList, activeLoginid]);
+    }, [fallbackAccountList, activeLoginid]);
 
     if (!activeAccount) return null;
 
     const { currency, isVirtual, balance } = activeAccount;
-    // FIX: Show chevron whenever there are multiple accounts (no bot-running restriction)
-    const showChevron = !isSingleAccount;
+    const showChevron = true;
 
     return (
         <div className='acc-info__wrapper' ref={wrapperRef}>
@@ -109,24 +132,22 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                     <Localize i18n_default_text='Real account' />
                                 )}
                             </Text>
-                            {/* FIX: Always render chevron when showChevron is true — no extra conditions */}
-                            {showChevron && (
-                                <span
-                                    className={classNames('acc-info__select-arrow', {
-                                        'acc-info__select-arrow--invert': isOpen,
-                                    })}
-                                >
-                                    <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
-                                        <path
-                                            d='M2 4L6 8L10 4'
-                                            stroke='currentColor'
-                                            strokeWidth='1.5'
-                                            strokeLinecap='round'
-                                            strokeLinejoin='round'
-                                        />
-                                    </svg>
-                                </span>
-                            )}
+                            <span
+                                className={classNames('acc-info__select-arrow', {
+                                    'acc-info__select-arrow--invert': isOpen,
+                                    'acc-info__select-arrow--disabled': isSingleAccount,
+                                })}
+                            >
+                                <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
+                                    <path
+                                        d='M2 4L6 8L10 4'
+                                        stroke='currentColor'
+                                        strokeWidth='1.5'
+                                        strokeLinecap='round'
+                                        strokeLinejoin='round'
+                                    />
+                                </svg>
+                            </span>
                         </div>
                         {(typeof balance !== 'undefined' || !currency) && (
                             <div className='acc-info__balance-section'>
