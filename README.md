@@ -307,3 +307,4 @@ npm test -- dashboard.spec.tsx
 
 For additional support or questions, please refer to the project's issue tracker or contact the development team.
 # MERRICK-NEWSITE
+# TRADERGO
