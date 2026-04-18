@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { addComma, getCurrencyDisplayCode, getDecimalPlaces } from '@/components/shared';
+import { CurrencyIcon } from '@/components/currency/currency-icon';
 import Text from '@/components/shared_ui/text';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
@@ -217,13 +218,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     <span className='acc-info__id' aria-hidden='true'></span>
                     <div className='acc-info__content'>
                         <div className='acc-info__account-type-header'>
-                            <Text as='p' size='xs' className='acc-info__account-type'>
-                                {isVirtual ? (
-                                    <Localize i18n_default_text='Demo account' />
-                                ) : (
-                                    <Localize i18n_default_text='Real account' />
-                                )}
-                            </Text>
+                            <span className='acc-info__id-icon' aria-hidden='true'>
+                                <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
+                            </span>
                             <span
                                 className={classNames('acc-info__select-arrow', {
                                     'acc-info__select-arrow--invert': isOpen,
@@ -292,18 +289,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                     }
                                 }}
                             >
-                                <Text
-                                    size='xxxs'
-                                    className={classNames('acc-dropdown__account-type', {
-                                        'acc-dropdown__account-type--virtual': account.isVirtual,
-                                    })}
-                                >
-                                    {account.isVirtual ? (
-                                        <Localize i18n_default_text='Demo account' />
-                                    ) : (
-                                        <Localize i18n_default_text='Real account' />
-                                    )}
-                                </Text>
+                                <span className='acc-dropdown__icon' aria-hidden='true'>
+                                    <CurrencyIcon currency={account.currency?.toLowerCase()} isVirtual={account.isVirtual} />
+                                </span>
                                 <Text size='xs' weight='bold' className='acc-dropdown__balance'>
                                     {account.currency ? (
                                         `${account.balance} ${getCurrencyDisplayCode(account.currency)}`

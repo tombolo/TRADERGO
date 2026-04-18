@@ -141,14 +141,16 @@ const AppHeader = observer(() => {
                     // For right section - transfer button (and account switcher on desktop)
                     return (
                         <div className={clsx('auth-actions', { 'auth-actions--mobile-balance': !isDesktop })}>
-                            <Button
-                                primary
-                                className='auth-actions__btn auth-actions__btn--transfer'
-                                disabled={client?.is_logging_out || !authData?.currency}
-                                onClick={handleTransfer}
-                            >
-                                <Localize i18n_default_text='Transfer' />
-                            </Button>
+                            {isDesktop && (
+                                <Button
+                                    primary
+                                    className='auth-actions__btn auth-actions__btn--transfer'
+                                    disabled={client?.is_logging_out || !authData?.currency}
+                                    onClick={handleTransfer}
+                                >
+                                    <Localize i18n_default_text='Transfer' />
+                                </Button>
+                            )}
                             {isDesktop ? (
                                 <div className='account-info'>
                                     <AccountSwitcher activeAccount={activeAccount} />
