@@ -115,7 +115,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                 })}
                             >
                                 {isVirtual ? (
-                                    <Localize i18n_default_text='Practice' />
+                                    <Localize i18n_default_text='Demo' />
                                 ) : (
                                     <Localize i18n_default_text='Live' />
                                 )}

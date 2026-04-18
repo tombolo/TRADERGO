@@ -1,5 +1,7 @@
 .mobile-menu {
     height: 100%;
+    position: relative;
+    z-index: 10030;
 
     &__toggle {
         padding-inline-start: 1rem;
@@ -140,6 +142,15 @@
 
     .deriv-drawer__container {
         background: var(--general-main-1);
+        z-index: 10040 !important;
+    }
+
+    .deriv-drawer {
+        z-index: 10035 !important;
+    }
+
+    .deriv-drawer__overlay {
+        z-index: 10034 !important;
     }
 
     &__toggle,

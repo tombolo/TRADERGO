@@ -206,6 +206,39 @@ const AppWrapper = observer(() => {
         };
     }, [dashboard_strategies, active_tab]);
 
+    useEffect(() => {
+        if (active_tab !== BOT_BUILDER) return;
+
+        const queued_strategy = load_modal.strategy_queued_for_builder;
+        if (!queued_strategy) return;
+
+        let is_cancelled = false;
+        const max_attempts = 20;
+        const retry_delay_ms = 150;
+
+        const loadQueuedStrategy = async (attempt = 0) => {
+            if (is_cancelled) return;
+
+            if (!window.Blockly?.derivWorkspace) {
+                if (attempt < max_attempts) {
+                    setTimeout(() => {
+                        void loadQueuedStrategy(attempt + 1);
+                    }, retry_delay_ms);
+                }
+                return;
+            }
+
+            await load_modal.loadStrategyToBuilder(queued_strategy, false);
+            load_modal.clearQueuedStrategyForBuilder();
+        };
+
+        void loadQueuedStrategy();
+
+        return () => {
+            is_cancelled = true;
+        };
+    }, [active_tab, BOT_BUILDER, load_modal, load_modal.strategy_queued_for_builder]);
+
     const handleTabChange = React.useCallback(
         (tab_index: number) => {
             setActiveTab(tab_index);

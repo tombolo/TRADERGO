@@ -2,7 +2,7 @@
     &__logo {
         padding-inline-start: 1.6rem;
         padding-inline-end: 1.2rem;
-        min-height: 40px;
+        min-height: 36px;
         height: auto;
         display: flex;
         align-items: center;
@@ -16,9 +16,9 @@
     }
 
     &__logo-img {
-        height: 40px;
+        height: 36px;
         width: auto;
-        max-width: 260px;
+        max-width: 230px;
         object-fit: contain;
         display: block;
     }
@@ -44,13 +44,13 @@
         .app-header__logo {
             padding-inline-start: 0.8rem;
             padding-inline-end: 0.8rem;
-            min-height: 30px;
+            min-height: 28px;
             gap: 0.65rem;
         }
 
         .app-header__logo-img {
-            height: 30px;
-            max-width: 190px;
+            height: 28px;
+            max-width: 170px;
         }
 
         .app-header__logo-title {
