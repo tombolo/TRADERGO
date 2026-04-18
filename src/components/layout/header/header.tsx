@@ -147,11 +147,6 @@ const AppHeader = observer(() => {
                     // For right section - transfer button (and account switcher on desktop)
                     return (
                         <div className='auth-actions'>
-                            {isDesktop && (
-                                <div className='account-info'>
-                                    <AccountSwitcher activeAccount={activeAccount} />
-                                </div>
-                            )}
                             <Button
                                 primary
                                 className='auth-actions__btn auth-actions__btn--transfer'
@@ -160,6 +155,11 @@ const AppHeader = observer(() => {
                             >
                                 <Localize i18n_default_text='Transfer' />
                             </Button>
+                            {isDesktop && (
+                                <div className='account-info'>
+                                    <AccountSwitcher activeAccount={activeAccount} />
+                                </div>
+                            )}
                         </div>
                     );
                 }
