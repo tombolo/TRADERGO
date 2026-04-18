@@ -199,7 +199,7 @@ const Layout = observer(() => {
             {!isCallbackPage && isInstallBannerVisible && (
                 <div className='install-banner' role='region' aria-label='Application install options'>
                     <div className='install-banner__content'>
-                        <img src='/assets/images/MERRICK.png' alt='Merrick app icon' className='install-banner__icon' />
+                        <img src='/assets/images/TRADER.png' alt='TRADER app icon' className='install-banner__icon' />
                         <div className='install-banner__text'>
                             <span className='install-banner__title'>Install TRADER GO</span>
                             <span className='install-banner__subtitle'>
