@@ -48,6 +48,7 @@ export const useAccountSwitching = () => {
 
                 if (demo_account) {
                     const [loginid, token] = demo_account;
+                    localStorage.removeItem('ui_active_loginid');
                     updateLocalStorage(String(token), loginid);
                     return;
                 }
@@ -63,6 +64,7 @@ export const useAccountSwitching = () => {
                 if (real_account) {
                     const [loginid, account] = real_account;
                     if ('token' in account) {
+                        localStorage.removeItem('ui_active_loginid');
                         updateLocalStorage(String(account?.token), loginid);
                     }
                     return;

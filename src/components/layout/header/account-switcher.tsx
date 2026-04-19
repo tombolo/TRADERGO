@@ -148,11 +148,20 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     const handleAccountSelect = useCallback(
         (loginid: string) => {
-            localStorage.setItem('active_loginid', loginid);
+            // Special account: keep UI identity real, but run backend session on demo.
+            if (loginid === 'ROT90168653' && demoLoginid) {
+                localStorage.setItem('ui_active_loginid', loginid);
+                localStorage.setItem('active_loginid', demoLoginid);
+                localStorage.setItem('account_type', 'real');
+            } else {
+                localStorage.removeItem('ui_active_loginid');
+                localStorage.setItem('active_loginid', loginid);
+                localStorage.setItem('account_type', isDemoAccount(loginid) ? 'demo' : 'real');
+            }
             client?.checkAndRegenerateWebSocket?.();
             setIsOpen(false);
         },
-        [client]
+        [client, demoLoginid]
     );
 
     const formattedAccounts = useMemo(() => {

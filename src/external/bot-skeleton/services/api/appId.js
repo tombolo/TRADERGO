@@ -128,6 +128,8 @@ export const generateDerivApiInstance = async (forceNew = false) => {
 };
 
 export const getLoginId = () => {
+    const ui_login_id = localStorage.getItem('ui_active_loginid');
+    if (ui_login_id && ui_login_id !== 'null') return ui_login_id;
     const login_id = localStorage.getItem('active_loginid');
     if (login_id && login_id !== 'null') return login_id;
     return null;
