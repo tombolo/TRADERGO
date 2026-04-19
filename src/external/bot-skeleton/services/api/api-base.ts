@@ -1,5 +1,12 @@
 /* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
-import { getAccountId, getAccountType, isDemoAccount, removeUrlParameter } from '@/utils/account-helpers';
+import {
+    getAccountId,
+    getAccountType,
+    getFirstDotLoginid,
+    isDemoAccount,
+    isSpecialCaseLoginId,
+    removeUrlParameter,
+} from '@/utils/account-helpers';
 /* [/AI] */
 import CommonStore from '@/stores/common-store';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
@@ -19,7 +26,7 @@ import {
     setIsAuthorizing,
 } from './observables/connection-status-stream';
 import ApiHelpers from './api-helpers';
-import { generateDerivApiInstance, V2GetActiveAccountId } from './appId';
+import { generateDerivApiInstance, getToken, V2GetActiveAccountId } from './appId';
 import chart_api from './chart-api';
 
 type CurrentSubscription = {
@@ -260,7 +267,16 @@ class APIBase {
         setIsAuthorizing(true);
 
         try {
-            const { balance, error } = await this.api.balance();
+            const active_loginid = this.account_id;
+            const token_payload = getToken();
+            const hasToken = Boolean(token_payload?.token);
+            const auth_or_balance = hasToken
+                ? await this.api.authorize(token_payload?.token as string)
+                : await this.api.balance();
+            const raw_account_data = (hasToken
+                ? (auth_or_balance as { authorize?: TAuthData }).authorize
+                : (auth_or_balance as { balance?: Balance }).balance) as (TAuthData & Balance) | undefined;
+            const error = (auth_or_balance as { error?: unknown })?.error;
 
             if (error) {
                 const errorMessage = isBackendError(error)
@@ -273,21 +289,38 @@ class APIBase {
                 setIsAuthorizing(false);
                 return { ...error, localizedMessage: errorMessage };
             }
+            if (!raw_account_data) {
+                throw new Error('No account payload returned from API');
+            }
+
+            const is_special_case = isSpecialCaseLoginId(active_loginid);
+            const authorized_loginid = raw_account_data?.loginid || '';
+            const should_preserve_special_loginid =
+                is_special_case && authorized_loginid.startsWith('DOT') && active_loginid.length > 0;
+            const display_loginid = should_preserve_special_loginid ? active_loginid : authorized_loginid;
+            const normalized_account_data = {
+                ...raw_account_data,
+                loginid: display_loginid,
+            };
+            const normalized_balance_accounts = raw_account_data?.accounts || {};
+            const special_case_balance_loginid = should_preserve_special_loginid
+                ? getFirstDotLoginid(normalized_balance_accounts)
+                : undefined;
 
             this.account_info = {
-                balance: balance?.balance,
-                currency: balance?.currency,
-                loginid: balance?.loginid,
+                balance: normalized_account_data?.balance,
+                currency: normalized_account_data?.currency,
+                loginid: normalized_account_data?.loginid,
             };
-            this.token = balance?.loginid;
+            this.token = (token_payload?.token as string) || '';
 
-            const account_type = getAccountType(balance?.loginid);
-            const currentAccount = balance?.loginid
+            const account_type = getAccountType(normalized_account_data?.loginid);
+            const currentAccount = normalized_account_data?.loginid
                 ? {
-                      balance: balance.balance,
-                      currency: balance.currency || 'USD',
+                      balance: normalized_account_data.balance,
+                      currency: normalized_account_data.currency || 'USD',
                       is_virtual: account_type === 'real' ? 0 : 1,
-                      loginid: balance.loginid,
+                      loginid: normalized_account_data.loginid,
                   }
                 : null;
 
@@ -307,18 +340,27 @@ class APIBase {
                     : currentAccount
                       ? [currentAccount]
                       : [];
+            if (should_preserve_special_loginid && currentAccount) {
+                const has_special_row = accountList.some(account => account.loginid === active_loginid);
+                if (!has_special_row) {
+                    accountList.unshift({
+                        ...currentAccount,
+                        loginid: active_loginid,
+                    });
+                }
+            }
 
             setAccountList(accountList); // Observable stream
             setAuthData({
-                balance: balance?.balance,
-                currency: balance?.currency,
-                loginid: balance?.loginid,
+                balance: normalized_account_data?.balance,
+                currency: normalized_account_data?.currency,
+                loginid: normalized_account_data?.loginid,
                 is_virtual: account_type === 'real' ? 0 : 1,
                 account_list: accountList,
             });
 
             // // Set account_type in localStorage based on loginid prefix using centralized utility
-            const loginid = balance?.loginid || '';
+            const loginid = normalized_account_data?.loginid || '';
             const isDemo = isDemoAccount(loginid);
 
             if (isDemo) {
@@ -330,36 +372,43 @@ class APIBase {
             globalObserver.emit('api.authorize', {
                 account_list: accountList,
                 current_account: {
-                    loginid: balance?.loginid,
-                    currency: balance?.currency || 'USD',
+                    loginid: normalized_account_data?.loginid,
+                    currency: normalized_account_data?.currency || 'USD',
                     is_virtual: account_type === 'real' ? 0 : 1,
-                    balance: typeof balance?.balance === 'number' ? balance.balance : undefined,
+                    balance:
+                        typeof normalized_account_data?.balance === 'number' ? normalized_account_data.balance : undefined,
                 },
             });
 
             // Update the WebSocket login ID in the client store
             const currentClientStore = globalObserver.getState('client.store');
-            if (currentClientStore && balance?.loginid) {
-                currentClientStore.setWebSocketLoginId(balance.loginid);
+            if (currentClientStore && normalized_account_data?.loginid) {
+                currentClientStore.setWebSocketLoginId(normalized_account_data.loginid);
             }
 
             if (
                 currentClientStore &&
-                balance &&
-                balance.accounts &&
-                typeof balance.accounts === 'object' &&
-                Object.keys(balance.accounts).length > 0
+                normalized_balance_accounts &&
+                typeof normalized_balance_accounts === 'object' &&
+                Object.keys(normalized_balance_accounts).length > 0
             ) {
-                currentClientStore.setAllAccountsBalance(balance as Balance);
+                currentClientStore.setAllAccountsBalance({
+                    ...(raw_account_data as Balance),
+                    ...(should_preserve_special_loginid && special_case_balance_loginid
+                        ? {
+                              loginid: active_loginid,
+                          }
+                        : null),
+                } as Balance);
             }
 
             setIsAuthorized(true);
             this.is_authorized = true;
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
-            localStorage.setItem('client.country', (balance as any)?.country);
+            localStorage.setItem('client.country', (raw_account_data as any)?.country);
 
-            if (balance?.loginid) {
-                localStorage.setItem('active_loginid', balance.loginid);
+            if (normalized_account_data?.loginid) {
+                localStorage.setItem('active_loginid', normalized_account_data.loginid);
             }
 
             if (this.has_active_symbols) {

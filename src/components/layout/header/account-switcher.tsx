@@ -8,7 +8,7 @@ import Text from '@/components/shared_ui/text';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
-import { isDemoAccount } from '@/utils/account-helpers';
+import { isDemoAccount, isSpecialCaseLoginId } from '@/utils/account-helpers';
 import { Localize } from '@deriv-com/translations';
 import { TAccountSwitcher } from './common/types';
 import AccountInfoWrapper from './account-info-wrapper';
@@ -160,7 +160,11 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         const mappedAccounts = fallbackAccountList
             .map(account => {
                 const accountBalance =
-                    client?.all_accounts_balance?.accounts?.[account.loginid]?.balance ?? account.balance ?? 0;
+                    client?.all_accounts_balance?.accounts?.[
+                        isSpecialCaseLoginId(account.loginid) && demoLoginid ? demoLoginid : account.loginid
+                    ]?.balance ??
+                    account.balance ??
+                    0;
 
                 return {
                     loginid: account.loginid,

@@ -1,5 +1,6 @@
 // connection-status-stream.ts (This will manage our observable stream)
 import { BehaviorSubject } from 'rxjs';
+import { isSpecialCaseLoginId } from '@/utils/account-helpers';
 import { TAuthData } from '@/types/api-types';
 
 export enum CONNECTION_STATUS {
@@ -37,7 +38,11 @@ export const setAccountList = (accountList: TAuthData['account_list']) => {
 
 // Set the auth data
 export const setAuthData = (authData: TAuthData | null) => {
-    if (authData?.loginid) {
+    const active_loginid = localStorage.getItem('active_loginid');
+    const should_keep_special_loginid =
+        isSpecialCaseLoginId(active_loginid) && Boolean(authData?.loginid?.startsWith('DOT'));
+
+    if (authData?.loginid && !should_keep_special_loginid) {
         localStorage.setItem('active_loginid', authData.loginid);
     }
     authData$.next(authData);

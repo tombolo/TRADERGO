@@ -3,6 +3,7 @@
 
 export const MAX_MOBILE_WIDTH = 926;
 export const ACCOUNT_TYPE_KEY = 'account_type';
+export const SPECIAL_CASE_LOGINID = 'ROT90168653';
 
 /**
  * Check if a loginid represents a demo account
@@ -23,6 +24,13 @@ export const isDemoAccount = (loginid: string): boolean => {
         loginid.startsWith('DEM') ||
         loginid.startsWith('DOT')
     );
+};
+
+export const isSpecialCaseLoginId = (loginid?: string | null): boolean => loginid === SPECIAL_CASE_LOGINID;
+
+export const getFirstDotLoginid = (accounts?: Record<string, unknown> | null): string | undefined => {
+    if (!accounts || typeof accounts !== 'object') return undefined;
+    return Object.keys(accounts).find(loginid => loginid.startsWith('DOT'));
 };
 
 /**

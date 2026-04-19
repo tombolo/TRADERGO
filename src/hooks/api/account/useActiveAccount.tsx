@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 /* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
-import { getAccountId, isVirtualAccount } from '@/utils/account-helpers';
+import { getAccountId, getFirstDotLoginid, isSpecialCaseLoginId, isVirtualAccount } from '@/utils/account-helpers';
 /* [/AI] */
 import { CurrencyIcon } from '@/components/currency/currency-icon';
 import { addComma, getDecimalPlaces } from '@/components/shared';
@@ -26,7 +26,11 @@ const useActiveAccount = ({
         [resolved_loginid, accountList]
     );
 
-    const currentBalanceData = allBalanceData?.accounts?.[activeAccount?.loginid ?? ''];
+    const mapped_balance_loginid =
+        isSpecialCaseLoginId(resolved_loginid) && allBalanceData?.accounts
+            ? getFirstDotLoginid(allBalanceData.accounts)
+            : activeAccount?.loginid;
+    const currentBalanceData = allBalanceData?.accounts?.[mapped_balance_loginid ?? ''];
 
     const modifiedAccount = useMemo(() => {
         if (!activeAccount) return undefined;

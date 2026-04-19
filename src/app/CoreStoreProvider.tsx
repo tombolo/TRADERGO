@@ -9,6 +9,7 @@ import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
+import { getFirstDotLoginid, isSpecialCaseLoginId } from '@/utils/account-helpers';
 import type { Balance } from '@deriv/api-types';
 import { useTranslations } from '@deriv-com/translations';
 
@@ -40,7 +41,10 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     );
 
     useEffect(() => {
-        const currentBalanceData = client?.all_accounts_balance?.accounts?.[activeAccount?.loginid ?? ''];
+        const all_accounts = client?.all_accounts_balance?.accounts;
+        const demo_loginid = getFirstDotLoginid(all_accounts);
+        const balance_loginid = isSpecialCaseLoginId(activeLoginid) && demo_loginid ? demo_loginid : activeAccount?.loginid;
+        const currentBalanceData = all_accounts?.[balance_loginid ?? ''];
 
         if (currentBalanceData) {
             const currency = currentBalanceData.currency;

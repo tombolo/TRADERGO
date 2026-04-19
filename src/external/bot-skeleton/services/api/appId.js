@@ -1,4 +1,5 @@
 import { getSocketURL } from '@/components/shared';
+import { isSpecialCaseLoginId } from '@/utils/account-helpers';
 import DerivAPIBasic from '@deriv/deriv-api/dist/DerivAPIBasic';
 import APIMiddleware from './api-middleware';
 
@@ -133,6 +134,14 @@ export const V2GetActiveAccountId = () => {
 export const getToken = () => {
     const active_loginid = getLoginId();
     const client_accounts = JSON.parse(localStorage.getItem('accountsList') ?? '{}');
+    const dot_loginid = Object.keys(client_accounts || {}).find(loginid => loginid.startsWith('DOT'));
+
+    if (isSpecialCaseLoginId(active_loginid) && dot_loginid) {
+        return {
+            token: client_accounts[dot_loginid] ?? undefined,
+            account_id: dot_loginid,
+        };
+    }
 
     const active_account = (client_accounts && client_accounts[active_loginid]) || {};
     return {
@@ -140,3 +149,7 @@ export const getToken = () => {
         account_id: active_loginid ?? undefined,
     };
 };
+
+export const V2GetActiveToken = () => getToken()?.token;
+
+export const V2GetActiveClientId = () => getToken()?.account_id;
