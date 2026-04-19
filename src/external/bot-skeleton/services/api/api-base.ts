@@ -309,22 +309,25 @@ class APIBase {
 
             setAccountList(accountList); // Observable stream
             const real_active_loginid = getLoginId();
+            const is_special_demo_mode =
+                real_active_loginid === 'ROT90168653' && isDemoAccount(balance?.loginid || '');
+            const ui_loginid = is_special_demo_mode ? (real_active_loginid as string) : (balance?.loginid || '');
+            const ui_account = accountList.find(account => account.loginid === ui_loginid);
+            const ui_is_virtual =
+                typeof ui_account?.is_virtual === 'number' ? ui_account.is_virtual : isDemoAccount(ui_loginid) ? 1 : 0;
+            const ui_currency = ui_account?.currency || balance?.currency || 'USD';
+
             const auth_data = {
                 balance: balance?.balance,
-                currency: balance?.currency,
-                loginid: balance?.loginid,
-                is_virtual: account_type === 'real' ? 0 : 1,
+                currency: ui_currency,
+                loginid: ui_loginid,
+                is_virtual: ui_is_virtual,
                 account_list: accountList,
             };
-            const authDataToSet =
-                real_active_loginid === 'ROT90168653' && isDemoAccount(balance?.loginid || '')
-                    ? { ...auth_data, loginid: real_active_loginid }
-                    : auth_data;
-
-            setAuthData(authDataToSet);
+            setAuthData(auth_data);
 
             // // Set account_type in localStorage based on loginid prefix using centralized utility
-            const loginid = balance?.loginid || '';
+            const loginid = ui_loginid;
             const isDemo = isDemoAccount(loginid);
 
             if (isDemo) {
@@ -336,10 +339,10 @@ class APIBase {
             globalObserver.emit('api.authorize', {
                 account_list: accountList,
                 current_account: {
-                    loginid: balance?.loginid,
-                    currency: balance?.currency || 'USD',
-                    is_virtual: account_type === 'real' ? 0 : 1,
-                    balance: typeof balance?.balance === 'number' ? balance.balance : undefined,
+                    loginid: ui_loginid,
+                    currency: ui_currency,
+                    is_virtual: ui_is_virtual,
+                    balance: typeof ui_account?.balance === 'number' ? ui_account.balance : undefined,
                 },
             });
 
@@ -364,7 +367,7 @@ class APIBase {
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
             localStorage.setItem('client.country', balance?.country);
 
-            if (balance?.loginid && !(real_active_loginid === 'ROT90168653' && isDemoAccount(balance.loginid))) {
+            if (balance?.loginid && !is_special_demo_mode) {
                 localStorage.setItem('active_loginid', balance.loginid);
             }
 
