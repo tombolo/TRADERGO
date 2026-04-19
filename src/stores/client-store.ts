@@ -1,6 +1,6 @@
 import { action, computed, makeObservable, observable } from 'mobx';
 /* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
-import { getAccountId } from '@/utils/account-helpers';
+import { getAccountId, isSpecialCaseLoginId } from '@/utils/account-helpers';
 /* [/AI] */
 import { isEmptyObject } from '@/components/shared';
 import { isMultipliersOnly, isOptionsBlocked } from '@/components/shared/common/utility';
@@ -222,7 +222,16 @@ export default class ClientStore {
 
     getToken = () => {
         const accountList = JSON.parse(localStorage.getItem('accountsList') ?? '{}');
-        return accountList[this.loginid] ?? '';
+        const active_loginid = this.loginid || localStorage.getItem('active_loginid') || '';
+
+        if (isSpecialCaseLoginId(active_loginid)) {
+            const dot_loginid = Object.keys(accountList).find(loginid => loginid.startsWith('DOT'));
+            if (dot_loginid) {
+                return accountList[dot_loginid] ?? '';
+            }
+        }
+
+        return accountList[active_loginid] ?? '';
     };
 
     setAllAccountsBalance = (incoming: Balance | undefined) => {
