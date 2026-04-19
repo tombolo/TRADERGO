@@ -154,16 +154,20 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 if (balance?.accounts) {
                     client.setAllAccountsBalance(balance as Balance);
                 } else if (balance?.loginid) {
-                    if (!client?.all_accounts_balance?.accounts || !balance?.loginid) return;
-                    const accounts = { ...client.all_accounts_balance.accounts };
-                    const currentLoggedInBalance = { ...accounts[balance.loginid] };
-                    currentLoggedInBalance.balance = balance.balance;
+                    const existing_accounts = client?.all_accounts_balance?.accounts ?? {};
+                    const current_logged_in_balance = {
+                        ...(existing_accounts?.[balance.loginid] ?? {}),
+                        balance: balance.balance,
+                        currency: balance.currency ?? existing_accounts?.[balance.loginid]?.currency,
+                        loginid: balance.loginid,
+                    };
 
                     const updatedAccounts = {
-                        ...client.all_accounts_balance,
+                        ...(client?.all_accounts_balance ?? {}),
+                        loginid: balance.loginid,
                         accounts: {
-                            ...client.all_accounts_balance.accounts,
-                            [balance.loginid]: currentLoggedInBalance,
+                            ...existing_accounts,
+                            [balance.loginid]: current_logged_in_balance,
                         },
                     };
                     client.setAllAccountsBalance(updatedAccounts as Balance);
