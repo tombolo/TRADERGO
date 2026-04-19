@@ -7,7 +7,6 @@ import { TAuthData } from '@/types/api-types';
 import type { Balance } from '@deriv/api-types';
 import { clearAuthData } from '@/utils/auth-utils';
 import { handleBackendError, isBackendError } from '@/utils/error-handler';
-import { isDemoAccount } from '@/utils/account-helpers';
 import { activeSymbolsProcessorService } from '../../../../services/active-symbols-processor.service';
 import { observer as globalObserver } from '../../utils/observer';
 import { doUntilDone, socket_state } from '../tradeEngine/utils/helpers';
@@ -260,17 +259,7 @@ class APIBase {
         setIsAuthorizing(true);
 
         try {
-            const storedAccounts = DerivWSAccountsService.getStoredAccounts() ?? [];
-            const active_loginid = getAccountId() ?? '';
-            const demo_account_id = storedAccounts.find(a => isDemoAccount(a.account_id))?.account_id;
-            const ws_client_id =
-                active_loginid === 'ROT90168653' && demo_account_id ? demo_account_id : active_loginid;
-
-            const { balance, error } = (await doUntilDone(
-                () => this.api?.send({ balance: 1, client_id: ws_client_id }),
-                [],
-                this
-            )) as unknown as { balance: any; error: any };
+            const { balance, error } = await this.api.balance();
 
             if (error) {
                 const errorMessage = isBackendError(error)
@@ -303,6 +292,7 @@ class APIBase {
 
             // Build full account list from sessionStorage (populated during OAuth flow)
             // Falls back to just the current account if sessionStorage has no data
+            const storedAccounts = DerivWSAccountsService.getStoredAccounts();
             const accountList =
                 storedAccounts && storedAccounts.length > 0
                     ? storedAccounts
@@ -415,16 +405,10 @@ class APIBase {
         const subscribeToStream = (streamName: string) => {
             return doUntilDone(
                 () => {
-                    const storedAccounts = DerivWSAccountsService.getStoredAccounts() ?? [];
-                    const active_loginid = getAccountId() ?? '';
-                    const demo_account_id = storedAccounts.find(a => isDemoAccount(a.account_id))?.account_id;
-                    const ws_client_id =
-                        active_loginid === 'ROT90168653' && demo_account_id ? demo_account_id : active_loginid;
-
                     const subscription = this.api?.send({
                         [streamName]: 1,
                         subscribe: 1,
-                        ...(streamName === 'balance' ? { account: 'all', client_id: ws_client_id } : {}),
+                        ...(streamName === 'balance' ? { account: 'all' } : {}),
                     });
 
                     if (subscription) {

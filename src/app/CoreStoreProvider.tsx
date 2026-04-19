@@ -149,16 +149,6 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             const data = (res as Record<string, unknown>).data as TSocketResponseData<'balance'>;
             const { msg_type, error } = data;
 
-            const is_special_ui =
-                activeLoginid === 'ROT90168653' || localStorage.getItem('active_loginid') === 'ROT90168653';
-            if (is_special_ui && error) {
-                console.warn('[SpecialAccount][CoreStoreProvider] socket error', {
-                    msg_type,
-                    error,
-                    echo_req: (data as any)?.echo_req,
-                });
-            }
-
             // Handle auth errors by calling client.logout() directly instead of useLogout hook
             // This prevents redundant logout operations since useLogout internally calls client.logout()
             if (
@@ -176,6 +166,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 const balance = data.balance;
                 if (!balance) return;
 
+                const is_special_ui =
+                    activeLoginid === 'ROT90168653' || localStorage.getItem('active_loginid') === 'ROT90168653';
                 if (is_special_ui) {
                     const accounts_map = (balance as any).accounts as Record<string, unknown> | undefined;
                     console.log('[SpecialAccount][CoreStoreProvider] balance message', {
