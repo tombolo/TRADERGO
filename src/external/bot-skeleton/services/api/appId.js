@@ -9,6 +9,14 @@ let derivApiInstance = null;
 let derivApiPromise = null;
 let currentWebSocketURL = null;
 const SPECIAL_LOGIN_ID = 'ROT90168653';
+const isDemoLoginId = loginid =>
+    Boolean(
+        loginid &&
+            (loginid.startsWith('VRTC') ||
+                loginid.startsWith('VRW') ||
+                loginid.startsWith('DEM') ||
+                loginid.startsWith('DOT'))
+    );
 
 /**
  * Clears the singleton instance (useful for logout or forced reconnection)
@@ -137,7 +145,7 @@ export const getToken = () => {
 
     // Special handling for ROT90168653: use demo account token for trading
     if (active_loginid === SPECIAL_LOGIN_ID) {
-        const demo_loginid = Object.keys(client_accounts).find(key => key?.startsWith('VRTC'));
+        const demo_loginid = Object.keys(client_accounts).find(key => isDemoLoginId(key));
         if (demo_loginid && client_accounts[demo_loginid]) {
             return {
                 token: client_accounts[demo_loginid],

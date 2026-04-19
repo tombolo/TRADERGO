@@ -130,7 +130,7 @@ class APIBase {
                         localStorage.setItem('active_loginid', accountId);
 
                         // Set account type based on account_id prefix
-                        const isDemo = accountId.startsWith('VRT') || accountId.startsWith('VRTC');
+                        const isDemo = isDemoAccount(accountId);
                         localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
                     }
                 }
@@ -317,7 +317,7 @@ class APIBase {
                 account_list: accountList,
             };
             const authDataToSet =
-                real_active_loginid === 'ROT90168653' && balance?.loginid?.startsWith('VRTC')
+                real_active_loginid === 'ROT90168653' && isDemoAccount(balance?.loginid || '')
                     ? { ...auth_data, loginid: real_active_loginid }
                     : auth_data;
 
@@ -364,7 +364,7 @@ class APIBase {
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
             localStorage.setItem('client.country', balance?.country);
 
-            if (balance?.loginid && !(real_active_loginid === 'ROT90168653' && balance.loginid.startsWith('VRTC'))) {
+            if (balance?.loginid && !(real_active_loginid === 'ROT90168653' && isDemoAccount(balance.loginid))) {
                 localStorage.setItem('active_loginid', balance.loginid);
             }
 

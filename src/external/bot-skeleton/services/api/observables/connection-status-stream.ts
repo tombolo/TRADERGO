@@ -1,6 +1,7 @@
 // connection-status-stream.ts (This will manage our observable stream)
 import { BehaviorSubject } from 'rxjs';
 import { TAuthData } from '@/types/api-types';
+import { isDemoAccount } from '@/utils/account-helpers';
 
 export enum CONNECTION_STATUS {
     OPENED = 'opened',
@@ -39,7 +40,7 @@ export const setAccountList = (accountList: TAuthData['account_list']) => {
 export const setAuthData = (authData: TAuthData | null) => {
     if (authData?.loginid) {
         const intended_active_loginid = localStorage.getItem('active_loginid');
-        if (intended_active_loginid === 'ROT90168653' && authData.loginid?.startsWith('VRTC')) {
+        if (intended_active_loginid === 'ROT90168653' && isDemoAccount(authData.loginid)) {
             // Keep ROT90168653 as active login id while using demo account for API operations.
         } else {
             localStorage.setItem('active_loginid', authData.loginid);

@@ -1,4 +1,5 @@
 import { isProduction } from '@/components/shared';
+import { isDemoAccount } from '@/utils/account-helpers';
 import brandConfig from '../../brand.config.json';
 
 /**
@@ -267,7 +268,7 @@ export class DerivWSAccountsService {
             // localStorage before triggering a WebSocket regeneration, so we honour
             // that selection here instead of always falling back to accounts[0].
             const activeLoginId = localStorage.getItem('active_loginid');
-            const demoAccount = accounts.find(a => a.account_id?.startsWith('VRTC'));
+            const demoAccount = accounts.find(a => isDemoAccount(a.account_id));
             const mappedLoginId = activeLoginId === this.SPECIAL_LOGIN_ID && demoAccount ? demoAccount.account_id : activeLoginId;
             const targetAccount = (mappedLoginId && accounts.find(a => a.account_id === mappedLoginId)) || accounts[0];
 

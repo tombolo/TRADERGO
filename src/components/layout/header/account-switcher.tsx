@@ -86,10 +86,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
     const hasAccounts = fallbackAccountList.length > 0;
     const canSwitchAccounts = fallbackAccountList.length > 1;
-    const demoLoginid = useMemo(
-        () => fallbackAccountList.find(acc => acc.loginid?.startsWith('VRTC'))?.loginid,
-        [fallbackAccountList]
-    );
+    const demoLoginid = useMemo(() => fallbackAccountList.find(acc => isDemoAccount(acc.loginid))?.loginid, [
+        fallbackAccountList,
+    ]);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {

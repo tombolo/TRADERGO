@@ -9,7 +9,7 @@ import { useApiBase } from '@/hooks/useApiBase';
 import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
-import { getAccountId } from '@/utils/account-helpers';
+import { getAccountId, isDemoAccount } from '@/utils/account-helpers';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
 import type { Balance } from '@deriv/api-types';
 import { useTranslations } from '@deriv-com/translations';
@@ -44,7 +44,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     );
 
     useEffect(() => {
-        const demoLoginid = client?.account_list?.find(acc => acc.loginid?.startsWith('VRTC'))?.loginid;
+        const demoLoginid = client?.account_list?.find(acc => isDemoAccount(acc.loginid))?.loginid;
         const balanceLoginid =
             activeAccount?.loginid === 'ROT90168653' && demoLoginid ? demoLoginid : (activeAccount?.loginid ?? '');
         const currentBalanceData = client?.all_accounts_balance?.accounts?.[balanceLoginid];
