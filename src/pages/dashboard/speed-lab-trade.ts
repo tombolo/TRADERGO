@@ -1,6 +1,7 @@
 import type { ActiveSymbolsResponse } from '@deriv/api-types';
 import { api_base } from '@/external/bot-skeleton';
 import ApiHelpers from '@/external/bot-skeleton/services/api/api-helpers';
+import { observer as globalObserver } from '@/external/bot-skeleton/utils/observer';
 import { speedLabBuildProposalExtras } from './speed-lab-contract-params';
 import type { TSpeedLabTradingMode } from './speed-lab-constants';
 
@@ -383,6 +384,7 @@ export async function buyProposal(proposal_id: string, price: number): Promise<{
     buy_price?: number;
     transaction_id?: string;
     contract_id?: string | number;
+    balance_after?: number;
 }> {
     if (!api_base.api) throw new Error('API not ready');
     const raw = await api_base.api.send({
@@ -390,11 +392,35 @@ export async function buyProposal(proposal_id: string, price: number): Promise<{
         price,
     });
     const res = normalizeProposalOrBuyResponse<{
-        buy?: { buy_price?: number; transaction_id?: string; contract_id?: string | number };
+        buy?: { buy_price?: number; transaction_id?: string; contract_id?: string | number; balance_after?: number };
         error?: { message?: string };
     }>(raw);
     if (res.error) throw new Error(res.error.message || 'Buy failed');
-    return res.buy ?? {};
+    const buy = res.buy ?? {};
+    if (typeof buy.balance_after === 'number') {
+        const clientStore = globalObserver.getState('client.store');
+        if (clientStore) {
+            clientStore.setBalance(String(buy.balance_after));
+            const loginid = clientStore.loginid;
+            if (loginid && clientStore.all_accounts_balance) {
+                const prev = clientStore.all_accounts_balance;
+                const prevAccounts = prev?.accounts ?? {};
+                clientStore.setAllAccountsBalance({
+                    ...prev,
+                    accounts: {
+                        ...prevAccounts,
+                        [loginid]: {
+                            ...(prevAccounts[loginid] ?? {}),
+                            balance: buy.balance_after,
+                            currency: prevAccounts[loginid]?.currency || clientStore.currency,
+                            loginid,
+                        },
+                    },
+                });
+            }
+        }
+    }
+    return buy;
 }
 
 /** One logical “round” of trades depending on mode (hedge = CALL + PUT; multi-market = best payout across symbols). */

@@ -17,6 +17,33 @@ export default Engine =>
 
                     balance_string = getFormattedText(b, currency);
 
+                    // Update the client store so the header balance reflects the change immediately.
+                    const { client } = DBotStore.instance;
+                    if (client) {
+                        client.setBalance(String(b));
+                        const loginid =
+                            data.balance?.loginid || data.loginid || client.loginid;
+                        if (loginid && client.all_accounts_balance) {
+                            const prev = client.all_accounts_balance;
+                            const prevAccounts = prev?.accounts ?? {};
+                            client.setAllAccountsBalance({
+                                ...prev,
+                                accounts: {
+                                    ...prevAccounts,
+                                    [loginid]: {
+                                        ...(prevAccounts[loginid] ?? {}),
+                                        balance: b,
+                                        currency:
+                                            currency ||
+                                            prevAccounts[loginid]?.currency ||
+                                            client.currency,
+                                        loginid,
+                                    },
+                                },
+                            });
+                        }
+                    }
+
                     if (this.accountInfo) info({ accountID: this.accountInfo.loginid, balance: balance_string });
                 }
             });
