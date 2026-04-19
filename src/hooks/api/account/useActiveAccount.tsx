@@ -31,6 +31,10 @@ const useActiveAccount = ({
             ? getFirstDotLoginid(allBalanceData.accounts)
             : activeAccount?.loginid;
     const currentBalanceData = allBalanceData?.accounts?.[mapped_balance_loginid ?? ''];
+    const specialCaseDemoAccount =
+        isSpecialCaseLoginId(resolved_loginid) && accountList?.length
+            ? accountList.find(account => account.loginid?.startsWith('DOT'))
+            : undefined;
     if (isSpecialCaseLoginId(resolved_loginid)) {
         console.log('[SpecialAccount][useActiveAccount] Mapped balance source', {
             resolved_loginid,
@@ -59,6 +63,12 @@ const useActiveAccount = ({
             typeof activeAccount.balance === 'number' && !Number.isNaN(activeAccount.balance)
                 ? addComma(activeAccount.balance.toFixed(decimals))
                 : undefined;
+        const from_special_demo_fallback =
+            isSpecialCaseLoginId(resolved_loginid) &&
+            typeof specialCaseDemoAccount?.balance === 'number' &&
+            !Number.isNaN(specialCaseDemoAccount.balance)
+                ? addComma(specialCaseDemoAccount.balance.toFixed(decimals))
+                : undefined;
 
         const client_matches_active =
             Boolean(resolved_loginid) && (client?.loginid === resolved_loginid || !client?.loginid);
@@ -68,7 +78,8 @@ const useActiveAccount = ({
                 ? addComma(parseFloat(directBalance).toFixed(decimals))
                 : undefined;
 
-        const formatted_balance = from_accounts_map ?? from_account_list ?? from_direct ?? addComma(parseFloat('0').toFixed(decimals));
+        const formatted_balance =
+            from_accounts_map ?? from_special_demo_fallback ?? from_account_list ?? from_direct ?? addComma(parseFloat('0').toFixed(decimals));
 
         return {
             ...activeAccount,
@@ -78,7 +89,7 @@ const useActiveAccount = ({
             isVirtual: isVirtual,
             isActive: activeAccount?.loginid === resolved_loginid,
         };
-    }, [activeAccount, client?.loginid, currentBalanceData, directBalance, resolved_loginid]);
+    }, [activeAccount, client?.loginid, currentBalanceData, directBalance, resolved_loginid, specialCaseDemoAccount?.balance]);
 
     return {
         /** User's current active account. */

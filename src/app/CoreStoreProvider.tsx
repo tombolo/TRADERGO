@@ -43,8 +43,12 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     useEffect(() => {
         const all_accounts = client?.all_accounts_balance?.accounts;
         const demo_loginid = getFirstDotLoginid(all_accounts);
-        const balance_loginid = isSpecialCaseLoginId(activeLoginid) && demo_loginid ? demo_loginid : activeAccount?.loginid;
+        const is_special = isSpecialCaseLoginId(activeLoginid);
+        const fallback_demo_account = is_special ? accountList?.find(account => account.loginid?.startsWith('DOT')) : undefined;
+        const balance_loginid = is_special && demo_loginid ? demo_loginid : activeAccount?.loginid;
         const currentBalanceData = all_accounts?.[balance_loginid ?? ''];
+        const fallbackBalance = fallback_demo_account?.balance;
+        const fallbackCurrency = fallback_demo_account?.currency;
         if (isSpecialCaseLoginId(activeLoginid)) {
             console.log('[SpecialAccount][CoreStoreProvider] Resolving displayed balance', {
                 activeLoginid,
@@ -55,6 +59,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 available_account_keys: Object.keys(all_accounts || {}),
                 resolved_balance: currentBalanceData?.balance,
                 resolved_currency: currentBalanceData?.currency,
+                fallback_balance: fallbackBalance,
+                fallback_currency: fallbackCurrency,
             });
         }
 
@@ -62,9 +68,13 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             const currency = currentBalanceData.currency;
             client?.setBalance(currentBalanceData.balance.toFixed(getDecimalPlaces(currency || currentBalanceData.currency)));
             client?.setCurrency(currency || currentBalanceData.currency);
+        } else if (is_special && typeof fallbackBalance === 'number') {
+            const fallback_decimals = getDecimalPlaces(fallbackCurrency || 'USD');
+            client?.setBalance(fallbackBalance.toFixed(fallback_decimals));
+            client?.setCurrency(fallbackCurrency || 'USD');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeAccount?.loginid, client?.all_accounts_balance]);
+    }, [activeAccount?.loginid, activeLoginid, accountList, client?.all_accounts_balance]);
 
     useEffect(() => {
         if (client && activeAccount && isAuthorized) {

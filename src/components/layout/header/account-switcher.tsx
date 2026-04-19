@@ -161,8 +161,12 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
             .map(account => {
                 const mapped_balance_loginid =
                     isSpecialCaseLoginId(account.loginid) && demoLoginid ? demoLoginid : account.loginid;
+                const demo_account_row = demoLoginid
+                    ? fallbackAccountList.find(item => item.loginid === demoLoginid)
+                    : undefined;
                 const accountBalance =
                     client?.all_accounts_balance?.accounts?.[mapped_balance_loginid]?.balance ??
+                    (isSpecialCaseLoginId(account.loginid) ? demo_account_row?.balance : undefined) ??
                     account.balance ??
                     0;
                 if (isSpecialCaseLoginId(account.loginid)) {

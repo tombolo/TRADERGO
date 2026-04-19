@@ -155,9 +155,9 @@ export const getToken = () => {
         });
     }
 
-    const active_account = (client_accounts && client_accounts[active_loginid]) || {};
+    const active_account = client_accounts && active_loginid ? client_accounts[active_loginid] : undefined;
     return {
-        token: active_account ?? undefined,
+        token: typeof active_account === 'string' ? active_account : undefined,
         account_id: active_loginid ?? undefined,
     };
 };

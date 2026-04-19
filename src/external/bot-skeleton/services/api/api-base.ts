@@ -269,7 +269,7 @@ class APIBase {
         try {
             const active_loginid = this.account_id;
             const token_payload = getToken();
-            const hasToken = Boolean(token_payload?.token);
+            const hasToken = typeof token_payload?.token === 'string' && token_payload.token.length > 0;
             if (isSpecialCaseLoginId(active_loginid)) {
                 console.log('[SpecialAccount][authorizeAndSubscribe] Starting auth flow', {
                     active_loginid,
@@ -441,6 +441,12 @@ class APIBase {
             }
             this.subscribe();
         } catch (e) {
+            if (isSpecialCaseLoginId(this.account_id)) {
+                console.error('[SpecialAccount][authorizeAndSubscribe] Unhandled auth exception', {
+                    active_loginid: this.account_id,
+                    error: e,
+                });
+            }
             this.is_authorized = false;
             clearAuthData();
             setIsAuthorized(false);
