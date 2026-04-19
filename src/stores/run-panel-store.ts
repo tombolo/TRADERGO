@@ -997,6 +997,8 @@ export default class RunPanelStore {
 
         const indicateBotStopped = () => {
             this.error_type = undefined;
+            this.setIsRunning(false);
+            this.setHasOpenContract(false);
             this.setContractStage(contract_stages.NOT_RUNNING);
             ui.setAccountSwitcherDisabledMessage();
             this.unregisterBotListeners();
@@ -1012,11 +1014,9 @@ export default class RunPanelStore {
                 this.error_type = undefined;
                 this.setContractStage(contract_stages.PURCHASE_SENT);
             } else {
-                this.setIsRunning(false);
                 indicateBotStopped();
             }
         } else if (this.error_type === ErrorTypes.UNRECOVERABLE_ERRORS) {
-            this.setIsRunning(false);
             indicateBotStopped();
         } else if (this.has_open_contract) {
             this.error_type = undefined;
@@ -1025,6 +1025,10 @@ export default class RunPanelStore {
             ui.setAccountSwitcherDisabledMessage();
             this.unregisterBotListeners();
             self_exclusion?.resetSelfExclusion?.();
+            this.setIsRunning(false);
+            this.setHasOpenContract(false);
+        } else {
+            indicateBotStopped();
         }
     };
 
