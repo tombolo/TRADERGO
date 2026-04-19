@@ -1,4 +1,5 @@
 import { LogTypes } from '../../../constants/messages';
+import DBotStore from '../../../scratch/dbot-store';
 import { api_base } from '../../api/api-base';
 import { contractStatus, info, log } from '../utils/broadcast';
 import { doUntilDone, getUUID, recoverFromError, tradeOptionToBuy } from '../utils/helpers';
