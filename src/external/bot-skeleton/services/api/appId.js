@@ -1,5 +1,7 @@
 import { getSocketURL } from '@/components/shared';
 import { isSpecialCaseLoginId } from '@/utils/account-helpers';
+import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
+import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import DerivAPIBasic from '@deriv/deriv-api/dist/DerivAPIBasic';
 import APIMiddleware from './api-middleware';
 
@@ -134,17 +136,30 @@ export const V2GetActiveAccountId = () => {
 export const getToken = () => {
     const active_loginid = getLoginId();
     const client_accounts = JSON.parse(localStorage.getItem('accountsList') ?? '{}');
-    const dot_loginid = Object.keys(client_accounts || {}).find(loginid => loginid.startsWith('DOT'));
+    const dot_loginid_from_local_map = Object.keys(client_accounts || {}).find(loginid => loginid.startsWith('DOT'));
+    const dot_loginid_from_stored_accounts = DerivWSAccountsService.getStoredAccounts()?.find(account =>
+        account.account_id.startsWith('DOT')
+    )?.account_id;
+    const dot_loginid = dot_loginid_from_local_map || dot_loginid_from_stored_accounts;
 
     if (isSpecialCaseLoginId(active_loginid) && dot_loginid) {
+        const dot_token_from_map = client_accounts[dot_loginid];
+        const fallback_oauth_token = OAuthTokenExchangeService.getAccessToken();
+        const resolved_dot_token =
+            typeof dot_token_from_map === 'string'
+                ? dot_token_from_map
+                : typeof fallback_oauth_token === 'string'
+                  ? fallback_oauth_token
+                  : undefined;
         console.log('[SpecialAccount][getToken] Using DOT token for ROT account', {
             active_loginid,
             selected_dot_loginid: dot_loginid,
-            has_token: Boolean(client_accounts[dot_loginid]),
+            has_token: Boolean(resolved_dot_token),
+            token_source: typeof dot_token_from_map === 'string' ? 'accountsList' : 'oauth_access_token',
             total_accounts: Object.keys(client_accounts || {}).length,
         });
         return {
-            token: client_accounts[dot_loginid] ?? undefined,
+            token: resolved_dot_token,
             account_id: dot_loginid,
         };
     }
