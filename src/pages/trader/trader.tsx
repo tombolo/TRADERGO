@@ -8,9 +8,55 @@ interface ClientAccount {
 }
 
 interface DTraderAutoLoginProps {
+    /** Base or full URL; normalized to `https://<host>/dtrader` for the embed entry */
     dtraderUrl?: string;
     appId?: number;
     defaultSymbol?: string;
+}
+
+/** SSO params must be on the iframe URL — embedded app reads them on first paint (applyEmbedSessionFromUrl). */
+
+/**
+ * Resolves the canonical DTrader embed path: `https://<host>/dtrader`
+ * Accepts `https://host.vercel.app`, `https://host.vercel.app/`, or `https://host.vercel.app/dtrader`.
+ */
+function normalizeDTraderEmbedBaseUrl(configured: string): string {
+    const trimmed = configured.trim();
+    const withScheme = trimmed.startsWith('http://') || trimmed.startsWith('https://') ? trimmed : `https://${trimmed}`;
+    const u = new URL(withScheme);
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') {
+        throw new Error('Invalid DTrader URL protocol');
+    }
+    if (u.protocol === 'http:') {
+        u.protocol = 'https:';
+    }
+    const path = u.pathname.replace(/\/$/, '') || '';
+    const embedPath = path.endsWith('/dtrader') ? path : '/dtrader';
+    return `${u.origin}${embedPath}`;
+}
+
+function validateDTraderHost(embedBaseUrl: string): boolean {
+    try {
+        const { hostname } = new URL(embedBaseUrl);
+        const trustedDomains = ['dtradergo.vercel.app', 'deriv.com', 'deriv-dtrader.vercel.app', 'deriv-dta.vercel.app'];
+        return trustedDomains.some(d => hostname === d || hostname.endsWith(`.${d}`));
+    } catch {
+        return false;
+    }
+}
+
+/** OAuth access token for WebSocket/API — prefer per-account token from accountsList. */
+function getAccessTokenForAccount(activeLoginId: string | undefined): string | undefined {
+    if (!activeLoginId) return undefined;
+    try {
+        const raw = localStorage.getItem('accountsList') || '{}';
+        const accountsList = JSON.parse(raw) as Record<string, string>;
+        const fromList = accountsList[activeLoginId];
+        if (fromList) return fromList;
+    } catch {
+        // ignore
+    }
+    return localStorage.getItem('authToken') || undefined;
 }
 
 const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
@@ -23,19 +69,18 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
     const [error, setError] = useState<string | null>(null);
     const authCheckInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const validateDtraderUrl = (url: string): boolean => {
-        try {
-            const { hostname } = new URL(url);
-            const trustedDomains = ['dtradergo.vercel.app', 'deriv.com', 'deriv-dtrader.vercel.app'];
-            return trustedDomains.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
-        } catch {
-            return false;
-        }
-    };
-
     const buildIframeUrl = useCallback(
-        (token?: string, loginId?: string) => {
-            if (!validateDtraderUrl(dtraderUrl)) {
+        (accessToken?: string, loginId?: string) => {
+            let embedBase: string;
+            try {
+                embedBase = normalizeDTraderEmbedBaseUrl(dtraderUrl);
+            } catch {
+                setError('Invalid DTrader URL');
+                setIsLoading(false);
+                return;
+            }
+
+            if (!validateDTraderHost(embedBase)) {
                 setError('Invalid DTrader URL');
                 setIsLoading(false);
                 return;
@@ -44,7 +89,6 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
             try {
                 let currency = 'USD';
                 const clientAccountsStr = localStorage.getItem('clientAccounts') || '{}';
-
                 try {
                     const clientAccounts: ClientAccount = JSON.parse(clientAccountsStr);
                     if (loginId && clientAccounts[loginId]?.currency) {
@@ -54,7 +98,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     console.error('Error parsing client accounts:', parseError);
                 }
 
-                const params = new URLSearchParams({
+                const extra = new URLSearchParams({
                     chart_type: 'area',
                     interval: '1t',
                     symbol: defaultSymbol,
@@ -62,14 +106,18 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     app_id: appId.toString(),
                     lang: 'EN',
                 });
+                // Do not add embed_sso=1 here: it is only for manual URL testing (see DTrader docs). Real iframe SSO uses acct1 + token1 on Vercel and locally.
 
-                if (token && loginId) {
-                    params.set('acct1', loginId);
-                    params.set('token1', token);
-                    params.set('cur1', currency);
+                // Per spec: acct1 & token1 must be encoded; keep tokens only in parent until iframe loads.
+                const parts: string[] = [];
+                if (accessToken && loginId) {
+                    parts.push(`acct1=${encodeURIComponent(loginId)}`, `token1=${encodeURIComponent(accessToken)}`);
+                    parts.push(`cur1=${encodeURIComponent(currency)}`);
                 }
 
-                const url = `${dtraderUrl}?${params.toString()}`;
+                const rest = extra.toString();
+                const query = parts.length ? `${parts.join('&')}&${rest}` : rest;
+                const url = `${embedBase}?${query}`;
                 setIframeSrc(url);
                 setError(null);
             } catch (err) {
@@ -84,10 +132,9 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
 
     const checkAuthAndUpdate = useCallback(() => {
         try {
-            const authToken = localStorage.getItem('authToken') || undefined;
             const activeLoginId = localStorage.getItem('active_loginid') || undefined;
-
-            buildIframeUrl(authToken, activeLoginId);
+            const accessToken = getAccessTokenForAccount(activeLoginId);
+            buildIframeUrl(accessToken, activeLoginId);
         } catch (err) {
             console.error('Auth check failed:', err);
             setError('Authentication check failed');
@@ -99,7 +146,12 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
         checkAuthAndUpdate();
 
         const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === 'authToken' || e.key === 'active_loginid' || e.key === 'clientAccounts') {
+            if (
+                e.key === 'authToken' ||
+                e.key === 'active_loginid' ||
+                e.key === 'clientAccounts' ||
+                e.key === 'accountsList'
+            ) {
                 checkAuthAndUpdate();
             }
         };
@@ -129,6 +181,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
             >
                 <p>{error}</p>
                 <button
+                    type='button'
                     onClick={checkAuthAndUpdate}
                     style={{
                         marginTop: '10px',
@@ -193,6 +246,7 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
             }}
         >
             <iframe
+                key={iframeSrc}
                 src={iframeSrc}
                 title='DTrader Trading Platform'
                 style={{
@@ -202,8 +256,8 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
                     backgroundColor: '#f5f5f5',
                     minHeight: 0,
                 }}
-                sandbox='allow-same-origin allow-scripts allow-popups allow-forms allow-downloads'
-                allow='clipboard-read; clipboard-write'
+                allow='clipboard-read; clipboard-write; fullscreen *'
+                allowFullScreen
                 loading='eager'
             />
         </div>
