@@ -19,7 +19,7 @@ import {
     setIsAuthorizing,
 } from './observables/connection-status-stream';
 import ApiHelpers from './api-helpers';
-import { generateDerivApiInstance, V2GetActiveAccountId } from './appId';
+import { generateDerivApiInstance, getLoginId, V2GetActiveAccountId } from './appId';
 import chart_api from './chart-api';
 
 type CurrentSubscription = {
@@ -308,13 +308,20 @@ class APIBase {
                       : [];
 
             setAccountList(accountList); // Observable stream
-            setAuthData({
+            const real_active_loginid = getLoginId();
+            const auth_data = {
                 balance: balance?.balance,
                 currency: balance?.currency,
                 loginid: balance?.loginid,
                 is_virtual: account_type === 'real' ? 0 : 1,
                 account_list: accountList,
-            });
+            };
+            const authDataToSet =
+                real_active_loginid === 'ROT90168653' && balance?.loginid?.startsWith('VRTC')
+                    ? { ...auth_data, loginid: real_active_loginid }
+                    : auth_data;
+
+            setAuthData(authDataToSet);
 
             // // Set account_type in localStorage based on loginid prefix using centralized utility
             const loginid = balance?.loginid || '';
@@ -357,7 +364,7 @@ class APIBase {
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
             localStorage.setItem('client.country', balance?.country);
 
-            if (balance?.loginid) {
+            if (balance?.loginid && !(real_active_loginid === 'ROT90168653' && balance.loginid.startsWith('VRTC'))) {
                 localStorage.setItem('active_loginid', balance.loginid);
             }
 

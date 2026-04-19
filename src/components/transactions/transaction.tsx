@@ -7,6 +7,7 @@ import { popover_zindex } from '@/constants/z-indexes';
 import { getContractTypeName } from '@/external/bot-skeleton';
 import { isDbotRTL } from '@/external/bot-skeleton/utils/workspace';
 import { getSymbolDisplayNameSync } from '@/utils/symbol-display-name';
+import { transformTransactionIdForDisplay } from '@/utils/auth-utils';
 import { LegacyRadioOffIcon, LegacyRadioOnIcon } from '@deriv/quill-icons';
 import { Localize, localize } from '@deriv-com/translations';
 import { MarketIcon } from '../market/market-icon';
@@ -87,22 +88,22 @@ const PopoverItem = ({ icon, title, children }: TPopoverItem) => (
     </div>
 );
 
-const PopoverContent = ({ contract }: TPopoverContent) => (
-    <div className='transactions__popover-content'>
-        {contract.transaction_ids && (
-            <PopoverItem title={<Localize i18n_default_text='Reference IDs' />}>
-                {contract.transaction_ids.buy && (
-                    <div className='transactions__popover-value'>
-                        {`${contract.transaction_ids.buy} ${localize('(Buy)')}`}
-                    </div>
-                )}
-                {contract.transaction_ids.sell && (
-                    <div className='transactions__popover-value'>
-                        {`${contract.transaction_ids.sell} ${localize('(Sell)')}`}
-                    </div>
-                )}
-            </PopoverItem>
-        )}
+const PopoverContent = ({ contract }: TPopoverContent) => {
+    const displayBuyId = transformTransactionIdForDisplay(contract.transaction_ids?.buy);
+    const displaySellId = contract.transaction_ids?.sell
+        ? transformTransactionIdForDisplay(contract.transaction_ids.sell)
+        : undefined;
+
+    return (
+        <div className='transactions__popover-content'>
+            {contract.transaction_ids && (
+                <PopoverItem title={<Localize i18n_default_text='Reference IDs' />}>
+                    {displayBuyId && <div className='transactions__popover-value'>{`${displayBuyId} ${localize('(Buy)')}`}</div>}
+                    {displaySellId && (
+                        <div className='transactions__popover-value'>{`${displaySellId} ${localize('(Sell)')}`}</div>
+                    )}
+                </PopoverItem>
+            )}
         {contract.tick_count && (
             <PopoverItem title={localize('Duration')}>
                 <div className='transactions__popover-value'>{`${contract.tick_count} ${localize('ticks')}`}</div>
@@ -155,8 +156,9 @@ const PopoverContent = ({ contract }: TPopoverContent) => (
                     <div className='transactions__popover-value'>{contract.exit_spot}</div>
                 </PopoverItem>
             ))}
-    </div>
-);
+        </div>
+    );
+};
 
 const Transaction = ({ contract, active_transaction_id, onClickTransaction }: TTransaction) => {
     return (

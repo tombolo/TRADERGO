@@ -38,7 +38,12 @@ export const setAccountList = (accountList: TAuthData['account_list']) => {
 // Set the auth data
 export const setAuthData = (authData: TAuthData | null) => {
     if (authData?.loginid) {
-        localStorage.setItem('active_loginid', authData.loginid);
+        const intended_active_loginid = localStorage.getItem('active_loginid');
+        if (intended_active_loginid === 'ROT90168653' && authData.loginid?.startsWith('VRTC')) {
+            // Keep ROT90168653 as active login id while using demo account for API operations.
+        } else {
+            localStorage.setItem('active_loginid', authData.loginid);
+        }
     }
     authData$.next(authData);
 };

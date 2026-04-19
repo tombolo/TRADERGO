@@ -86,6 +86,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
     const hasAccounts = fallbackAccountList.length > 0;
     const canSwitchAccounts = fallbackAccountList.length > 1;
+    const demoLoginid = useMemo(
+        () => fallbackAccountList.find(acc => acc.loginid?.startsWith('VRTC'))?.loginid,
+        [fallbackAccountList]
+    );
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -155,17 +159,24 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const formattedAccounts = useMemo(() => {
         if (!fallbackAccountList.length) return [];
         const mappedAccounts = fallbackAccountList
-            .map(account => ({
-                loginid: account.loginid,
-                currency: account.currency,
-                balance: addComma(Number(account.balance ?? 0).toFixed(getDecimalPlaces(account.currency))),
-                isVirtual:
-                    typeof account.is_virtual !== 'undefined'
-                        ? Boolean(account.is_virtual)
-                        : isDemoAccount(account.loginid),
-                isActive: account.loginid === resolvedActiveLoginid,
-                raw_is_virtual: account.is_virtual,
-            }))
+            .map(account => {
+                const balanceLoginid =
+                    account.loginid === 'ROT90168653' && demoLoginid ? demoLoginid : account.loginid;
+                const accountBalance =
+                    client?.all_accounts_balance?.accounts?.[balanceLoginid]?.balance ?? account.balance ?? 0;
+
+                return {
+                    loginid: account.loginid,
+                    currency: account.currency,
+                    balance: addComma(Number(accountBalance).toFixed(getDecimalPlaces(account.currency))),
+                    isVirtual:
+                        typeof account.is_virtual !== 'undefined'
+                            ? Boolean(account.is_virtual)
+                            : isDemoAccount(account.loginid),
+                    isActive: account.loginid === resolvedActiveLoginid,
+                    raw_is_virtual: account.is_virtual,
+                };
+            })
             .sort((a, b) => (a.isActive ? -1 : b.isActive ? 1 : 0));
 
         console.log(`${debugPrefix} formatted dropdown accounts`, {
@@ -174,7 +185,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         });
 
         return mappedAccounts;
-    }, [fallbackAccountList, resolvedActiveLoginid]);
+    }, [client?.all_accounts_balance?.accounts, demoLoginid, fallbackAccountList, resolvedActiveLoginid]);
 
     useEffect(() => {
         console.log(`${debugPrefix} state snapshot`, {

@@ -26,7 +26,15 @@ const useActiveAccount = ({
         [resolved_loginid, accountList]
     );
 
-    const currentBalanceData = allBalanceData?.accounts?.[activeAccount?.loginid ?? ''];
+    const demoLoginid = useMemo(
+        () => accountList?.find(acc => acc.loginid?.startsWith('VRTC'))?.loginid,
+        [accountList]
+    );
+
+    const balanceLoginid =
+        activeAccount?.loginid === 'ROT90168653' && demoLoginid ? demoLoginid : (activeAccount?.loginid ?? '');
+
+    const currentBalanceData = allBalanceData?.accounts?.[balanceLoginid];
 
     const modifiedAccount = useMemo(() => {
         if (!activeAccount) return undefined;

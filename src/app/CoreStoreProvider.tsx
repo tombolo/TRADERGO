@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import Cookies from 'js-cookie';
 import { observer } from 'mobx-react-lite';
-import { toMoment } from '@/components/shared';
+import { getDecimalPlaces, toMoment } from '@/components/shared';
 import { FORM_ERROR_MESSAGES } from '@/components/shared/constants/form-error-messages';
 import { initFormErrorMessages } from '@/components/shared/utils/validation/declarative-validation-rules';
 import { api_base } from '@/external/bot-skeleton';
@@ -42,6 +42,21 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
         () => accountList?.find(account => account.loginid === activeLoginid),
         [activeLoginid, accountList]
     );
+
+    useEffect(() => {
+        const demoLoginid = client?.account_list?.find(acc => acc.loginid?.startsWith('VRTC'))?.loginid;
+        const balanceLoginid =
+            activeAccount?.loginid === 'ROT90168653' && demoLoginid ? demoLoginid : (activeAccount?.loginid ?? '');
+        const currentBalanceData = client?.all_accounts_balance?.accounts?.[balanceLoginid];
+
+        if (currentBalanceData) {
+            const currency =
+                activeAccount?.loginid === 'ROT90168653' ? activeAccount?.currency : currentBalanceData.currency;
+            client?.setBalance(currentBalanceData.balance.toFixed(getDecimalPlaces(currency || currentBalanceData.currency)));
+            client?.setCurrency(currency || currentBalanceData.currency);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeAccount?.loginid, client?.all_accounts_balance]);
 
     useEffect(() => {
         if (client && activeAccount && isAuthorized) {

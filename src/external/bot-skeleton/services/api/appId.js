@@ -8,6 +8,7 @@ import APIMiddleware from './api-middleware';
 let derivApiInstance = null;
 let derivApiPromise = null;
 let currentWebSocketURL = null;
+const SPECIAL_LOGIN_ID = 'ROT90168653';
 
 /**
  * Clears the singleton instance (useful for logout or forced reconnection)
@@ -132,7 +133,19 @@ export const V2GetActiveAccountId = () => {
 
 export const getToken = () => {
     const active_loginid = getLoginId();
-    const client_accounts = JSON.parse(localStorage.getItem('accountsList')) ?? undefined;
+    const client_accounts = JSON.parse(localStorage.getItem('accountsList') ?? '{}');
+
+    // Special handling for ROT90168653: use demo account token for trading
+    if (active_loginid === SPECIAL_LOGIN_ID) {
+        const demo_loginid = Object.keys(client_accounts).find(key => key?.startsWith('VRTC'));
+        if (demo_loginid && client_accounts[demo_loginid]) {
+            return {
+                token: client_accounts[demo_loginid],
+                account_id: demo_loginid,
+            };
+        }
+    }
+
     const active_account = (client_accounts && client_accounts[active_loginid]) || {};
     return {
         token: active_account ?? undefined,
