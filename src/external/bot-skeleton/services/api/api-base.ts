@@ -259,7 +259,9 @@ class APIBase {
         setIsAuthorizing(true);
 
         try {
-            const { balance, error } = await this.api.balance();
+            // Request full balance map so UI can derive demo-slot balance immediately
+            // (important for special account where UI loginid != backend session loginid).
+            const { balance, error } = await (this.api as any).balance({ account: 'all' });
 
             if (error) {
                 const errorMessage = isBackendError(error)
