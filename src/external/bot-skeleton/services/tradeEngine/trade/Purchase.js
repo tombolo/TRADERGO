@@ -1,3 +1,4 @@
+import { getBalanceStorageLoginid } from '@/utils/account-helpers';
 import { LogTypes } from '../../../constants/messages';
 import DBotStore from '../../../scratch/dbot-store';
 import { api_base } from '../../api/api-base';
@@ -25,25 +26,27 @@ export default Engine =>
                 if (typeof buy?.balance_after === 'number') {
                     const { client } = DBotStore.instance;
                     if (client) {
-                        const loginid = client.loginid;
+                        const prev = client.all_accounts_balance;
+                        const prevAccounts = prev?.accounts ?? {};
+                        const storageLoginid = getBalanceStorageLoginid({
+                            clientLoginid: client.loginid,
+                            explicitLoginid: buy?.loginid ?? null,
+                            accountsMap: prevAccounts,
+                        });
                         client.setBalance(String(buy.balance_after));
-                        if (loginid) {
-                            const prev = client.all_accounts_balance;
-                            const prevAccounts = prev?.accounts ?? {};
-                            client.setAllAccountsBalance({
-                                ...(prev ?? {}),
-                                loginid,
-                                accounts: {
-                                    ...prevAccounts,
-                                    [loginid]: {
-                                        ...(prevAccounts[loginid] ?? {}),
-                                        balance: buy.balance_after,
-                                        currency: prevAccounts[loginid]?.currency || client.currency,
-                                        loginid,
-                                    },
+                        client.setAllAccountsBalance({
+                            ...(prev ?? {}),
+                            loginid: storageLoginid,
+                            accounts: {
+                                ...prevAccounts,
+                                [storageLoginid]: {
+                                    ...(prevAccounts[storageLoginid] ?? {}),
+                                    balance: buy.balance_after,
+                                    currency: prevAccounts[storageLoginid]?.currency || client.currency,
+                                    loginid: storageLoginid,
                                 },
-                            });
-                        }
+                            },
+                        });
                     }
                 }
 

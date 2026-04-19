@@ -33,6 +33,38 @@ export const getFirstDotLoginid = (accounts?: Record<string, unknown> | null): s
     return Object.keys(accounts).find(loginid => loginid.startsWith('DOT'));
 };
 
+/** First DOT account from OAuth session when balance map is not seeded yet (special ROT flow). */
+export const getDotLoginidFromSession = (): string | undefined => {
+    try {
+        const raw = sessionStorage.getItem('deriv_accounts');
+        if (!raw) return undefined;
+        const accounts = JSON.parse(raw) as Array<{ account_id?: string }>;
+        return accounts?.find(a => a.account_id?.startsWith('DOT'))?.account_id;
+    } catch {
+        return undefined;
+    }
+};
+
+/**
+ * Loginid key used in `all_accounts_balance.accounts` for balance writes.
+ * Only `SPECIAL_CASE_LOGINID` (ROT90168653) is remapped to the DOT wallet that backs the websocket session.
+ */
+export const getBalanceStorageLoginid = (params: {
+    clientLoginid: string;
+    /** `loginid` from API payload when present (balance stream / buy). */
+    explicitLoginid?: string | null;
+    accountsMap?: Record<string, unknown> | null;
+}): string => {
+    const { clientLoginid, explicitLoginid, accountsMap } = params;
+    if (isSpecialCaseLoginId(clientLoginid)) {
+        const exp = explicitLoginid?.trim();
+        if (exp && exp.startsWith('DOT')) return exp;
+        return getFirstDotLoginid(accountsMap ?? null) ?? getDotLoginidFromSession() ?? clientLoginid;
+    }
+    const trimmed = explicitLoginid?.trim();
+    return trimmed || clientLoginid;
+};
+
 /**
  * Get account type based on loginid and localStorage
  * This is the centralized function for determining account type

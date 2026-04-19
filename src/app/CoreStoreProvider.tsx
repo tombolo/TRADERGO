@@ -10,7 +10,7 @@ import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
-import { getFirstDotLoginid, isSpecialCaseLoginId } from '@/utils/account-helpers';
+import { getDotLoginidFromSession, getFirstDotLoginid, isSpecialCaseLoginId } from '@/utils/account-helpers';
 import type { Balance } from '@deriv/api-types';
 import { useTranslations } from '@deriv-com/translations';
 
@@ -23,18 +23,6 @@ type TClientInformation = {
     last_name?: string;
     preferred_language?: string | null;
     user_id?: number | string;
-};
-
-/** First DOT account from OAuth session when balance map is not seeded yet (special ROT flow). */
-const getDotLoginidFromSession = (): string | undefined => {
-    try {
-        const raw = sessionStorage.getItem('deriv_accounts');
-        if (!raw) return undefined;
-        const accounts = JSON.parse(raw) as Array<{ account_id?: string }>;
-        return accounts?.find(a => a.account_id?.startsWith('DOT'))?.account_id;
-    } catch {
-        return undefined;
-    }
 };
 
 const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ children }) => {

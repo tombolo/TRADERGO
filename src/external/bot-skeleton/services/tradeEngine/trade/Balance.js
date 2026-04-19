@@ -1,4 +1,5 @@
 import { getFormattedText } from '@/components/shared';
+import { getBalanceStorageLoginid } from '@/utils/account-helpers';
 import DBotStore from '../../../scratch/dbot-store';
 import { api_base } from '../../api/api-base';
 import { info } from '../utils/broadcast';
@@ -21,27 +22,29 @@ export default Engine =>
                     const { client } = DBotStore.instance;
                     if (client) {
                         client.setBalance(String(b));
-                        const loginid =
-                            data.balance?.loginid || data.loginid || client.loginid;
-                        if (loginid && client.all_accounts_balance) {
-                            const prev = client.all_accounts_balance;
-                            const prevAccounts = prev?.accounts ?? {};
-                            client.setAllAccountsBalance({
-                                ...prev,
-                                accounts: {
-                                    ...prevAccounts,
-                                    [loginid]: {
-                                        ...(prevAccounts[loginid] ?? {}),
-                                        balance: b,
-                                        currency:
-                                            currency ||
-                                            prevAccounts[loginid]?.currency ||
-                                            client.currency,
-                                        loginid,
-                                    },
+                        const prev = client.all_accounts_balance;
+                        const prevAccounts = prev?.accounts ?? {};
+                        const storageLoginid = getBalanceStorageLoginid({
+                            clientLoginid: client.loginid,
+                            explicitLoginid: data.balance?.loginid ?? data.loginid ?? null,
+                            accountsMap: prevAccounts,
+                        });
+                        client.setAllAccountsBalance({
+                            ...(prev ?? {}),
+                            loginid: storageLoginid,
+                            accounts: {
+                                ...prevAccounts,
+                                [storageLoginid]: {
+                                    ...(prevAccounts[storageLoginid] ?? {}),
+                                    balance: b,
+                                    currency:
+                                        currency ||
+                                        prevAccounts[storageLoginid]?.currency ||
+                                        client.currency,
+                                    loginid: storageLoginid,
                                 },
-                            });
-                        }
+                            },
+                        });
                     }
 
                     if (this.accountInfo) info({ accountID: this.accountInfo.loginid, balance: balance_string });
