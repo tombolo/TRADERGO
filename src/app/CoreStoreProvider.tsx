@@ -5,6 +5,7 @@ import { getDecimalPlaces, toMoment } from '@/components/shared';
 import { FORM_ERROR_MESSAGES } from '@/components/shared/constants/form-error-messages';
 import { initFormErrorMessages } from '@/components/shared/utils/validation/declarative-validation-rules';
 import { api_base } from '@/external/bot-skeleton';
+import { CONNECTION_STATUS } from '@/external/bot-skeleton/services/api/observables/connection-status-stream';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
@@ -182,8 +183,15 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
         // Changed parameter type from Record<string, unknown> to unknown to match onMessage signature
         async (res: unknown) => {
             if (!res) return;
-            const data = (res as Record<string, unknown>).data as TSocketResponseData<'balance'>;
-            const { msg_type, error } = data;
+            const envelope = res as Record<string, unknown>;
+            // Deriv middleware / subscribers vary: some pass `{ data: payload }`, others pass the API payload root.
+            const data = (
+                envelope && typeof envelope === 'object' && 'data' in envelope && envelope.data !== undefined
+                    ? envelope.data
+                    : envelope
+            ) as TSocketResponseData<'balance'> & Record<string, unknown>;
+            const msg_type = data?.msg_type;
+            const error = data?.error as { code?: string } | undefined;
 
             // Handle auth errors by calling client.logout() directly instead of useLogout hook
             // This prevents redundant logout operations since useLogout internally calls client.logout()
@@ -284,12 +292,14 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     );
 
     useEffect(() => {
-        if (!isAuthorizing && client) {
-            const subscription = api_base?.api?.onMessage().subscribe(handleMessages);
-            // Fixed unsubscribe type - only store if subscription exists
-            if (subscription) {
-                msg_listener.current = { unsubscribe: subscription.unsubscribe };
-            }
+        if (!client || !api_base.api) return;
+        // Do not gate on isAuthorizing: api can be ready before that flag flips, and balance ticks
+        // must always reach the client store. Re-bind when the socket reports opened again.
+        if (connectionStatus !== CONNECTION_STATUS.OPENED) return;
+
+        const subscription = api_base.api.onMessage().subscribe(handleMessages);
+        if (subscription) {
+            msg_listener.current = { unsubscribe: subscription.unsubscribe };
         }
 
         return () => {
@@ -297,7 +307,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 msg_listener.current.unsubscribe?.();
             }
         };
-    }, [connectionStatus, handleMessages, isAuthorizing, isAuthorized, client]);
+    }, [connectionStatus, handleMessages, client]);
 
     useEffect(() => {
         if (!isAuthorizing && isAuthorized && !accountInitialization.current && client) {
