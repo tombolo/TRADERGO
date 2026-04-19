@@ -349,6 +349,17 @@ export default class ClientStore {
      */
     needsWebSocketRegeneration(): boolean {
         const active_login_id = getAccountId();
+
+        // Special handling: UI is "real" ROT90168653 but WS is demo DOT*/VRTC*/etc.
+        // In that case, the mismatch is intentional and should NOT trigger regeneration loops.
+        if (
+            active_login_id === 'ROT90168653' &&
+            this.ws_login_id &&
+            isDemoAccount(this.ws_login_id)
+        ) {
+            return false;
+        }
+
         return (
             !this.is_regenerating &&
             !!active_login_id &&
