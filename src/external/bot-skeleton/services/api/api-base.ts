@@ -19,7 +19,7 @@ import {
     setIsAuthorizing,
 } from './observables/connection-status-stream';
 import ApiHelpers from './api-helpers';
-import { generateDerivApiInstance, getLoginId, V2GetActiveAccountId } from './appId';
+import { generateDerivApiInstance, V2GetActiveAccountId } from './appId';
 import chart_api from './chart-api';
 
 type CurrentSubscription = {
@@ -40,6 +40,7 @@ type TApiBaseApi = {
     send: (data: unknown) => void;
     disconnect: () => void;
     authorize: (token: string) => Promise<{ authorize: TAuthData; error: unknown }>;
+    balance: () => Promise<{ balance: Balance; error: unknown }>;
 
     onMessage: () => {
         subscribe: (callback: (message: unknown) => void) => {
@@ -259,14 +260,12 @@ class APIBase {
         setIsAuthorizing(true);
 
         try {
-            // Request full balance map so UI can derive demo-slot balance immediately
-            // (important for special account where UI loginid != backend session loginid).
-            const { balance, error } = await (this.api as any).balance({ account: 'all' });
+            const { balance, error } = await this.api.balance();
 
             if (error) {
                 const errorMessage = isBackendError(error)
                     ? handleBackendError(error)
-                    : error.message || 'Authorization failed';
+                    : (error as any)?.message || 'Authorization failed';
 
                 // Authorization error
                 console.error('Authorization error:', errorMessage);
@@ -310,44 +309,16 @@ class APIBase {
                       : [];
 
             setAccountList(accountList); // Observable stream
-            const real_active_loginid = getLoginId();
-            const is_special_demo_mode =
-                real_active_loginid === 'ROT90168653' && isDemoAccount(balance?.loginid || '');
-            const ui_loginid = is_special_demo_mode ? (real_active_loginid as string) : (balance?.loginid || '');
-            const ui_account = accountList.find(account => account.loginid === ui_loginid);
-            const ui_is_virtual =
-                typeof ui_account?.is_virtual === 'number' ? ui_account.is_virtual : isDemoAccount(ui_loginid) ? 1 : 0;
-            const ui_currency = ui_account?.currency || balance?.currency || 'USD';
-
-            if (real_active_loginid === 'ROT90168653') {
-                console.log('[SpecialAccount][APIBase] authorize snapshot', {
-                    real_active_loginid,
-                    api_balance_loginid: balance?.loginid,
-                    api_balance_currency: balance?.currency,
-                    is_special_demo_mode,
-                    ui_loginid,
-                    ui_currency,
-                    ui_is_virtual,
-                    accountListCount: accountList?.length ?? 0,
-                    hasAccountsMap: Boolean((balance as any)?.accounts),
-                });
-            }
-
-            const auth_data = {
-                // For special account, UI identity stays real but balance is sourced from demo API session.
-                balance:
-                    is_special_demo_mode && typeof balance?.balance === 'number'
-                        ? balance.balance
-                        : balance?.balance,
-                currency: ui_currency,
-                loginid: ui_loginid,
-                is_virtual: ui_is_virtual,
+            setAuthData({
+                balance: balance?.balance,
+                currency: balance?.currency,
+                loginid: balance?.loginid,
+                is_virtual: account_type === 'real' ? 0 : 1,
                 account_list: accountList,
-            };
-            setAuthData(auth_data);
+            });
 
             // // Set account_type in localStorage based on loginid prefix using centralized utility
-            const loginid = ui_loginid;
+            const loginid = balance?.loginid || '';
             const isDemo = isDemoAccount(loginid);
 
             if (isDemo) {
@@ -359,15 +330,10 @@ class APIBase {
             globalObserver.emit('api.authorize', {
                 account_list: accountList,
                 current_account: {
-                    loginid: ui_loginid,
-                    currency: ui_currency,
-                    is_virtual: ui_is_virtual,
-                    balance:
-                        is_special_demo_mode && typeof balance?.balance === 'number'
-                            ? balance.balance
-                            : typeof ui_account?.balance === 'number'
-                              ? ui_account.balance
-                              : undefined,
+                    loginid: balance?.loginid,
+                    currency: balance?.currency || 'USD',
+                    is_virtual: account_type === 'real' ? 0 : 1,
+                    balance: typeof balance?.balance === 'number' ? balance.balance : undefined,
                 },
             });
 
@@ -390,9 +356,9 @@ class APIBase {
             setIsAuthorized(true);
             this.is_authorized = true;
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
-            localStorage.setItem('client.country', balance?.country);
+            localStorage.setItem('client.country', (balance as any)?.country);
 
-            if (balance?.loginid && !is_special_demo_mode) {
+            if (balance?.loginid) {
                 localStorage.setItem('active_loginid', balance.loginid);
             }
 

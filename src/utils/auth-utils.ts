@@ -1,27 +1,6 @@
 /**
  * Utility functions for authentication-related operations
  */
-import { getLoginId } from '@/external/bot-skeleton/services/api/appId';
-
-export const transformTransactionIdForDisplay = (
-    transaction_id: number | string | undefined
-): number | string | undefined => {
-    if (!transaction_id) return transaction_id;
-
-    const active_loginid = getLoginId();
-
-    if (active_loginid === 'ROT90168653') {
-        const idString = String(transaction_id);
-        const idNum = typeof transaction_id === 'string' ? parseInt(transaction_id, 10) : transaction_id;
-
-        if (!isNaN(idNum) && idString.length > 0) {
-            const transformedId = '147' + idString.slice(3);
-            return transformedId.length > 0 ? parseInt(transformedId, 10) : 147;
-        }
-    }
-
-    return transaction_id;
-};
 
 /**
  * Clears authentication data from local storage and reloads the page

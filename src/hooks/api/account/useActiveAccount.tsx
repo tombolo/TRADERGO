@@ -6,7 +6,6 @@ import { CurrencyIcon } from '@/components/currency/currency-icon';
 import { addComma, getDecimalPlaces } from '@/components/shared';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
-import { isDemoAccount } from '@/utils/account-helpers';
 import { Balance } from '@deriv/api-types';
 
 /** A custom hook that returns the account object for the current active account. */
@@ -27,12 +26,7 @@ const useActiveAccount = ({
         [resolved_loginid, accountList]
     );
 
-    const demoLoginid = useMemo(() => accountList?.find(acc => isDemoAccount(acc.loginid))?.loginid, [accountList]);
-
-    const balanceLoginid =
-        activeAccount?.loginid === 'ROT90168653' && demoLoginid ? demoLoginid : (activeAccount?.loginid ?? '');
-
-    const currentBalanceData = allBalanceData?.accounts?.[balanceLoginid];
+    const currentBalanceData = allBalanceData?.accounts?.[activeAccount?.loginid ?? ''];
 
     const modifiedAccount = useMemo(() => {
         if (!activeAccount) return undefined;

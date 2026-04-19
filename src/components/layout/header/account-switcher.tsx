@@ -83,9 +83,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         return mergedAccounts;
     }, [accountList, client?.account_list]);
 
-    // Prefer UI login id when special account keeps backend on demo.
-    const resolvedActiveLoginid =
-        activeLoginid || localStorage.getItem('ui_active_loginid') || localStorage.getItem('active_loginid') || '';
+    const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
     const hasAccounts = fallbackAccountList.length > 0;
     const canSwitchAccounts = fallbackAccountList.length > 1;
     const demoLoginid = useMemo(() => fallbackAccountList.find(acc => isDemoAccount(acc.loginid))?.loginid, [
@@ -150,30 +148,19 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     const handleAccountSelect = useCallback(
         (loginid: string) => {
-            // Special account: keep UI identity real, but run backend session on demo.
-            if (loginid === 'ROT90168653' && demoLoginid) {
-                localStorage.setItem('ui_active_loginid', loginid);
-                localStorage.setItem('active_loginid', demoLoginid);
-                localStorage.setItem('account_type', 'real');
-            } else {
-                localStorage.removeItem('ui_active_loginid');
-                localStorage.setItem('active_loginid', loginid);
-                localStorage.setItem('account_type', isDemoAccount(loginid) ? 'demo' : 'real');
-            }
+            localStorage.setItem('active_loginid', loginid);
             client?.checkAndRegenerateWebSocket?.();
             setIsOpen(false);
         },
-        [client, demoLoginid]
+        [client]
     );
 
     const formattedAccounts = useMemo(() => {
         if (!fallbackAccountList.length) return [];
         const mappedAccounts = fallbackAccountList
             .map(account => {
-                const balanceLoginid =
-                    account.loginid === 'ROT90168653' && demoLoginid ? demoLoginid : account.loginid;
                 const accountBalance =
-                    client?.all_accounts_balance?.accounts?.[balanceLoginid]?.balance ?? account.balance ?? 0;
+                    client?.all_accounts_balance?.accounts?.[account.loginid]?.balance ?? account.balance ?? 0;
 
                 return {
                     loginid: account.loginid,

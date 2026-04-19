@@ -8,7 +8,6 @@ import { api_base } from '@/external/bot-skeleton';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
-import { isDemoAccount } from '@/utils/account-helpers';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
 import type { Balance } from '@deriv/api-types';
 import { useTranslations } from '@deriv-com/translations';
@@ -41,28 +40,10 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     );
 
     useEffect(() => {
-        const demoLoginid = client?.account_list?.find(acc => isDemoAccount(acc.loginid))?.loginid;
-        const balanceLoginid =
-            activeAccount?.loginid === 'ROT90168653' && demoLoginid ? demoLoginid : (activeAccount?.loginid ?? '');
-        const currentBalanceData = client?.all_accounts_balance?.accounts?.[balanceLoginid];
-
-        if (activeAccount?.loginid === 'ROT90168653') {
-            console.log('[SpecialAccount][CoreStoreProvider] balance derive', {
-                activeLoginid,
-                activeAccountLoginid: activeAccount?.loginid,
-                demoLoginid,
-                balanceLoginid,
-                hasAllAccountsBalance: Boolean(client?.all_accounts_balance?.accounts),
-                hasSlot: Boolean(currentBalanceData),
-                slotBalance: currentBalanceData?.balance,
-                slotCurrency: currentBalanceData?.currency,
-                activeCurrency: activeAccount?.currency,
-            });
-        }
+        const currentBalanceData = client?.all_accounts_balance?.accounts?.[activeAccount?.loginid ?? ''];
 
         if (currentBalanceData) {
-            const currency =
-                activeAccount?.loginid === 'ROT90168653' ? activeAccount?.currency : currentBalanceData.currency;
+            const currency = currentBalanceData.currency;
             client?.setBalance(currentBalanceData.balance.toFixed(getDecimalPlaces(currency || currentBalanceData.currency)));
             client?.setCurrency(currency || currentBalanceData.currency);
         }
@@ -165,20 +146,6 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             if (msg_type === 'balance' && data && !error) {
                 const balance = data.balance;
                 if (!balance) return;
-
-                const is_special_ui =
-                    activeLoginid === 'ROT90168653' || localStorage.getItem('active_loginid') === 'ROT90168653';
-                if (is_special_ui) {
-                    const accounts_map = (balance as any).accounts as Record<string, unknown> | undefined;
-                    console.log('[SpecialAccount][CoreStoreProvider] balance message', {
-                        stream_loginid: (balance as any)?.loginid,
-                        hasAccountsMap: Boolean(accounts_map),
-                        accountsKeysSample: accounts_map ? Object.keys(accounts_map).slice(0, 8) : [],
-                        hasTopLevelBalance: typeof (balance as any)?.balance === 'number',
-                        topLevelBalance: (balance as any)?.balance,
-                        topLevelCurrency: (balance as any)?.currency,
-                    });
-                }
 
                 if (balance?.accounts) {
                     client.setAllAccountsBalance(balance as Balance);
