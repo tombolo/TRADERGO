@@ -45,6 +45,18 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
         const demo_loginid = getFirstDotLoginid(all_accounts);
         const balance_loginid = isSpecialCaseLoginId(activeLoginid) && demo_loginid ? demo_loginid : activeAccount?.loginid;
         const currentBalanceData = all_accounts?.[balance_loginid ?? ''];
+        if (isSpecialCaseLoginId(activeLoginid)) {
+            console.log('[SpecialAccount][CoreStoreProvider] Resolving displayed balance', {
+                activeLoginid,
+                activeAccountLoginid: activeAccount?.loginid,
+                demo_loginid,
+                balance_loginid,
+                has_all_accounts: Boolean(all_accounts),
+                available_account_keys: Object.keys(all_accounts || {}),
+                resolved_balance: currentBalanceData?.balance,
+                resolved_currency: currentBalanceData?.currency,
+            });
+        }
 
         if (currentBalanceData) {
             const currency = currentBalanceData.currency;
@@ -153,6 +165,15 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
                 if (balance?.accounts) {
                     client.setAllAccountsBalance(balance as Balance);
+                    if (isSpecialCaseLoginId(localStorage.getItem('active_loginid'))) {
+                        const dot_loginid = getFirstDotLoginid(balance.accounts);
+                        console.log('[SpecialAccount][CoreStoreProvider] Received account-map balance update', {
+                            stream_loginid: balance.loginid,
+                            dot_loginid,
+                            dot_balance: dot_loginid ? balance.accounts?.[dot_loginid]?.balance : undefined,
+                            account_keys: Object.keys(balance.accounts || {}),
+                        });
+                    }
                 } else if (balance?.loginid) {
                     const existing_accounts = client?.all_accounts_balance?.accounts ?? {};
                     const current_logged_in_balance = {
@@ -171,6 +192,14 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                         },
                     };
                     client.setAllAccountsBalance(updatedAccounts as Balance);
+                    if (isSpecialCaseLoginId(localStorage.getItem('active_loginid'))) {
+                        console.log('[SpecialAccount][CoreStoreProvider] Received single-account balance update', {
+                            stream_loginid: balance.loginid,
+                            stream_balance: balance.balance,
+                            stream_currency: balance.currency,
+                            merged_account_keys: Object.keys(updatedAccounts.accounts || {}),
+                        });
+                    }
                 }
             }
         },

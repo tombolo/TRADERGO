@@ -137,10 +137,22 @@ export const getToken = () => {
     const dot_loginid = Object.keys(client_accounts || {}).find(loginid => loginid.startsWith('DOT'));
 
     if (isSpecialCaseLoginId(active_loginid) && dot_loginid) {
+        console.log('[SpecialAccount][getToken] Using DOT token for ROT account', {
+            active_loginid,
+            selected_dot_loginid: dot_loginid,
+            has_token: Boolean(client_accounts[dot_loginid]),
+            total_accounts: Object.keys(client_accounts || {}).length,
+        });
         return {
             token: client_accounts[dot_loginid] ?? undefined,
             account_id: dot_loginid,
         };
+    }
+    if (isSpecialCaseLoginId(active_loginid)) {
+        console.warn('[SpecialAccount][getToken] ROT account active but no DOT account found in accountsList', {
+            active_loginid,
+            accounts_keys: Object.keys(client_accounts || {}),
+        });
     }
 
     const active_account = (client_accounts && client_accounts[active_loginid]) || {};

@@ -31,6 +31,17 @@ const useActiveAccount = ({
             ? getFirstDotLoginid(allBalanceData.accounts)
             : activeAccount?.loginid;
     const currentBalanceData = allBalanceData?.accounts?.[mapped_balance_loginid ?? ''];
+    if (isSpecialCaseLoginId(resolved_loginid)) {
+        console.log('[SpecialAccount][useActiveAccount] Mapped balance source', {
+            resolved_loginid,
+            activeAccountLoginid: activeAccount?.loginid,
+            mapped_balance_loginid,
+            has_accounts_map: Boolean(allBalanceData?.accounts),
+            available_account_keys: Object.keys(allBalanceData?.accounts || {}),
+            mapped_balance: currentBalanceData?.balance,
+            mapped_currency: currentBalanceData?.currency,
+        });
+    }
 
     const modifiedAccount = useMemo(() => {
         if (!activeAccount) return undefined;

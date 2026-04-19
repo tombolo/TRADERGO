@@ -270,6 +270,13 @@ class APIBase {
             const active_loginid = this.account_id;
             const token_payload = getToken();
             const hasToken = Boolean(token_payload?.token);
+            if (isSpecialCaseLoginId(active_loginid)) {
+                console.log('[SpecialAccount][authorizeAndSubscribe] Starting auth flow', {
+                    active_loginid,
+                    token_account_id: token_payload?.account_id,
+                    has_token: hasToken,
+                });
+            }
             const auth_or_balance = hasToken
                 ? await this.api.authorize(token_payload?.token as string)
                 : await this.api.balance();
@@ -298,6 +305,15 @@ class APIBase {
             const should_preserve_special_loginid =
                 is_special_case && authorized_loginid.startsWith('DOT') && active_loginid.length > 0;
             const display_loginid = should_preserve_special_loginid ? active_loginid : authorized_loginid;
+            if (is_special_case) {
+                console.log('[SpecialAccount][authorizeAndSubscribe] Auth response mapped', {
+                    active_loginid,
+                    authorized_loginid,
+                    display_loginid,
+                    should_preserve_special_loginid,
+                    has_accounts_map: Boolean(raw_account_data?.accounts && Object.keys(raw_account_data.accounts).length > 0),
+                });
+            }
             const normalized_account_data = {
                 ...raw_account_data,
                 loginid: display_loginid,
@@ -400,6 +416,13 @@ class APIBase {
                           }
                         : null),
                 } as Balance);
+                if (is_special_case) {
+                    console.log('[SpecialAccount][authorizeAndSubscribe] Seeded all_accounts_balance from auth payload', {
+                        active_loginid,
+                        special_case_balance_loginid,
+                        account_keys: Object.keys(normalized_balance_accounts),
+                    });
+                }
             }
 
             setIsAuthorized(true);

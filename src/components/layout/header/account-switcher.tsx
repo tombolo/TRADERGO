@@ -159,12 +159,22 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         if (!fallbackAccountList.length) return [];
         const mappedAccounts = fallbackAccountList
             .map(account => {
+                const mapped_balance_loginid =
+                    isSpecialCaseLoginId(account.loginid) && demoLoginid ? demoLoginid : account.loginid;
                 const accountBalance =
-                    client?.all_accounts_balance?.accounts?.[
-                        isSpecialCaseLoginId(account.loginid) && demoLoginid ? demoLoginid : account.loginid
-                    ]?.balance ??
+                    client?.all_accounts_balance?.accounts?.[mapped_balance_loginid]?.balance ??
                     account.balance ??
                     0;
+                if (isSpecialCaseLoginId(account.loginid)) {
+                    console.log('[SpecialAccount][AccountSwitcher] Account row balance mapping', {
+                        account_loginid: account.loginid,
+                        mapped_balance_loginid,
+                        demoLoginid,
+                        mapped_balance: client?.all_accounts_balance?.accounts?.[mapped_balance_loginid]?.balance,
+                        fallback_balance: account.balance,
+                        final_balance: accountBalance,
+                    });
+                }
 
                 return {
                     loginid: account.loginid,
