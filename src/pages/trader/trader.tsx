@@ -38,6 +38,7 @@ function normalizeDTraderEmbedBaseUrl(configured: string): string {
 function validateDTraderHost(embedBaseUrl: string): boolean {
     try {
         const { hostname } = new URL(embedBaseUrl);
+        if (hostname.endsWith('.vercel.app')) return true;
         const trustedDomains = ['dtradergo.vercel.app', 'deriv.com', 'deriv-dtrader.vercel.app', 'deriv-dta.vercel.app'];
         return trustedDomains.some(d => hostname === d || hostname.endsWith(`.${d}`));
     } catch {
@@ -157,10 +158,13 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
         };
 
         window.addEventListener('storage', handleStorageChange);
+        // `storage` does not fire in the same tab — refresh after OAuth popups / focus.
+        window.addEventListener('focus', checkAuthAndUpdate);
         authCheckInterval.current = setInterval(checkAuthAndUpdate, 5000);
 
         return () => {
             window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('focus', checkAuthAndUpdate);
             if (authCheckInterval.current) {
                 clearInterval(authCheckInterval.current);
             }
