@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import AuthLoadingWrapper from '@/components/auth-loading-wrapper';
 import useLiveChat from '@/components/chat/useLiveChat';
 import NetworkBootLoader from '@/components/loader/network-boot-loader';
+import { NETWORK_BOOT_MIN_DISPLAY_MS } from '@/constants/boot-loader';
 import { getUrlBase } from '@/components/shared';
 import TransactionDetailsModal from '@/components/transaction-details';
 import { api_base, ApiHelpers, ServerTime } from '@/external/bot-skeleton';
@@ -119,12 +120,17 @@ const AppContent = observer(() => {
 
     const changeActiveSymbolLoadingState = () => {
         init();
+        const load_started_at = Date.now();
 
         const retrieveActiveSymbols = () => {
             const { active_symbols } = ApiHelpers.instance;
 
             active_symbols.retrieveActiveSymbols(true).then(() => {
-                setIsLoading(false);
+                const elapsed = Date.now() - load_started_at;
+                setTimeout(
+                    () => setIsLoading(false),
+                    Math.max(0, NETWORK_BOOT_MIN_DISPLAY_MS - elapsed)
+                );
             });
         };
 
