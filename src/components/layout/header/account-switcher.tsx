@@ -83,7 +83,9 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         return mergedAccounts;
     }, [accountList, client?.account_list]);
 
-    const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
+    // Prefer UI login id when special account keeps backend on demo.
+    const resolvedActiveLoginid =
+        activeLoginid || localStorage.getItem('ui_active_loginid') || localStorage.getItem('active_loginid') || '';
     const hasAccounts = fallbackAccountList.length > 0;
     const canSwitchAccounts = fallbackAccountList.length > 1;
     const demoLoginid = useMemo(() => fallbackAccountList.find(acc => isDemoAccount(acc.loginid))?.loginid, [
