@@ -206,6 +206,31 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 await client?.logout();
             }
 
+            if (msg_type === 'buy' && data && !error) {
+                const buy_payload = (data as { buy?: { balance_after?: number } }).buy;
+                if (typeof buy_payload?.balance_after === 'number' && client) {
+                    const active_loginid_for_buy = localStorage.getItem('active_loginid');
+                    const buy_loginid = (data as { loginid?: string }).loginid || client.loginid || active_loginid_for_buy || '';
+                    if (buy_loginid) {
+                        const prev_buy = client.all_accounts_balance;
+                        const prev_accounts_buy = prev_buy?.accounts ?? {};
+                        client.setAllAccountsBalance({
+                            ...(prev_buy ?? {}),
+                            loginid: buy_loginid,
+                            accounts: {
+                                ...prev_accounts_buy,
+                                [buy_loginid]: {
+                                    ...(prev_accounts_buy[buy_loginid] ?? {}),
+                                    balance: buy_payload.balance_after,
+                                    currency: prev_accounts_buy[buy_loginid]?.currency || client.currency,
+                                    loginid: buy_loginid,
+                                },
+                            },
+                        } as Balance);
+                    }
+                }
+            }
+
             if (msg_type === 'balance' && data && !error) {
                 const balance = data.balance;
                 // `balance` can be: accounts map, single-account object with loginid, or

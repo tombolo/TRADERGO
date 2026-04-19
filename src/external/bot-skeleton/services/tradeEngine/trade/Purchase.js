@@ -20,6 +20,32 @@ export default Engine =>
                 // Don't unnecessarily send a forget request for a purchased contract.
                 const { buy } = response;
 
+                // Update balance immediately using balance_after from the buy response.
+                if (typeof buy?.balance_after === 'number') {
+                    const { client } = DBotStore.instance;
+                    if (client) {
+                        const loginid = client.loginid;
+                        client.setBalance(String(buy.balance_after));
+                        if (loginid) {
+                            const prev = client.all_accounts_balance;
+                            const prevAccounts = prev?.accounts ?? {};
+                            client.setAllAccountsBalance({
+                                ...(prev ?? {}),
+                                loginid,
+                                accounts: {
+                                    ...prevAccounts,
+                                    [loginid]: {
+                                        ...(prevAccounts[loginid] ?? {}),
+                                        balance: buy.balance_after,
+                                        currency: prevAccounts[loginid]?.currency || client.currency,
+                                        loginid,
+                                    },
+                                },
+                            });
+                        }
+                    }
+                }
+
                 contractStatus({
                     id: 'contract.purchase_received',
                     data: buy.transaction_id,

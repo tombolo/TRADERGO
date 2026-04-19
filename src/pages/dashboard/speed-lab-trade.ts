@@ -400,13 +400,14 @@ export async function buyProposal(proposal_id: string, price: number): Promise<{
     if (typeof buy.balance_after === 'number') {
         const clientStore = globalObserver.getState('client.store');
         if (clientStore) {
-            clientStore.setBalance(String(buy.balance_after));
             const loginid = clientStore.loginid;
-            if (loginid && clientStore.all_accounts_balance) {
+            clientStore.setBalance(String(buy.balance_after));
+            if (loginid) {
                 const prev = clientStore.all_accounts_balance;
                 const prevAccounts = prev?.accounts ?? {};
                 clientStore.setAllAccountsBalance({
-                    ...prev,
+                    ...(prev ?? {}),
+                    loginid,
                     accounts: {
                         ...prevAccounts,
                         [loginid]: {
