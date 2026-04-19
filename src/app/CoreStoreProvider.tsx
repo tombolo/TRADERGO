@@ -9,7 +9,9 @@ import { useApiBase } from '@/hooks/useApiBase';
 import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
+import { getAccountId } from '@/utils/account-helpers';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
+import type { Balance } from '@deriv/api-types';
 import { useTranslations } from '@deriv-com/translations';
 
 type TClientInformation = {
@@ -136,9 +138,26 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
             if (msg_type === 'balance' && data && !error) {
                 const balance = data.balance;
-                if (balance && typeof balance.balance === 'number') {
-                    client.setBalance(balance.balance.toString());
+                if (!balance || typeof balance.balance !== 'number') return;
 
+                const active_id = getAccountId() ?? '';
+                const accounts_map = balance.accounts as
+                    | Record<string, { balance?: number; currency?: string }>
+                    | undefined;
+
+                if (accounts_map && typeof accounts_map === 'object' && Object.keys(accounts_map).length > 0) {
+                    client.setAllAccountsBalance(balance as Balance);
+                    const slot = active_id ? accounts_map[active_id] : undefined;
+                    if (slot && typeof slot.balance === 'number') {
+                        client.setBalance(slot.balance.toString());
+                        if (slot.currency) client.setCurrency(slot.currency);
+                    }
+                    return;
+                }
+
+                const stream_loginid = balance.loginid ?? '';
+                if (!stream_loginid || stream_loginid === active_id) {
+                    client.setBalance(balance.balance.toString());
                     if (balance.currency) {
                         client.setCurrency(balance.currency);
                     }

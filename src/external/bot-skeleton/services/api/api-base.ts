@@ -4,6 +4,7 @@ import { getAccountId, getAccountType, isDemoAccount, removeUrlParameter } from 
 import CommonStore from '@/stores/common-store';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
 import { TAuthData } from '@/types/api-types';
+import type { Balance } from '@deriv/api-types';
 import { clearAuthData } from '@/utils/auth-utils';
 import { handleBackendError, isBackendError } from '@/utils/error-handler';
 import { activeSymbolsProcessorService } from '../../../../services/active-symbols-processor.service';
@@ -339,6 +340,16 @@ class APIBase {
             const currentClientStore = globalObserver.getState('client.store');
             if (currentClientStore && balance?.loginid) {
                 currentClientStore.setWebSocketLoginId(balance.loginid);
+            }
+
+            if (
+                currentClientStore &&
+                balance &&
+                balance.accounts &&
+                typeof balance.accounts === 'object' &&
+                Object.keys(balance.accounts).length > 0
+            ) {
+                currentClientStore.setAllAccountsBalance(balance as Balance);
             }
 
             setIsAuthorized(true);

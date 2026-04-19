@@ -225,8 +225,22 @@ export default class ClientStore {
         return accountList[this.loginid] ?? '';
     };
 
-    setAllAccountsBalance = (all_accounts_balance: Balance | undefined) => {
-        this.all_accounts_balance = all_accounts_balance ?? null;
+    setAllAccountsBalance = (incoming: Balance | undefined) => {
+        if (!incoming) {
+            this.all_accounts_balance = null;
+            return;
+        }
+        const prev = this.all_accounts_balance;
+        const merged_accounts = {
+            ...(prev?.accounts ?? {}),
+            ...(incoming.accounts ?? {}),
+        };
+        const has_accounts = Object.keys(merged_accounts).length > 0;
+        this.all_accounts_balance = {
+            ...(prev ?? {}),
+            ...incoming,
+            ...(has_accounts ? { accounts: merged_accounts } : {}),
+        } as Balance;
     };
     setIsAccountRegenerating = (is_loading: boolean) => {
         this.is_account_regenerating = is_loading;

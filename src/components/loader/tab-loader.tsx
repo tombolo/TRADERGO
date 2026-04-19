@@ -1,4 +1,4 @@
-import { Loader } from '@deriv-com/ui';
+import OrbitDotsLoader from './orbit-dots-loader';
 
 type TTabLoaderProps = {
     message: string;
@@ -7,7 +7,7 @@ type TTabLoaderProps = {
 const TabLoader = ({ message }: TTabLoaderProps) => {
     return (
         <div className='app-root'>
-            <Loader />
+            <OrbitDotsLoader />
             <div className='load-message'>{message}</div>
         </div>
     );
