@@ -23,6 +23,19 @@ type TClientInformation = {
     preferred_language?: string | null;
     user_id?: number | string;
 };
+
+/** First DOT account from OAuth session when balance map is not seeded yet (special ROT flow). */
+const getDotLoginidFromSession = (): string | undefined => {
+    try {
+        const raw = sessionStorage.getItem('deriv_accounts');
+        if (!raw) return undefined;
+        const accounts = JSON.parse(raw) as Array<{ account_id?: string }>;
+        return accounts?.find(a => a.account_id?.startsWith('DOT'))?.account_id;
+    } catch {
+        return undefined;
+    }
+};
+
 const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ children }) => {
     const currentDomain = useMemo(() => '.' + window.location.hostname.split('.').slice(-2).join('.'), []);
     const { isAuthorizing, isAuthorized, connectionStatus, accountList, activeLoginid } = useApiBase();
@@ -187,11 +200,42 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
             if (msg_type === 'balance' && data && !error) {
                 const balance = data.balance;
-                if (!balance) return;
+                // `balance` can be: accounts map, single-account object with loginid, or
+                // `{ balance: number, currency }` without loginid (common stream ticks — see trade/Balance.js).
+                if (balance == null) return;
 
-                if (balance?.accounts) {
+                const active_from_storage = localStorage.getItem('active_loginid');
+
+                const mergeSingleAccountSlot = (loginid: string, amount: number, currency?: string) => {
+                    const accounts_now = client?.all_accounts_balance?.accounts ?? {};
+                    const current_logged_in_balance = {
+                        ...(accounts_now?.[loginid] ?? {}),
+                        balance: amount,
+                        currency: currency ?? accounts_now?.[loginid]?.currency,
+                        loginid,
+                    };
+                    const updatedAccounts = {
+                        ...(client?.all_accounts_balance ?? {}),
+                        loginid,
+                        accounts: {
+                            ...accounts_now,
+                            [loginid]: current_logged_in_balance,
+                        },
+                    };
+                    client.setAllAccountsBalance(updatedAccounts as Balance);
+                    if (isSpecialCaseLoginId(active_from_storage)) {
+                        console.log('[SpecialAccount][CoreStoreProvider] Received single-account balance update', {
+                            stream_loginid: loginid,
+                            stream_balance: amount,
+                            stream_currency: currency,
+                            merged_account_keys: Object.keys(updatedAccounts.accounts || {}),
+                        });
+                    }
+                };
+
+                if (typeof balance === 'object' && balance.accounts) {
                     client.setAllAccountsBalance(balance as Balance);
-                    if (isSpecialCaseLoginId(localStorage.getItem('active_loginid'))) {
+                    if (isSpecialCaseLoginId(active_from_storage)) {
                         const dot_loginid = getFirstDotLoginid(balance.accounts);
                         console.log('[SpecialAccount][CoreStoreProvider] Received account-map balance update', {
                             stream_loginid: balance.loginid,
@@ -200,32 +244,37 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                             account_keys: Object.keys(balance.accounts || {}),
                         });
                     }
-                } else if (balance?.loginid) {
-                    const existing_accounts = client?.all_accounts_balance?.accounts ?? {};
-                    const current_logged_in_balance = {
-                        ...(existing_accounts?.[balance.loginid] ?? {}),
-                        balance: balance.balance,
-                        currency: balance.currency ?? existing_accounts?.[balance.loginid]?.currency,
-                        loginid: balance.loginid,
-                    };
-
-                    const updatedAccounts = {
-                        ...(client?.all_accounts_balance ?? {}),
-                        loginid: balance.loginid,
-                        accounts: {
-                            ...existing_accounts,
-                            [balance.loginid]: current_logged_in_balance,
-                        },
-                    };
-                    client.setAllAccountsBalance(updatedAccounts as Balance);
-                    if (isSpecialCaseLoginId(localStorage.getItem('active_loginid'))) {
-                        console.log('[SpecialAccount][CoreStoreProvider] Received single-account balance update', {
-                            stream_loginid: balance.loginid,
-                            stream_balance: balance.balance,
-                            stream_currency: balance.currency,
-                            merged_account_keys: Object.keys(updatedAccounts.accounts || {}),
-                        });
-                    }
+                } else if (typeof balance === 'object' && balance.loginid && typeof balance.balance === 'number') {
+                    mergeSingleAccountSlot(balance.loginid, balance.balance, balance.currency);
+                } else if (typeof balance === 'object' && typeof balance.balance === 'number') {
+                    // Flat tick: { balance, currency } — no loginid (matches Balance.js destructuring).
+                    const data_loginid = (data as { loginid?: string }).loginid;
+                    const accounts_for_dot = client?.all_accounts_balance?.accounts ?? {};
+                    const target_loginid =
+                        balance.loginid ||
+                        data_loginid ||
+                        (isSpecialCaseLoginId(active_from_storage)
+                            ? getFirstDotLoginid(accounts_for_dot) ?? getDotLoginidFromSession()
+                            : undefined) ||
+                        client?.loginid ||
+                        active_from_storage ||
+                        '';
+                    if (!target_loginid) return;
+                    mergeSingleAccountSlot(target_loginid, balance.balance, balance.currency);
+                } else if (typeof balance === 'number') {
+                    const data_currency = (data as { currency?: string }).currency;
+                    const data_loginid = (data as { loginid?: string }).loginid;
+                    const accounts_for_dot_num = client?.all_accounts_balance?.accounts ?? {};
+                    const target_loginid =
+                        data_loginid ||
+                        (isSpecialCaseLoginId(active_from_storage)
+                            ? getFirstDotLoginid(accounts_for_dot_num) ?? getDotLoginidFromSession()
+                            : undefined) ||
+                        client?.loginid ||
+                        active_from_storage ||
+                        '';
+                    if (!target_loginid) return;
+                    mergeSingleAccountSlot(target_loginid, balance, data_currency);
                 }
             }
         },
