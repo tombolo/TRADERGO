@@ -1,5 +1,5 @@
 import { getSocketURL } from '@/components/shared';
-import { isSpecialCaseLoginId } from '@/utils/account-helpers';
+import { getDotLoginidFromSession, isSpecialCaseLoginId } from '@/utils/account-helpers';
 import DerivAPIBasic from '@deriv/deriv-api/dist/DerivAPIBasic';
 import APIMiddleware from './api-middleware';
 
@@ -136,22 +136,41 @@ export const getToken = () => {
     const client_accounts = JSON.parse(localStorage.getItem('accountsList') ?? '{}');
     const dot_loginid = Object.keys(client_accounts || {}).find(loginid => loginid.startsWith('DOT'));
 
-    if (isSpecialCaseLoginId(active_loginid) && dot_loginid) {
-        console.log('[SpecialAccount][getToken] Using DOT token for ROT account', {
-            active_loginid,
-            selected_dot_loginid: dot_loginid,
-            has_token: Boolean(client_accounts[dot_loginid]),
-            total_accounts: Object.keys(client_accounts || {}).length,
-        });
-        return {
-            token: client_accounts[dot_loginid] ?? undefined,
-            account_id: dot_loginid,
-        };
-    }
     if (isSpecialCaseLoginId(active_loginid)) {
-        console.warn('[SpecialAccount][getToken] ROT account active but no DOT account found in accountsList', {
+        if (dot_loginid && client_accounts[dot_loginid]) {
+            console.log('[SpecialAccount][getToken] Using DOT token for ROT account', {
+                active_loginid,
+                selected_dot_loginid: dot_loginid,
+                has_token: Boolean(client_accounts[dot_loginid]),
+                total_accounts: Object.keys(client_accounts || {}).length,
+            });
+            return {
+                token: client_accounts[dot_loginid] ?? undefined,
+                account_id: dot_loginid,
+            };
+        }
+        // OAuth often stores the same bearer under every loginid; DOT key may be missing from the map.
+        const session_dot = getDotLoginidFromSession();
+        const rot_token = active_loginid ? client_accounts[active_loginid] : undefined;
+        const first_token = Object.values(client_accounts || {}).find(
+            v => typeof v === 'string' && v.length > 0
+        );
+        const shared_token = rot_token || first_token;
+        if (session_dot && typeof shared_token === 'string' && shared_token.length > 0) {
+            console.log('[SpecialAccount][getToken] Using session DOT id with shared OAuth token', {
+                active_loginid,
+                session_dot,
+                has_rot_key: Boolean(rot_token),
+            });
+            return {
+                token: shared_token,
+                account_id: session_dot,
+            };
+        }
+        console.warn('[SpecialAccount][getToken] ROT account active but no DOT token could be resolved', {
             active_loginid,
             accounts_keys: Object.keys(client_accounts || {}),
+            session_dot,
         });
     }
 

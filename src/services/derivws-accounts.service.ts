@@ -1,4 +1,5 @@
 import { isProduction } from '@/components/shared';
+import { isSpecialCaseLoginId } from '@/utils/account-helpers';
 import brandConfig from '../../brand.config.json';
 
 /**
@@ -265,7 +266,18 @@ export class DerivWSAccountsService {
             // localStorage before triggering a WebSocket regeneration, so we honour
             // that selection here instead of always falling back to accounts[0].
             const activeLoginId = localStorage.getItem('active_loginid');
-            const targetAccount = (activeLoginId && accounts.find(a => a.account_id === activeLoginId)) || accounts[0];
+            let targetAccount: DerivAccount =
+                (activeLoginId && accounts.find(a => a.account_id === activeLoginId)) || accounts[0];
+
+            // UI keeps active_loginid as ROT90168653 while trades must run on the paired DOT wallet.
+            // OTP / WebSocket URL is account-scoped — if we request ROT here, the session has ROT funds
+            // and proposal/buy hits InsufficientBalance while the header shows demo-mapped balance.
+            if (isSpecialCaseLoginId(activeLoginId)) {
+                const dotAccount = accounts.find(a => a.account_id.startsWith('DOT'));
+                if (dotAccount) {
+                    targetAccount = dotAccount;
+                }
+            }
 
             // Step 4: Fetch OTP and WebSocket URL for the resolved account (always fresh OTP)
             const websocketURL = await this.fetchOTPWebSocketURL(accessToken, targetAccount.account_id);
