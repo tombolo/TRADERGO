@@ -391,6 +391,7 @@ class APIBase {
                     const subscription = this.api?.send({
                         [streamName]: 1,
                         subscribe: 1,
+                        ...(streamName === 'balance' ? { account: 'all' } : {}),
                     });
 
                     if (subscription) {

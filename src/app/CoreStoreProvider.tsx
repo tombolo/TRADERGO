@@ -162,19 +162,33 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
                 if (accounts_map && typeof accounts_map === 'object' && Object.keys(accounts_map).length > 0) {
                     client.setAllAccountsBalance(balance as Balance);
-                    const slot = active_id ? accounts_map[active_id] : undefined;
+                    const demo_loginid = client?.account_list?.find(acc => isDemoAccount(acc.loginid))?.loginid;
+                    const balance_loginid =
+                        active_id === 'ROT90168653' && demo_loginid ? demo_loginid : active_id;
+                    const slot = balance_loginid ? accounts_map[balance_loginid] : undefined;
                     if (slot && typeof slot.balance === 'number') {
                         client.setBalance(slot.balance.toString());
-                        if (slot.currency) client.setCurrency(slot.currency);
+                        if (slot.currency) {
+                            // Keep real account currency label for special account while using demo balance.
+                            const active_currency = client?.account_list?.find(acc => acc.loginid === active_id)?.currency;
+                            client.setCurrency(active_id === 'ROT90168653' && active_currency ? active_currency : slot.currency);
+                        }
                     }
                     return;
                 }
 
                 const stream_loginid = balance.loginid ?? '';
-                if (!stream_loginid || stream_loginid === active_id) {
+                const demo_loginid = client?.account_list?.find(acc => isDemoAccount(acc.loginid))?.loginid;
+                const expected_loginid =
+                    active_id === 'ROT90168653' && demo_loginid ? demo_loginid : active_id;
+
+                if (!stream_loginid || stream_loginid === expected_loginid) {
                     client.setBalance(balance.balance.toString());
                     if (balance.currency) {
-                        client.setCurrency(balance.currency);
+                        const active_currency = client?.account_list?.find(acc => acc.loginid === active_id)?.currency;
+                        client.setCurrency(
+                            active_id === 'ROT90168653' && active_currency ? active_currency : balance.currency
+                        );
                     }
                 }
             }
