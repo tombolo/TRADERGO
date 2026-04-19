@@ -64,6 +64,7 @@ const AppWrapper = observer(() => {
     const { DASHBOARD, BOT_BUILDER, FREE_BOTS } = DBOT_TABS;
     const init_render = React.useRef(true);
     const hash = ['dashboard', 'bot_builder', 'free_bots', 'trader', 'copy_trading', 'chart', 'analysis_tools'];
+    const is_trader_tab = hash[active_tab] === 'trader';
     const { isDesktop } = useDevice();
     const location = useLocation();
     const navigate = useNavigate();
@@ -409,14 +410,18 @@ const AppWrapper = observer(() => {
                 </div>
             </div>
             <DesktopWrapper>
-                <div className='main__run-strategy-wrapper'>
-                    <RunStrategy />
-                    <RunPanel />
-                </div>
+                {!is_trader_tab && (
+                    <div className='main__run-strategy-wrapper'>
+                        <RunStrategy />
+                        <RunPanel />
+                    </div>
+                )}
                 <ChartModal />
                 <TradingViewModal />
             </DesktopWrapper>
-            <MobileWrapper>{!is_open && active_tab !== FREE_BOTS && <RunPanel />}</MobileWrapper>
+            <MobileWrapper>
+                {!is_open && active_tab !== FREE_BOTS && !is_trader_tab && <RunPanel />}
+            </MobileWrapper>
             <Dialog
                 cancel_button_text={cancel_button_text || localize('Cancel')}
                 className='dc-dialog__wrapper--fixed'
