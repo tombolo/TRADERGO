@@ -203,6 +203,21 @@ type TProposalResponse = {
     error?: { message?: string; code?: string };
 };
 
+/** Some API layers return payload under `data`; align with `extractActiveSymbolsArray`. */
+function normalizeProposalOrBuyResponse<T extends { error?: unknown; proposal?: unknown; buy?: unknown }>(
+    res: unknown
+): T {
+    if (!res || typeof res !== 'object') return res as T;
+    const r = res as Record<string, unknown>;
+    if ('error' in r || 'proposal' in r || 'buy' in r) return res as T;
+    const data = r.data;
+    if (data && typeof data === 'object') {
+        const d = data as Record<string, unknown>;
+        if ('error' in d || 'proposal' in d || 'buy' in d) return data as T;
+    }
+    return res as T;
+}
+
 export type TSpeedLabContractLeg = {
     contract_id: string;
     buy_price: number;
@@ -223,6 +238,7 @@ async function sendPriceProposal(params: {
 }): Promise<TPriceProposalOk> {
     if (!api_base.api) throw new Error('API not ready');
 
+    /** Must match trade engine `tradeOptionToProposal` — Deriv WS expects `underlying_symbol`, not `symbol`. */
     const req: Record<string, unknown> = {
         proposal: 1,
         amount: params.amount,
@@ -231,12 +247,13 @@ async function sendPriceProposal(params: {
         currency: params.currency,
         duration: params.duration,
         duration_unit: params.duration_unit,
-        symbol: params.symbol,
+        underlying_symbol: params.symbol,
     };
     if (params.barrier !== undefined) req.barrier = params.barrier;
     if (params.selected_tick !== undefined) req.selected_tick = params.selected_tick;
 
-    const res = (await api_base.api.send(req)) as TProposalResponse;
+    const raw = await api_base.api.send(req);
+    const res = normalizeProposalOrBuyResponse<TProposalResponse>(raw);
     if (res.error) {
         throw new Error(res.error.message || res.error.code || 'Proposal failed');
     }
@@ -368,13 +385,14 @@ export async function buyProposal(proposal_id: string, price: number): Promise<{
     contract_id?: string | number;
 }> {
     if (!api_base.api) throw new Error('API not ready');
-    const res = (await api_base.api.send({
+    const raw = await api_base.api.send({
         buy: proposal_id,
         price,
-    })) as {
+    });
+    const res = normalizeProposalOrBuyResponse<{
         buy?: { buy_price?: number; transaction_id?: string; contract_id?: string | number };
         error?: { message?: string };
-    };
+    }>(raw);
     if (res.error) throw new Error(res.error.message || 'Buy failed');
     return res.buy ?? {};
 }

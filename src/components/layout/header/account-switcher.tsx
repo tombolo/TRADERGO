@@ -190,7 +190,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     if (!activeAccount) return null;
 
-    const { currency, isVirtual, balance } = activeAccount;
+    const { currency, isVirtual, balance, loginid } = activeAccount;
 
     return (
         <div className='acc-info__wrapper' ref={wrapperRef}>
@@ -215,9 +215,25 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                         }
                     }}
                 >
-                    <span className='acc-info__id-icon' aria-hidden='true'>
-                        <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
-                    </span>
+                    <div className='acc-info__summary'>
+                        <span className='acc-info__id-icon' aria-hidden='true'>
+                            <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
+                        </span>
+                        <div className='acc-info__identity'>
+                            <p className='acc-info__currency-code'>
+                                {!currency ? (
+                                    <Localize i18n_default_text='No currency assigned' />
+                                ) : (
+                                    getCurrencyDisplayCode(currency)
+                                )}
+                            </p>
+                            {loginid ? (
+                                <p className='acc-info__loginid' data-testid='dt_acc_loginid'>
+                                    {loginid}
+                                </p>
+                            ) : null}
+                        </div>
+                    </div>
                     {(typeof balance !== 'undefined' || !currency) && (
                         <div className='acc-info__balance-section'>
                             <p
@@ -287,6 +303,18 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                 <span className='acc-dropdown__icon' aria-hidden='true'>
                                     <CurrencyIcon currency={account.currency?.toLowerCase()} isVirtual={account.isVirtual} />
                                 </span>
+                                <div className='acc-dropdown__identity'>
+                                    <Text size='xs' weight='bold' className='acc-dropdown__currency-code'>
+                                        {account.currency ? (
+                                            getCurrencyDisplayCode(account.currency)
+                                        ) : (
+                                            <Localize i18n_default_text='No currency assigned' />
+                                        )}
+                                    </Text>
+                                    <Text size='xxs' className='acc-dropdown__loginid'>
+                                        {account.loginid}
+                                    </Text>
+                                </div>
                                 <Text size='xs' weight='bold' className='acc-dropdown__balance'>
                                     {account.currency ? (
                                         `${account.balance} ${getCurrencyDisplayCode(account.currency)}`

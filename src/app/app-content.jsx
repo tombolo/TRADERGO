@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { ToastContainer } from 'react-toastify';
 import AuthLoadingWrapper from '@/components/auth-loading-wrapper';
 import useLiveChat from '@/components/chat/useLiveChat';
-import ChunkLoader from '@/components/loader/chunk-loader';
+import NetworkBootLoader from '@/components/loader/network-boot-loader';
 import { getUrlBase } from '@/components/shared';
 import TransactionDetailsModal from '@/components/transaction-details';
 import { api_base, ApiHelpers, ServerTime } from '@/external/bot-skeleton';
@@ -163,7 +163,10 @@ const AppContent = observer(() => {
     if (common?.error) return null;
 
     return is_loading ? (
-        <ChunkLoader message={localize('Initializing Deriv Bot account...')} />
+        <NetworkBootLoader
+            message={localize('Initializing Deriv Bot account...')}
+            hint={localize('Syncing symbols and account data…')}
+        />
     ) : (
         <AuthLoadingWrapper>
             <ThemeProvider theme={is_dark_mode_on ? 'dark' : 'light'}>

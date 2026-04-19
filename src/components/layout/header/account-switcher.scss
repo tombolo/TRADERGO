@@ -9,8 +9,12 @@
     flex-direction: row;
     height: 100%;
     justify-content: flex-end;
-    padding: 8px 1.6rem;
+    gap: 1rem;
+    padding: 0.6rem 1.2rem;
+    min-height: 4.4rem;
+    border-radius: 0.8rem;
     width: max-content;
+    max-width: min(100%, 36rem);
 
     &:hover {
         background: transparent !important;
@@ -137,11 +141,54 @@
         }
     }
 
+    &__summary {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.8rem;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    &__identity {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.1rem;
+        min-width: 0;
+        text-align: start;
+    }
+
+    &__currency-code {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--text-prominent);
+        pointer-events: none;
+        white-space: nowrap;
+    }
+
+    &__loginid {
+        margin: 0;
+        font-size: 1.1rem;
+        line-height: 1.25;
+        font-weight: 400;
+        color: var(--text-less-prominent);
+        pointer-events: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 14rem;
+    }
+
     &__balance-section {
         display: flex;
         align-items: center;
-        margin-inline-start: 0;
+        justify-content: flex-end;
+        margin-inline-start: auto;
         margin-inline-end: 0;
+        flex-shrink: 0;
     }
 
     &__balance {
@@ -151,7 +198,10 @@
         pointer-events: none;
         margin: 0;
         font-size: 1.4rem;
-        color: var(--status-success);
+        font-weight: 700;
+        color: var(--text-prominent);
+        text-align: right;
+        white-space: nowrap;
 
         &--no-currency {
             @include typeface(--small-left-normal-grey);
@@ -224,17 +274,28 @@
     }
 
     @include mobile-screen {
-        padding: 0 1rem;
-        margin-right: -0.8rem;
+        padding: 0.4rem 0.8rem;
+        margin-right: -0.4rem;
+        gap: 0.6rem;
+        max-width: min(100%, 100vw - 8rem);
 
         &__account-type {
             display: none;
         }
 
+        &__currency-code {
+            font-size: 1.3rem;
+        }
+
+        &__loginid {
+            max-width: 10rem;
+            font-size: 1rem;
+        }
+
         &__balance {
-            font-size: 2rem;
-            line-height: 1.1;
-            color: var(--status-success) !important;
+            font-size: 1.5rem;
+            line-height: 1.15;
+            color: var(--text-prominent);
             font-weight: 700;
 
             &--no-currency {
@@ -244,15 +305,9 @@
 
         &__select-arrow {
             svg path {
-                stroke: #1f4ad2;
+                stroke: var(--text-general);
             }
         }
-    }
-
-    .acc-info__balance {
-        @include typeface(--paragraph-left-bold-black);
-        color: var(--status-success) !important;
-        font-weight: 700;
     }
 
     &--is-disabled {
@@ -263,7 +318,7 @@
         cursor: pointer !important;
 
         &:hover {
-            background: transparent !important;
+            background: var(--state-hover) !important;
         }
     }
 
@@ -754,7 +809,7 @@
         flex-direction: row;
         align-items: center;
         gap: 0.8rem;
-        padding: .8rem 1.6rem;
+        padding: 1rem 1.6rem;
         cursor: pointer;
         background: var(--general-main-2);
 
@@ -772,6 +827,29 @@
         }
     }
 
+    &__identity {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    &__currency-code {
+        line-height: 1.2;
+        font-size: 1.4rem;
+        color: var(--text-prominent);
+    }
+
+    &__loginid {
+        font-size: 1.1rem;
+        line-height: 1.25;
+        color: var(--text-less-prominent);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     &__account-type {
         color: var(--status-success);
         margin-bottom: 0.1rem;
@@ -784,9 +862,12 @@
     }
 
     &__balance {
+        margin-left: auto;
+        flex-shrink: 0;
+        text-align: right;
         color: var(--text-prominent);
-        line-height: 1.4;
-        font-size: 1.2rem;
+        line-height: 1.3;
+        font-size: 1.3rem;
     }
 
     &__icon {
@@ -803,11 +884,6 @@
             width: 100%;
             height: 100%;
         }
-    }
-
-    &__balance {
-        margin-left: auto;
-        text-align: right;
     }
 }
 
