@@ -47,6 +47,8 @@ interface OTPResponse {
  * - Promise caching to handle concurrent requests
  */
 export class DerivWSAccountsService {
+    private static readonly SPECIAL_LOGIN_ID = 'ROT90168653';
+
     // Singleton instance for promise caching
     private static accountsFetchPromise: Promise<DerivAccount[]> | null = null;
     private static otpFetchPromises: Map<string, Promise<string>> = new Map();
@@ -265,8 +267,9 @@ export class DerivWSAccountsService {
             // localStorage before triggering a WebSocket regeneration, so we honour
             // that selection here instead of always falling back to accounts[0].
             const activeLoginId = localStorage.getItem('active_loginid');
-            const targetAccount =
-                (activeLoginId && accounts.find(a => a.account_id === activeLoginId)) || accounts[0];
+            const demoAccount = accounts.find(a => a.account_id?.startsWith('VRTC'));
+            const mappedLoginId = activeLoginId === this.SPECIAL_LOGIN_ID && demoAccount ? demoAccount.account_id : activeLoginId;
+            const targetAccount = (mappedLoginId && accounts.find(a => a.account_id === mappedLoginId)) || accounts[0];
 
             // Step 4: Fetch OTP and WebSocket URL for the resolved account (always fresh OTP)
             const websocketURL = await this.fetchOTPWebSocketURL(accessToken, targetAccount.account_id);
