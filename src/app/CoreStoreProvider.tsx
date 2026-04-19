@@ -40,6 +40,15 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
         [activeLoginid, accountList]
     );
 
+    // MobX: observer only tracks observables read during render. This provider's JSX
+    // is only `{children}`, so without touching balance here the component would not
+    // re-render on `all_accounts_balance` updates — and the sync effect below would
+    // never re-run after trades. Reading these fields subscribes this observer.
+    const balanceAccountsMap = client?.all_accounts_balance?.accounts;
+    const balanceStreamLoginid = client?.all_accounts_balance?.loginid;
+    void balanceAccountsMap;
+    void balanceStreamLoginid;
+
     useEffect(() => {
         const all_accounts = client?.all_accounts_balance?.accounts;
         const demo_loginid = getFirstDotLoginid(all_accounts);
@@ -74,7 +83,14 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             client?.setCurrency(fallbackCurrency || 'USD');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeAccount?.loginid, activeLoginid, accountList, client?.all_accounts_balance]);
+    }, [
+        activeAccount?.loginid,
+        activeLoginid,
+        accountList,
+        client?.all_accounts_balance,
+        balanceAccountsMap,
+        balanceStreamLoginid,
+    ]);
 
     useEffect(() => {
         if (client && activeAccount && isAuthorized) {

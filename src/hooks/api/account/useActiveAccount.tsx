@@ -89,7 +89,16 @@ const useActiveAccount = ({
             isVirtual: isVirtual,
             isActive: activeAccount?.loginid === resolved_loginid,
         };
-    }, [activeAccount, client?.loginid, currentBalanceData, directBalance, resolved_loginid, specialCaseDemoAccount?.balance]);
+    }, [
+        activeAccount,
+        client?.loginid,
+        currentBalanceData,
+        currentBalanceData?.balance,
+        currentBalanceData?.currency,
+        directBalance,
+        resolved_loginid,
+        specialCaseDemoAccount?.balance,
+    ]);
 
     return {
         /** User's current active account. */
