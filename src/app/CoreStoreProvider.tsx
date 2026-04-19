@@ -153,7 +153,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
             if (msg_type === 'balance' && data && !error) {
                 const balance = data.balance;
-                if (!balance || typeof balance.balance !== 'number') return;
+                if (!balance) return;
 
                 const active_id = getAccountId() ?? '';
                 const accounts_map = balance.accounts as
@@ -176,6 +176,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                     }
                     return;
                 }
+
+                if (typeof balance.balance !== 'number') return;
 
                 const stream_loginid = balance.loginid ?? '';
                 const demo_loginid = client?.account_list?.find(acc => isDemoAccount(acc.loginid))?.loginid;
