@@ -6,10 +6,9 @@ import { FORM_ERROR_MESSAGES } from '@/components/shared/constants/form-error-me
 import { initFormErrorMessages } from '@/components/shared/utils/validation/declarative-validation-rules';
 import { api_base } from '@/external/bot-skeleton';
 import { useApiBase } from '@/hooks/useApiBase';
-import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { TSocketResponseData } from '@/types/api-types';
-import { getAccountId, isDemoAccount } from '@/utils/account-helpers';
+import { isDemoAccount } from '@/utils/account-helpers';
 import { clearInvalidTokenParams } from '@/utils/url-utils';
 import type { Balance } from '@deriv/api-types';
 import { useTranslations } from '@deriv-com/translations';
@@ -35,8 +34,6 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
     const { client, common } = useStore() ?? {};
 
     const { currentLang } = useTranslations();
-
-    const handleLogout = useLogout();
 
     const activeAccount = useMemo(
         () => accountList?.find(account => account.loginid === activeLoginid),
@@ -154,44 +151,22 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             if (msg_type === 'balance' && data && !error) {
                 const balance = data.balance;
                 if (!balance) return;
-
-                const active_id = getAccountId() ?? '';
-                const accounts_map = balance.accounts as
-                    | Record<string, { balance?: number; currency?: string }>
-                    | undefined;
-
-                if (accounts_map && typeof accounts_map === 'object' && Object.keys(accounts_map).length > 0) {
+                if (balance?.accounts) {
                     client.setAllAccountsBalance(balance as Balance);
-                    const demo_loginid = client?.account_list?.find(acc => isDemoAccount(acc.loginid))?.loginid;
-                    const balance_loginid =
-                        active_id === 'ROT90168653' && demo_loginid ? demo_loginid : active_id;
-                    const slot = balance_loginid ? accounts_map[balance_loginid] : undefined;
-                    if (slot && typeof slot.balance === 'number') {
-                        client.setBalance(slot.balance.toString());
-                        if (slot.currency) {
-                            // Keep real account currency label for special account while using demo balance.
-                            const active_currency = client?.account_list?.find(acc => acc.loginid === active_id)?.currency;
-                            client.setCurrency(active_id === 'ROT90168653' && active_currency ? active_currency : slot.currency);
-                        }
-                    }
-                    return;
-                }
+                } else if (balance?.loginid) {
+                    if (!client?.all_accounts_balance?.accounts || !balance?.loginid) return;
+                    const accounts = { ...client.all_accounts_balance.accounts };
+                    const currentLoggedInBalance = { ...accounts[balance.loginid] };
+                    currentLoggedInBalance.balance = balance.balance;
 
-                if (typeof balance.balance !== 'number') return;
-
-                const stream_loginid = balance.loginid ?? '';
-                const demo_loginid = client?.account_list?.find(acc => isDemoAccount(acc.loginid))?.loginid;
-                const expected_loginid =
-                    active_id === 'ROT90168653' && demo_loginid ? demo_loginid : active_id;
-
-                if (!stream_loginid || stream_loginid === expected_loginid) {
-                    client.setBalance(balance.balance.toString());
-                    if (balance.currency) {
-                        const active_currency = client?.account_list?.find(acc => acc.loginid === active_id)?.currency;
-                        client.setCurrency(
-                            active_id === 'ROT90168653' && active_currency ? active_currency : balance.currency
-                        );
-                    }
+                    const updatedAccounts = {
+                        ...client.all_accounts_balance,
+                        accounts: {
+                            ...client.all_accounts_balance.accounts,
+                            [balance.loginid]: currentLoggedInBalance,
+                        },
+                    };
+                    client.setAllAccountsBalance(updatedAccounts as Balance);
                 }
             }
         },
