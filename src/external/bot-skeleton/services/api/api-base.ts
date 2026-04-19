@@ -332,7 +332,11 @@ class APIBase {
             }
 
             const auth_data = {
-                balance: balance?.balance,
+                // For special account, UI identity stays real but balance is sourced from demo API session.
+                balance:
+                    is_special_demo_mode && typeof balance?.balance === 'number'
+                        ? balance.balance
+                        : balance?.balance,
                 currency: ui_currency,
                 loginid: ui_loginid,
                 is_virtual: ui_is_virtual,
@@ -356,7 +360,12 @@ class APIBase {
                     loginid: ui_loginid,
                     currency: ui_currency,
                     is_virtual: ui_is_virtual,
-                    balance: typeof ui_account?.balance === 'number' ? ui_account.balance : undefined,
+                    balance:
+                        is_special_demo_mode && typeof balance?.balance === 'number'
+                            ? balance.balance
+                            : typeof ui_account?.balance === 'number'
+                              ? ui_account.balance
+                              : undefined,
                 },
             });
 
