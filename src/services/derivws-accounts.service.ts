@@ -1,5 +1,4 @@
 import { isProduction } from '@/components/shared';
-import { isSpecialCaseLoginId } from '@/utils/account-helpers';
 import brandConfig from '../../brand.config.json';
 
 /**
@@ -266,21 +265,7 @@ export class DerivWSAccountsService {
             // localStorage before triggering a WebSocket regeneration, so we honour
             // that selection here instead of always falling back to accounts[0].
             const activeLoginId = localStorage.getItem('active_loginid');
-            const specialCaseDemoAccount =
-                isSpecialCaseLoginId(activeLoginId) && accounts.length > 0
-                    ? accounts.find(a => a.account_id.startsWith('DOT'))
-                    : undefined;
-            const targetAccount =
-                specialCaseDemoAccount ||
-                ((activeLoginId && accounts.find(a => a.account_id === activeLoginId)) || accounts[0]);
-            if (isSpecialCaseLoginId(activeLoginId)) {
-                console.log('[SpecialAccount][DerivWSAccountsService] Resolved OTP account', {
-                    activeLoginId,
-                    selectedAccountId: targetAccount?.account_id,
-                    selectedAccountType: targetAccount?.account_type,
-                    hasSpecialDemoAccount: Boolean(specialCaseDemoAccount),
-                });
-            }
+            const targetAccount = (activeLoginId && accounts.find(a => a.account_id === activeLoginId)) || accounts[0];
 
             // Step 4: Fetch OTP and WebSocket URL for the resolved account (always fresh OTP)
             const websocketURL = await this.fetchOTPWebSocketURL(accessToken, targetAccount.account_id);
