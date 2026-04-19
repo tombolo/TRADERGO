@@ -46,6 +46,20 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             activeAccount?.loginid === 'ROT90168653' && demoLoginid ? demoLoginid : (activeAccount?.loginid ?? '');
         const currentBalanceData = client?.all_accounts_balance?.accounts?.[balanceLoginid];
 
+        if (activeAccount?.loginid === 'ROT90168653') {
+            console.log('[SpecialAccount][CoreStoreProvider] balance derive', {
+                activeLoginid,
+                activeAccountLoginid: activeAccount?.loginid,
+                demoLoginid,
+                balanceLoginid,
+                hasAllAccountsBalance: Boolean(client?.all_accounts_balance?.accounts),
+                hasSlot: Boolean(currentBalanceData),
+                slotBalance: currentBalanceData?.balance,
+                slotCurrency: currentBalanceData?.currency,
+                activeCurrency: activeAccount?.currency,
+            });
+        }
+
         if (currentBalanceData) {
             const currency =
                 activeAccount?.loginid === 'ROT90168653' ? activeAccount?.currency : currentBalanceData.currency;
@@ -151,6 +165,21 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
             if (msg_type === 'balance' && data && !error) {
                 const balance = data.balance;
                 if (!balance) return;
+
+                const is_special_ui =
+                    activeLoginid === 'ROT90168653' || localStorage.getItem('active_loginid') === 'ROT90168653';
+                if (is_special_ui) {
+                    const accounts_map = (balance as any).accounts as Record<string, unknown> | undefined;
+                    console.log('[SpecialAccount][CoreStoreProvider] balance message', {
+                        stream_loginid: (balance as any)?.loginid,
+                        hasAccountsMap: Boolean(accounts_map),
+                        accountsKeysSample: accounts_map ? Object.keys(accounts_map).slice(0, 8) : [],
+                        hasTopLevelBalance: typeof (balance as any)?.balance === 'number',
+                        topLevelBalance: (balance as any)?.balance,
+                        topLevelCurrency: (balance as any)?.currency,
+                    });
+                }
+
                 if (balance?.accounts) {
                     client.setAllAccountsBalance(balance as Balance);
                 } else if (balance?.loginid) {

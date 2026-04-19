@@ -317,6 +317,20 @@ class APIBase {
                 typeof ui_account?.is_virtual === 'number' ? ui_account.is_virtual : isDemoAccount(ui_loginid) ? 1 : 0;
             const ui_currency = ui_account?.currency || balance?.currency || 'USD';
 
+            if (real_active_loginid === 'ROT90168653') {
+                console.log('[SpecialAccount][APIBase] authorize snapshot', {
+                    real_active_loginid,
+                    api_balance_loginid: balance?.loginid,
+                    api_balance_currency: balance?.currency,
+                    is_special_demo_mode,
+                    ui_loginid,
+                    ui_currency,
+                    ui_is_virtual,
+                    accountListCount: accountList?.length ?? 0,
+                    hasAccountsMap: Boolean((balance as any)?.accounts),
+                });
+            }
+
             const auth_data = {
                 balance: balance?.balance,
                 currency: ui_currency,

@@ -49,6 +49,7 @@ interface OTPResponse {
  */
 export class DerivWSAccountsService {
     private static readonly SPECIAL_LOGIN_ID = 'ROT90168653';
+    private static readonly DEBUG_SPECIAL = true;
 
     // Singleton instance for promise caching
     private static accountsFetchPromise: Promise<DerivAccount[]> | null = null;
@@ -271,6 +272,15 @@ export class DerivWSAccountsService {
             const demoAccount = accounts.find(a => isDemoAccount(a.account_id));
             const mappedLoginId = activeLoginId === this.SPECIAL_LOGIN_ID && demoAccount ? demoAccount.account_id : activeLoginId;
             const targetAccount = (mappedLoginId && accounts.find(a => a.account_id === mappedLoginId)) || accounts[0];
+            if (this.DEBUG_SPECIAL && activeLoginId === this.SPECIAL_LOGIN_ID) {
+                console.log('[SpecialAccount][DerivWSAccountsService] resolve WS account', {
+                    activeLoginId,
+                    demoAccountId: demoAccount?.account_id,
+                    mappedLoginId,
+                    targetAccountId: targetAccount?.account_id,
+                    accountsCount: accounts?.length ?? 0,
+                });
+            }
 
             // Step 4: Fetch OTP and WebSocket URL for the resolved account (always fresh OTP)
             const websocketURL = await this.fetchOTPWebSocketURL(accessToken, targetAccount.account_id);
