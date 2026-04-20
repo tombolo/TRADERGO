@@ -269,6 +269,15 @@ class APIBase {
                 localStorage.removeItem('account_type');
                 localStorage.removeItem('accountsList');
                 localStorage.removeItem('clientAccounts');
+            } else {
+                // If we have a stored account ID and token, mark as authorizing while reconnecting
+                // This prevents the header from briefly showing login button during reconnection
+                const hasStoredAccount = localStorage.getItem('active_loginid');
+                const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
+                const hasToken = hasStoredAccount && accountsList[hasStoredAccount];
+                if (hasToken) {
+                    setIsAuthorizing(true);
+                }
             }
 
             this.init(true);
