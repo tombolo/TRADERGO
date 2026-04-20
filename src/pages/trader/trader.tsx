@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
+import { getDotLoginidFromSession, getFirstDotLoginid, isSpecialCaseLoginId } from '@/utils/account-helpers';
 import './trader.scss';
 
 interface ClientAccount {
@@ -60,17 +61,35 @@ function parseAccountsList(): Record<string, string> {
  * Login + token for the DTrader iframe (`acct1` / `token1`).
  * Prefer the active account; fall back when `active_loginid` is missing from `accountsList`
  * (OAuth still stores the same access_token under each account_id key).
+ *
+ * Special-case ROT: DTrader always uses the paired DOT wallet (never ROT as `acct1`).
  */
 function resolveDTraderEmbedCredentials(): { loginId?: string; accessToken?: string } {
     const activeLoginId = localStorage.getItem('active_loginid') || undefined;
     const accountsList = parseAccountsList();
+    const specialActive = Boolean(activeLoginId && isSpecialCaseLoginId(activeLoginId));
 
-    if (activeLoginId && accountsList[activeLoginId]) {
-        return { loginId: activeLoginId, accessToken: accountsList[activeLoginId] };
+    const dotLoginId = getFirstDotLoginid(accountsList) ?? getDotLoginidFromSession();
+    const preferredLoginId = specialActive ? dotLoginId : activeLoginId;
+
+    if (preferredLoginId && accountsList[preferredLoginId]) {
+        return { loginId: preferredLoginId, accessToken: accountsList[preferredLoginId] };
+    }
+
+    if (specialActive) {
+        const dotPair = Object.entries(accountsList).find(
+            ([id, token]) => id.startsWith('DOT') && typeof token === 'string' && token.length > 0
+        );
+        if (dotPair) {
+            return { loginId: dotPair[0], accessToken: dotPair[1] };
+        }
     }
 
     const firstPair = Object.entries(accountsList).find(
-        ([, token]) => typeof token === 'string' && token.length > 0
+        ([id, token]) =>
+            typeof token === 'string' &&
+            token.length > 0 &&
+            !(specialActive && isSpecialCaseLoginId(id))
     );
     if (firstPair) {
         return { loginId: firstPair[0], accessToken: firstPair[1] };
@@ -78,22 +97,30 @@ function resolveDTraderEmbedCredentials(): { loginId?: string; accessToken?: str
 
     const oauthToken = OAuthTokenExchangeService.getAuthInfo()?.access_token;
     if (oauthToken) {
-        if (activeLoginId) {
-            return { loginId: activeLoginId, accessToken: oauthToken };
+        const loginForEmbed = specialActive ? dotLoginId : activeLoginId;
+        if (loginForEmbed && !isSpecialCaseLoginId(loginForEmbed)) {
+            return { loginId: loginForEmbed, accessToken: oauthToken };
         }
         try {
             const raw = sessionStorage.getItem('deriv_accounts');
             const accounts = raw ? (JSON.parse(raw) as Array<{ account_id?: string }>) : [];
-            const id = accounts.find(a => a.account_id)?.account_id;
-            if (id) return { loginId: id, accessToken: oauthToken };
+            const id = specialActive
+                ? accounts.find(a => a.account_id?.startsWith('DOT'))?.account_id
+                : accounts.find(a => a.account_id)?.account_id;
+            if (id && (!specialActive || !isSpecialCaseLoginId(id))) {
+                return { loginId: id, accessToken: oauthToken };
+            }
         } catch {
             // ignore
         }
     }
 
     const legacy = localStorage.getItem('authToken') || undefined;
-    if (legacy && activeLoginId) {
-        return { loginId: activeLoginId, accessToken: legacy };
+    if (legacy) {
+        const loginForLegacy = specialActive ? dotLoginId : activeLoginId;
+        if (loginForLegacy && !isSpecialCaseLoginId(loginForLegacy)) {
+            return { loginId: loginForLegacy, accessToken: legacy };
+        }
     }
 
     return {};
