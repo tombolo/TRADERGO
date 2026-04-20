@@ -28,9 +28,12 @@ const AppHeader = observer(() => {
     // When ?code=...&state=... is present the full auth flow can take 7-15 s
     // (token exchange → accounts fetch → OTP → WebSocket auth), so we must
     // suppress the short fallback timeout and keep the spinner throughout.
+    // Also check sessionStorage since cleanupURL() may redirect and reset URL params.
     const [isOAuthPending, setIsOAuthPending] = useState(() => {
         const params = new URLSearchParams(window.location.search);
-        return Boolean(params.get('code') && params.get('state'));
+        const fromUrl = Boolean(params.get('code') && params.get('state'));
+        const fromStorage = sessionStorage.getItem('oauth_pending') === 'true';
+        return fromUrl || fromStorage;
     });
 
     const { data: activeAccount } = useActiveAccount({
@@ -56,12 +59,16 @@ const AppHeader = observer(() => {
         if (!isOAuthPending) return;
 
         if (resolvedLoginId) {
+            sessionStorage.removeItem('oauth_pending');
             setIsOAuthPending(false);
             return;
         }
 
         // Safety net: give up after 30 s and let the normal flow decide
-        const timer = setTimeout(() => setIsOAuthPending(false), 30_000);
+        const timer = setTimeout(() => {
+            sessionStorage.removeItem('oauth_pending');
+            setIsOAuthPending(false);
+        }, 30_000);
         return () => clearTimeout(timer);
     }, [isOAuthPending, resolvedLoginId]);
 
@@ -76,6 +83,7 @@ const AppHeader = observer(() => {
 
     // Fallback timeout: show login button if auth never resolves.
     // Suppressed during the OAuth callback flow (isOAuthPending = true).
+    // Use 20s instead of 5s to allow for slower OAuth flows (7-15s) without flashing login buttons.
     useEffect(() => {
         if (isOAuthPending) return;
 
@@ -85,7 +93,7 @@ const AppHeader = observer(() => {
             if (isAuthorizing && !resolvedLoginId) {
                 setAuthTimeout(true);
             }
-        }, 5000);
+        }, 20_000);
 
         if (resolvedLoginId || !isAuthorizing) {
             if (authTimeout) setAuthTimeout(false);
@@ -104,15 +112,18 @@ const AppHeader = observer(() => {
     const handleSignup = useCallback(async () => {
         try {
             setIsAuthorizing(true);
+            sessionStorage.setItem('oauth_pending', 'true');
             const oauthUrl = await generateOAuthURL('registration');
             if (oauthUrl) {
                 window.location.replace(oauthUrl);
             } else {
                 console.error('Failed to generate OAuth URL for signup');
+                sessionStorage.removeItem('oauth_pending');
                 setIsAuthorizing(false);
             }
         } catch (error) {
             console.error('Signup redirection failed:', error);
+            sessionStorage.removeItem('oauth_pending');
             setIsAuthorizing(false);
         }
     }, [setIsAuthorizing]);
@@ -121,6 +132,7 @@ const AppHeader = observer(() => {
         try {
             // Set authorizing state immediately when login is clicked
             setIsAuthorizing(true);
+            sessionStorage.setItem('oauth_pending', 'true');
 
             // Generate OAuth URL with CSRF token and PKCE parameters
             const oauthUrl = await generateOAuthURL();
@@ -130,11 +142,13 @@ const AppHeader = observer(() => {
                 window.location.replace(oauthUrl);
             } else {
                 console.error('Failed to generate OAuth URL');
+                sessionStorage.removeItem('oauth_pending');
                 setIsAuthorizing(false);
             }
         } catch (error) {
             console.error('Login redirection failed:', error);
             // Reset authorizing state if redirection fails
+            sessionStorage.removeItem('oauth_pending');
             setIsAuthorizing(false);
         }
     }, [setIsAuthorizing]);
