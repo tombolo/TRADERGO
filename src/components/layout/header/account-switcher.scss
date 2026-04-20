@@ -189,10 +189,18 @@
         margin-inline-start: auto;
         margin-inline-end: 0;
         flex-shrink: 0;
-        padding: 0.45rem 0.95rem;
-        border-radius: 0.65rem;
-        background: var(--general-section-1);
+        padding: 0.55rem 1.1rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, var(--general-section-1) 0%, rgba(47, 133, 90, 0.04) 100%);
         border: 1px solid var(--general-section-2);
+        transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+        &:hover {
+            border-color: var(--hub-leaf, #2f855a);
+            box-shadow: 0 4px 12px rgba(47, 133, 90, 0.12);
+            background: linear-gradient(135deg, var(--general-section-1) 0%, rgba(47, 133, 90, 0.08) 100%);
+        }
     }
 
     &__balance {
@@ -207,6 +215,11 @@
         color: var(--hub-leaf, #2f855a);
         text-align: right;
         white-space: nowrap;
+        background: linear-gradient(135deg, var(--hub-leaf, #2f855a) 0%, rgba(47, 133, 90, 0.8) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: color 0.3s ease;
 
         &--no-currency {
             @include typeface(--small-left-normal-grey);
@@ -299,7 +312,11 @@
         }
 
         &__balance-section {
-            padding: 0.4rem 0.85rem;
+            padding: 0.5rem 0.95rem;
+            background: linear-gradient(135deg, var(--general-section-1) 0%, rgba(47, 133, 90, 0.05) 100%);
+            border-radius: 0.65rem;
+            border: 1px solid var(--general-section-2);
+            transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
         &__balance {
@@ -307,6 +324,10 @@
             line-height: 1.15;
             color: var(--hub-leaf, #2f855a);
             font-weight: 700;
+            background: linear-gradient(135deg, var(--hub-leaf, #2f855a) 0%, rgba(47, 133, 90, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
 
             &--no-currency {
                 white-space: nowrap;

@@ -1,3 +1,4 @@
+import { BrandLogo } from '@/components/layout/app-logo/BrandLogo';
 import './network-boot-loader.scss';
 
 type NetworkBootLoaderProps = {
@@ -172,6 +173,10 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
             </div>
 
             <div className='network-boot__card'>
+                <div className='network-boot__logo-section'>
+                    <BrandLogo width={140} height={40} className='network-boot__logo' />
+                </div>
+
                 <div className='network-boot__orbit' aria-hidden>
                     <span className='network-boot__orbit-ring' />
                     <span className='network-boot__orbit-ring network-boot__orbit-ring--delayed' />
@@ -190,6 +195,10 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
                     {Array.from({ length: 6 }).map((_, i) => (
                         <span key={i} className='network-boot__tick' style={{ animationDelay: `${i * 0.12}s` }} />
                     ))}
+                </div>
+
+                <div className='network-boot__footer'>
+                    <p className='network-boot__powered-by'>Powered by <span className='network-boot__deriv-brand'>Deriv</span></p>
                 </div>
             </div>
         </div>

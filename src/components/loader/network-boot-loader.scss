@@ -369,7 +369,7 @@ $amber: #fbbf24;
     &__card {
         position: relative;
         width: min(40rem, 100%);
-        padding: 2.8rem 2.4rem 2.4rem;
+        padding: 3.2rem 2.4rem 2.4rem;
         border-radius: 1.6rem;
         background: linear-gradient(165deg, rgba(15, 23, 42, 0.72) 0%, rgba(15, 23, 42, 0.45) 100%);
         border: 1px solid rgba(148, 163, 184, 0.18);
@@ -382,13 +382,34 @@ $amber: #fbbf24;
         backdrop-filter: blur(20px);
         text-align: center;
         animation: network-boot-card-in 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__logo-section {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 1.8rem;
+        animation: network-boot-logo-fade 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    &__logo {
+        max-width: 100%;
+        height: auto;
+        filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.25));
+        transition: filter 0.3s ease;
+
+        &:hover {
+            filter: drop-shadow(0 0 24px rgba(34, 211, 238, 0.4));
+        }
     }
 
     &__orbit {
         position: relative;
         width: 7.6rem;
         height: 7.6rem;
-        margin: 0 auto 2rem;
+        margin: 0 auto 1.6rem;
     }
 
     &__orbit-ring {
@@ -497,6 +518,32 @@ $amber: #fbbf24;
         border-radius: 50%;
         background: rgba(148, 163, 184, 0.45);
         animation: network-boot-tick 1.2s ease-in-out infinite;
+    }
+
+    &__footer {
+        margin-top: 2rem;
+        padding-top: 1.6rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.12);
+        animation: network-boot-footer-fade 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    &__powered-by {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.5;
+        color: rgba(186, 230, 253, 0.7);
+        letter-spacing: 0.02em;
+        text-shadow: 0 0 20px rgba(34, 211, 238, 0.08);
+    }
+
+    &__deriv-brand {
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.9) 0%, rgba(99, 102, 241, 0.9) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        letter-spacing: 0.05em;
     }
 }
 
@@ -722,5 +769,29 @@ $amber: #fbbf24;
     50% {
         opacity: 1;
         transform: translateY(-4px);
+    }
+}
+
+@keyframes network-boot-logo-fade {
+    0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(-8px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes network-boot-footer-fade {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
