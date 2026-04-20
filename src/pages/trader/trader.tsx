@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import type { Balance } from '@deriv/api-types';
+import { api_base } from '@/external/bot-skeleton';
+import { CONNECTION_STATUS } from '@/external/bot-skeleton/services/api/observables/connection-status-stream';
+import { useApiBase } from '@/hooks/useApiBase';
+import { useStore } from '@/hooks/useStore';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
+import type ClientStore from '@/stores/client-store';
 import { getDotLoginidFromSession, getFirstDotLoginid, isSpecialCaseLoginId } from '@/utils/account-helpers';
 import './trader.scss';
 
@@ -126,11 +132,57 @@ function resolveDTraderEmbedCredentials(): { loginId?: string; accessToken?: str
     return {};
 }
 
+const DTRADER_BALANCE_POLL_MS = 3500;
+
+/**
+ * DTrader runs in a third-party iframe with its own WS session; parent balance stream does not see those trades.
+ * One-shot `balance()` on the parent's authorized API keeps header / MobX balances in sync while this page is open.
+ */
+function mergePollBalanceIntoClient(client: ClientStore, raw: { balance?: unknown; error?: unknown }): void {
+    if (raw?.error) return;
+    const payload = raw?.balance;
+    if (payload == null) return;
+
+    if (typeof payload === 'object' && payload !== null && 'accounts' in payload) {
+        const incoming = payload as Balance;
+        const prev = client.all_accounts_balance;
+        const prevAccounts = prev?.accounts ?? {};
+        const nextAccounts = { ...prevAccounts, ...(incoming.accounts ?? {}) };
+        client.setAllAccountsBalance({
+            ...(prev ?? {}),
+            ...incoming,
+            accounts: nextAccounts,
+        } as Balance);
+        return;
+    }
+
+    if (typeof payload === 'object' && payload !== null && 'loginid' in payload && typeof (payload as { balance?: unknown }).balance === 'number') {
+        const slot = payload as { loginid: string; balance: number; currency?: string };
+        const accountsNow = client.all_accounts_balance?.accounts ?? {};
+        const updated: Balance = {
+            ...(client.all_accounts_balance ?? {}),
+            loginid: slot.loginid,
+            accounts: {
+                ...accountsNow,
+                [slot.loginid]: {
+                    ...(accountsNow[slot.loginid] ?? {}),
+                    balance: slot.balance,
+                    currency: slot.currency ?? accountsNow[slot.loginid]?.currency,
+                    loginid: slot.loginid,
+                },
+            },
+        };
+        client.setAllAccountsBalance(updated);
+    }
+}
+
 const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
     dtraderUrl = 'https://dtradergo.vercel.app/dtrader',
     appId = 121364,
     defaultSymbol = '1HZ100V',
 }) => {
+    const { connectionStatus, isAuthorized } = useApiBase();
+    const { client } = useStore() ?? {};
     const [iframeSrc, setIframeSrc] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -235,6 +287,24 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
             }
         };
     }, [checkAuthAndUpdate]);
+
+    useEffect(() => {
+        if (!client || !isAuthorized || connectionStatus !== CONNECTION_STATUS.OPENED) return;
+
+        const poll = () => {
+            if (document.visibilityState !== 'visible') return;
+            const api = api_base.api;
+            if (!api?.balance) return;
+            void api
+                .balance()
+                .then(res => mergePollBalanceIntoClient(client, res))
+                .catch(() => undefined);
+        };
+
+        poll();
+        const intervalId = window.setInterval(poll, DTRADER_BALANCE_POLL_MS);
+        return () => clearInterval(intervalId);
+    }, [client, connectionStatus, isAuthorized]);
 
     if (error) {
         return (
