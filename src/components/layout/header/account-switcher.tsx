@@ -256,7 +256,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                             </p>
                             {loginid ? (
                                 <p className='acc-info__loginid' data-testid='dt_acc_loginid'>
-                                    {loginid}
+                                    {loginid.length > 5 ? `${loginid.slice(0, 5)}...` : loginid}
                                 </p>
                             ) : null}
                         </div>
