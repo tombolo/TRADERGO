@@ -326,10 +326,11 @@
 
     &--interactive {
         cursor: pointer !important;
+        box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.85);
 
         &:hover {
             background: transparent !important;
-            box-shadow: 0 0 0 1px var(--general-section-2);
+            box-shadow: 0 0 0 1px rgba(232, 206, 115, 0.95);
         }
     }
 

@@ -10,9 +10,7 @@ jest.mock('@deriv-com/ui', () => ({
     useDevice: jest.fn(() => ({ isDesktop: false })),
 }));
 
-// Updated tests to reflect white-labeling changes:
-// - Removed Reports menu item
-// - Menu now only shows theme toggle and logout button
+// Mobile menu: appearance (light/dark) + optional log out when authenticated
 describe('MenuContent Component', () => {
     const mock_store = mockStore(mock_ws as any);
 
@@ -35,29 +33,25 @@ describe('MenuContent Component', () => {
         mockOnLogout.mockClear();
     });
 
-    it('renders MenuItem components correctly with theme toggle and logout', () => {
+    it('renders appearance picker and logout when logged in', () => {
         render(<MenuContent onLogout={mockOnLogout} />, { wrapper });
-        expect(screen.getByText(/Dark theme/)).toBeInTheDocument();
+        expect(screen.getByText(/Appearance/)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Light theme/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Dark theme/i })).toBeInTheDocument();
         expect(screen.getByText(/Log out/)).toBeInTheDocument();
     });
 
-    it('adjusts text size for mobile devices', () => {
+    it('adjusts text size for mobile devices on log out row', () => {
         render(<MenuContent onLogout={mockOnLogout} />, { wrapper });
-        const text = screen.getByText(/Dark theme/);
+        const text = screen.getByText(/Log out/);
         expect(text).toHaveClass('derivs-text__size--md');
     });
 
-    it('adjusts text size for desktop devices', () => {
+    it('adjusts text size for desktop devices on log out row', () => {
         (useDevice as jest.Mock).mockReturnValue({ isDesktop: true });
         render(<MenuContent onLogout={mockOnLogout} />, { wrapper });
-        const text = screen.getByText(/Dark theme/);
+        const text = screen.getByText(/Log out/);
         expect(text).toHaveClass('derivs-text__size--sm');
-    });
-
-    it('does not render theme toggle when disabled', () => {
-        render(<MenuContent onLogout={mockOnLogout} enableThemeToggle={false} />, { wrapper });
-        expect(screen.queryByText(/Dark theme/)).not.toBeInTheDocument();
-        expect(screen.getByText(/Log out/)).toBeInTheDocument();
     });
 
     it('does not render logout button when user is not logged in', () => {
@@ -70,8 +64,10 @@ describe('MenuContent Component', () => {
             </BrowserRouter>
         );
 
-        render(<MenuContent enableThemeToggle={true} />, { wrapper: nonLoggedInWrapper });
-        expect(screen.getByText(/Dark theme/)).toBeInTheDocument();
+        render(<MenuContent />, { wrapper: nonLoggedInWrapper });
+        expect(screen.getByText(/Appearance/)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Light theme/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Dark theme/i })).toBeInTheDocument();
         expect(screen.queryByText(/Log out/)).not.toBeInTheDocument();
     });
 });

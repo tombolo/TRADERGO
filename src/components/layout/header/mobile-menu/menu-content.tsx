@@ -3,24 +3,31 @@ import { observer } from 'mobx-react-lite';
 import { useStore } from '@/hooks/useStore';
 import { LegacyChevronRight1pxIcon } from '@deriv/quill-icons/Legacy';
 import { MenuItem, Text, useDevice } from '@deriv-com/ui';
+import ThemeAppearancePicker from './theme-appearance-picker';
 import useMobileMenuConfig from './use-mobile-menu-config';
 
 type TMenuContentProps = {
-    enableThemeToggle?: boolean;
     onOpenSubmenu?: (submenu: string) => void;
     onLogout?: () => void;
 };
 
-const MenuContent = observer(({ enableThemeToggle = true, onOpenSubmenu, onLogout }: TMenuContentProps) => {
+const MenuContent = observer(({ onOpenSubmenu, onLogout }: TMenuContentProps) => {
     const { isDesktop } = useDevice();
-    const { client } = useStore();
+    const { client } = useStore() ?? {};
     const textSize = isDesktop ? 'sm' : 'md';
-    // Pass enableThemeToggle to control theme toggle visibility
-    const { config } = useMobileMenuConfig(client, onLogout, enableThemeToggle);
+    const { config } = useMobileMenuConfig(client, onLogout);
+    const hasAccountActions = config.length > 0;
 
     return (
         <div className='mobile-menu__content'>
-            <div className='mobile-menu__content__items'>
+            <div
+                className={clsx('mobile-menu__content__items', {
+                    'mobile-menu__content__items--after-theme': hasAccountActions,
+                })}
+            >
+                <div className='mobile-menu__content__theme-block'>
+                    <ThemeAppearancePicker />
+                </div>
                 {config.map((item, index) => {
                     const removeBorderBottom = item.find(({ removeBorderBottom }) => removeBorderBottom);
                     const isLastSection = index === config.length - 1;

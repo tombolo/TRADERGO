@@ -37,6 +37,15 @@
         flex-direction: column;
         height: 100%;
 
+        &__theme-block {
+            padding: 0.8rem 1.6rem 1.2rem;
+        }
+
+        &__items--after-theme &__theme-block {
+            border-bottom: 1px solid var(--general-section-1);
+            margin-bottom: 0.4rem;
+        }
+
         &__platform {
             display: flex;
             justify-content: center;
@@ -165,6 +174,104 @@
         button > svg > path,
         svg > path {
             fill: var(--text-prominent);
+        }
+    }
+
+    &__theme-picker {
+        &__title {
+            margin: 0 0 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-less-prominent);
+        }
+
+        &__grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+    }
+
+    &__theme-option {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 1.2rem 1rem 1.4rem;
+        border: 2px solid var(--general-section-1);
+        border-radius: 1.2rem;
+        background: var(--general-main-2);
+        cursor: pointer;
+        text-align: left;
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            transform 0.15s ease;
+        -webkit-tap-highlight-color: transparent;
+
+        &:active {
+            transform: scale(0.98);
+        }
+
+        &__icon-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3.6rem;
+            height: 3.6rem;
+            border-radius: 1rem;
+            background: var(--general-section-1);
+            color: var(--text-prominent);
+
+            svg path {
+                fill: currentcolor;
+            }
+        }
+
+        &__label {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-prominent);
+            line-height: 1.2;
+        }
+
+        &__hint {
+            font-size: 1.1rem;
+            line-height: 1.35;
+            color: var(--text-less-prominent);
+        }
+
+        &--light {
+            background: linear-gradient(
+                160deg,
+                color-mix(in srgb, var(--general-main-2) 88%, #fef9c3 12%) 0%,
+                var(--general-main-2) 100%
+            );
+        }
+
+        &--dark {
+            background: linear-gradient(
+                160deg,
+                color-mix(in srgb, var(--general-main-2) 75%, #1e293b 25%) 0%,
+                var(--general-main-2) 100%
+            );
+        }
+
+        &--selected {
+            border-color: color-mix(in srgb, var(--brand-secondary, #15803d) 55%, var(--general-section-2) 45%);
+            box-shadow:
+                0 0 0 1px color-mix(in srgb, var(--brand-secondary, #15803d) 35%, transparent),
+                0 8px 22px rgba(15, 23, 42, 0.12);
+        }
+
+        &--selected#{&}--dark {
+            border-color: color-mix(in srgb, #38bdf8 40%, var(--general-section-2) 60%);
+            box-shadow:
+                0 0 0 1px color-mix(in srgb, #38bdf8 28%, transparent),
+                0 8px 24px rgba(0, 0, 0, 0.35);
         }
     }
 }

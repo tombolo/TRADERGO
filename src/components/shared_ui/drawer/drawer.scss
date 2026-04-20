@@ -23,7 +23,8 @@
 
     @include mobile-or-tablet-screen {
         width: 100vw !important;
-        height: calc(100% - 10.1rem) !important;
+        /* Shorter than viewport so open state clears the fixed app header (~5.6rem) */
+        height: calc(100% - 14.6rem) !important;
         top: calc(100% - 9.8rem) !important;
     }
 
@@ -120,7 +121,10 @@
 
     &--open {
         @include mobile-or-tablet-screen {
-            transform: translateY(calc(-100% + 3.6rem));
+            /* Extra offset keeps the collapse strip below .deriv-header / safe-area */
+            transform: translateY(
+                calc(-100% + 3.6rem + max(5.6rem, env(safe-area-inset-top, 0px)))
+            );
         }
     }
 }
