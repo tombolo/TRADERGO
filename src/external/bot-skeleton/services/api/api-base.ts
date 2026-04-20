@@ -157,6 +157,9 @@ class APIBase {
         if (activeAccountId) {
             setIsAuthorizing(true);
             await this.authorizeAndSubscribe();
+        } else {
+            // No stored account found; user is not authenticated
+            setIsAuthorizing(false);
         }
     }
 
