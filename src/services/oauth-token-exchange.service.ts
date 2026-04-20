@@ -249,6 +249,9 @@ export class OAuthTokenExchangeService {
                         // The api_base will pick up the active_loginid and authorize
                         const { api_base } = await import('@/external/bot-skeleton');
                         await api_base.init(true); // Force new connection with the account
+                        // On some mobile browsers the socket "open" callback can be missed/raced
+                        // during re-init; call authorize explicitly to ensure UI updates without refresh.
+                        await api_base.authorizeAndSubscribe();
                     } else {
                         // No accounts returned - this is an error condition
                         ErrorLogger.error('OAuth', 'No accounts returned after token exchange');
