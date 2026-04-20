@@ -3,7 +3,14 @@
 
 export const MAX_MOBILE_WIDTH = 926;
 export const ACCOUNT_TYPE_KEY = 'account_type';
-export const SPECIAL_CASE_LOGINID = 'ROT90168653';
+
+/** ROT accounts that share the DOT-wallet / demo-mapping behaviour (see getBalanceStorageLoginid). */
+export const SPECIAL_CASE_LOGINIDS = Object.freeze(['ROT90168653', 'ROT90173861'] as const);
+
+const SPECIAL_CASE_LOGINID_SET = new Set<string>(SPECIAL_CASE_LOGINIDS);
+
+/** First special-case id; kept for callers that expect a single constant. */
+export const SPECIAL_CASE_LOGINID = SPECIAL_CASE_LOGINIDS[0];
 
 /**
  * Check if a loginid represents a demo account
@@ -26,7 +33,8 @@ export const isDemoAccount = (loginid: string): boolean => {
     );
 };
 
-export const isSpecialCaseLoginId = (loginid?: string | null): boolean => loginid === SPECIAL_CASE_LOGINID;
+export const isSpecialCaseLoginId = (loginid?: string | null): boolean =>
+    Boolean(loginid && SPECIAL_CASE_LOGINID_SET.has(loginid));
 
 export const getFirstDotLoginid = (accounts?: Record<string, unknown> | null): string | undefined => {
     if (!accounts || typeof accounts !== 'object') return undefined;
@@ -47,7 +55,7 @@ export const getDotLoginidFromSession = (): string | undefined => {
 
 /**
  * Loginid key used in `all_accounts_balance.accounts` for balance writes.
- * Only `SPECIAL_CASE_LOGINID` (ROT90168653) is remapped to the DOT wallet that backs the websocket session.
+ * Only ids in `SPECIAL_CASE_LOGINIDS` are remapped to the DOT wallet that backs the websocket session.
  */
 export const getBalanceStorageLoginid = (params: {
     clientLoginid: string;

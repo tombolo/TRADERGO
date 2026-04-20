@@ -122,11 +122,7 @@ export async function komFetchOpenContractSnapshot(contract_id: string): Promise
         const settled = sold || expired;
         const buy = poc.buy_price != null ? Number(poc.buy_price) : undefined;
         const sell =
-            poc.sell_price != null
-                ? Number(poc.sell_price)
-                : poc.bid_price != null
-                  ? Number(poc.bid_price)
-                  : undefined;
+            poc.sell_price != null ? Number(poc.sell_price) : poc.bid_price != null ? Number(poc.bid_price) : undefined;
         const profitField = poc.profit != null && Number.isFinite(poc.profit) ? poc.profit : undefined;
         let profit: number | undefined;
         if (settled) {

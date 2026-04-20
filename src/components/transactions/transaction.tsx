@@ -98,64 +98,70 @@ const PopoverContent = ({ contract }: TPopoverContent) => {
         <div className='transactions__popover-content'>
             {contract.transaction_ids && (
                 <PopoverItem title={<Localize i18n_default_text='Reference IDs' />}>
-                    {displayBuyId && <div className='transactions__popover-value'>{`${displayBuyId} ${localize('(Buy)')}`}</div>}
+                    {displayBuyId && (
+                        <div className='transactions__popover-value'>{`${displayBuyId} ${localize('(Buy)')}`}</div>
+                    )}
                     {displaySellId && (
                         <div className='transactions__popover-value'>{`${displaySellId} ${localize('(Sell)')}`}</div>
                     )}
                 </PopoverItem>
             )}
-        {contract.tick_count && (
-            <PopoverItem title={localize('Duration')}>
-                <div className='transactions__popover-value'>{`${contract.tick_count} ${localize('ticks')}`}</div>
-            </PopoverItem>
-        )}
-        {(contract.barrier && (
-            <PopoverItem title={localize('Barrier')}>
-                <div className='transactions__popover-value'>{contract.barrier}</div>
-            </PopoverItem>
-        )) ||
-            (contract.high_barrier && contract.low_barrier && (
-                <PopoverItem title={localize('Barriers')}>
-                    <div className='transactions__popover-value'>{`${contract.high_barrier} ${localize(
-                        '(High)'
-                    )}`}</div>
-                    <div className='transactions__popover-value'>{`${contract.low_barrier} ${localize('(Low)')}`}</div>
+            {contract.tick_count && (
+                <PopoverItem title={localize('Duration')}>
+                    <div className='transactions__popover-value'>{`${contract.tick_count} ${localize('ticks')}`}</div>
                 </PopoverItem>
-            ))}
-        {contract.date_start && (
-            <PopoverItem title={localize('Start time')}>
-                <div className='transactions__popover-value'>
-                    {convertDateFormat(contract.date_start, 'YYYY-M-D HH:mm:ss [GMT]', 'YYYY-MM-DD HH:mm:ss [GMT]')}
-                </div>
-            </PopoverItem>
-        )}
-        {contract.entry_spot && (
-            <PopoverItem title={localize('Entry spot')}>
-                <div className='transactions__popover-value'>{contract.entry_spot}</div>
-                {contract.entry_tick_time && (
+            )}
+            {(contract.barrier && (
+                <PopoverItem title={localize('Barrier')}>
+                    <div className='transactions__popover-value'>{contract.barrier}</div>
+                </PopoverItem>
+            )) ||
+                (contract.high_barrier && contract.low_barrier && (
+                    <PopoverItem title={localize('Barriers')}>
+                        <div className='transactions__popover-value'>{`${contract.high_barrier} ${localize(
+                            '(High)'
+                        )}`}</div>
+                        <div className='transactions__popover-value'>{`${contract.low_barrier} ${localize('(Low)')}`}</div>
+                    </PopoverItem>
+                ))}
+            {contract.date_start && (
+                <PopoverItem title={localize('Start time')}>
+                    <div className='transactions__popover-value'>
+                        {convertDateFormat(contract.date_start, 'YYYY-M-D HH:mm:ss [GMT]', 'YYYY-MM-DD HH:mm:ss [GMT]')}
+                    </div>
+                </PopoverItem>
+            )}
+            {contract.entry_spot && (
+                <PopoverItem title={localize('Entry spot')}>
+                    <div className='transactions__popover-value'>{contract.entry_spot}</div>
+                    {contract.entry_tick_time && (
+                        <div className='transactions__popover-value'>
+                            {convertDateFormat(
+                                contract.entry_tick_time,
+                                'YYYY-M-D HH:mm:ss [GMT]',
+                                'YYYY-MM-DD HH:mm:ss [GMT]'
+                            )}
+                        </div>
+                    )}
+                </PopoverItem>
+            )}
+            {(contract.exit_spot && contract.exit_tick_time && (
+                <PopoverItem title={localize('Exit spot')}>
+                    <div className='transactions__popover-value'>{contract.exit_spot}</div>
                     <div className='transactions__popover-value'>
                         {convertDateFormat(
-                            contract.entry_tick_time,
+                            contract.exit_tick_time,
                             'YYYY-M-D HH:mm:ss [GMT]',
                             'YYYY-MM-DD HH:mm:ss [GMT]'
                         )}
                     </div>
-                )}
-            </PopoverItem>
-        )}
-        {(contract.exit_spot && contract.exit_tick_time && (
-            <PopoverItem title={localize('Exit spot')}>
-                <div className='transactions__popover-value'>{contract.exit_spot}</div>
-                <div className='transactions__popover-value'>
-                    {convertDateFormat(contract.exit_tick_time, 'YYYY-M-D HH:mm:ss [GMT]', 'YYYY-MM-DD HH:mm:ss [GMT]')}
-                </div>
-            </PopoverItem>
-        )) ||
-            (contract.exit_spot && (
-                <PopoverItem title={localize('Exit time')}>
-                    <div className='transactions__popover-value'>{contract.exit_spot}</div>
                 </PopoverItem>
-            ))}
+            )) ||
+                (contract.exit_spot && (
+                    <PopoverItem title={localize('Exit time')}>
+                        <div className='transactions__popover-value'>{contract.exit_spot}</div>
+                    </PopoverItem>
+                ))}
         </div>
     );
 };

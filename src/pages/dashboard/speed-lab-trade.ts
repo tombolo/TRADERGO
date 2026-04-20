@@ -274,10 +274,7 @@ async function sendPriceProposal(params: {
  * Deriv `transaction` sells expose `amount` as the sale proceeds / payout (often positive even when you lost stake),
  * so we must use **sell proceeds − buy_price** when `buy_price` is known (from the `buy` response).
  */
-export function extractSellNetProfit(
-    transaction: Record<string, unknown>,
-    buy_price?: number
-): number | null {
+export function extractSellNetProfit(transaction: Record<string, unknown>, buy_price?: number): number | null {
     const t = transaction;
     if (String(t.action) !== 'sell') return null;
 
@@ -380,7 +377,10 @@ export async function pickBestSymbolForMultiMarket(params: {
     return { symbol: best.symbol, id: best.id, ask_price: best.ask_price };
 }
 
-export async function buyProposal(proposal_id: string, price: number): Promise<{
+export async function buyProposal(
+    proposal_id: string,
+    price: number
+): Promise<{
     buy_price?: number;
     transaction_id?: string;
     contract_id?: string | number;
@@ -480,8 +480,7 @@ export async function executeSpeedLabRound(args: {
     };
 
     if (args.trading_mode === 'multi_market') {
-        const candidates =
-            args.symbol_candidates?.length ? args.symbol_candidates : args.symbol ? [args.symbol] : [];
+        const candidates = args.symbol_candidates?.length ? args.symbol_candidates : args.symbol ? [args.symbol] : [];
         const main_ex = proposalFieldsForContract(args.contract_type_api);
         const best = await pickBestSymbolForMultiMarket({
             symbols: candidates,
@@ -523,12 +522,14 @@ export function subscribeSpeedLabTicks(symbol: string, onTick: TTickHandler): ()
     if (!api_base.api) return () => undefined;
 
     let forget_id: string | null = null;
-    const sub = api_base.api.onMessage().subscribe((msg: { data?: { msg_type?: string; tick?: { symbol?: string } } }) => {
-        const d = msg?.data;
-        if (d?.msg_type === 'tick' && d.tick?.symbol === symbol) {
-            onTick();
-        }
-    });
+    const sub = api_base.api
+        .onMessage()
+        .subscribe((msg: { data?: { msg_type?: string; tick?: { symbol?: string } } }) => {
+            const d = msg?.data;
+            if (d?.msg_type === 'tick' && d.tick?.symbol === symbol) {
+                onTick();
+            }
+        });
     api_base.pushSubscription(sub);
 
     api_base.api

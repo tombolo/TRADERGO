@@ -13,11 +13,7 @@ const ThemeAppearancePicker = observer(() => {
             <p className='mobile-menu__theme-picker__title'>
                 <Localize i18n_default_text='Appearance' />
             </p>
-            <div
-                className='mobile-menu__theme-picker__grid'
-                role='group'
-                aria-label={localize('Theme')}
-            >
+            <div className='mobile-menu__theme-picker__grid' role='group' aria-label={localize('Theme')}>
                 <button
                     type='button'
                     className={clsx('mobile-menu__theme-option', 'mobile-menu__theme-option--light', {

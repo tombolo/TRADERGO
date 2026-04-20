@@ -78,9 +78,7 @@ const RiskDisclaimer = () => {
                             <li>{localize('Markets can be volatile and unpredictable')}</li>
                         </ul>
                         <div className='risk-disclaimer-container__callout' role='note'>
-                            {localize(
-                                'Important: Never trade with borrowed money or funds you cannot afford to lose.'
-                            )}
+                            {localize('Important: Never trade with borrowed money or funds you cannot afford to lose.')}
                         </div>
                         <p className='risk-disclaimer-container__closing'>
                             {localize(

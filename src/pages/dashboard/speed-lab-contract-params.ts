@@ -25,10 +25,7 @@ export type TSpeedLabProposalExtras = {
 /**
  * @param prediction — QS `last_digit_prediction`: 0–9 for digit contracts; tick index (1–10) for High/Low tick.
  */
-export function speedLabBuildProposalExtras(
-    contract_type_api: string,
-    prediction: number
-): TSpeedLabProposalExtras {
+export function speedLabBuildProposalExtras(contract_type_api: string, prediction: number): TSpeedLabProposalExtras {
     const mode = speedLabPredictionMode(contract_type_api);
     if (!mode) return {};
 

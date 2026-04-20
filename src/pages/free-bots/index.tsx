@@ -55,7 +55,10 @@ const FreeBotsPage = observer(() => {
                             </div>
                             <p className='free-bots__card-desc'>{getBotDescription(bot)}</p>
                             <p className='free-bots__card-meta'>
-                                <Localize i18n_default_text='{{folder}} • XML strategy' values={{ folder: folderBadgeLabel(bot.folder) }} />
+                                <Localize
+                                    i18n_default_text='{{folder}} • XML strategy'
+                                    values={{ folder: folderBadgeLabel(bot.folder) }}
+                                />
                             </p>
                             <div className='free-bots__card-footer'>
                                 <div className='free-bots__social'>

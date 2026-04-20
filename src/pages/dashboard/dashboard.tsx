@@ -10,9 +10,7 @@ import Announcements from './announcements';
 import Cards from './cards';
 import InfoPanel from './info-panel';
 
-const SpeedLabPanelLazy = React.lazy(() =>
-    import('./speed-lab').then(m => ({ default: m.SpeedLabPanel }))
-);
+const SpeedLabPanelLazy = React.lazy(() => import('./speed-lab').then(m => ({ default: m.SpeedLabPanel })));
 
 const KingOfMatchesPanelLazy = React.lazy(() =>
     import('./king-of-matches').then(m => ({ default: m.KingOfMatchesPanel }))
@@ -73,9 +71,7 @@ const DashboardComponent = observer(({ handleTabChange }: TMobileIconGuide) => {
                                 className='tab__dashboard__kom-pane tab__dashboard__kom-pane--kom'
                                 role='dialog'
                                 aria-modal={is_king_of_matches_open}
-                                aria-labelledby={
-                                    is_king_of_matches_open ? 'king-of-matches-heading' : undefined
-                                }
+                                aria-labelledby={is_king_of_matches_open ? 'king-of-matches-heading' : undefined}
                                 aria-label={!is_king_of_matches_open ? localize('King of Matches') : undefined}
                                 aria-hidden={!is_king_of_matches_open}
                             >
@@ -145,9 +141,7 @@ const DashboardComponent = observer(({ handleTabChange }: TMobileIconGuide) => {
                                             className='tab__dashboard__speed-lab-pane tab__dashboard__speed-lab-pane--lab'
                                             role='dialog'
                                             aria-modal={is_speed_lab_open}
-                                            aria-labelledby={
-                                                is_speed_lab_open ? 'speed-lab-heading' : undefined
-                                            }
+                                            aria-labelledby={is_speed_lab_open ? 'speed-lab-heading' : undefined}
                                             aria-label={!is_speed_lab_open ? localize('Speed Lab') : undefined}
                                             aria-hidden={!is_speed_lab_open}
                                         >

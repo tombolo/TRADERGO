@@ -75,9 +75,15 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
         if (url.pathname === '/callback') {
             url.pathname = '/';
         }
-        window.history.replaceState({}, '', url.toString());
-        // Ensure router/layout reacts to manual history replacement.
-        window.dispatchEvent(new PopStateEvent('popstate'));
+        // Avoid manually dispatching POP navigation events: React Router blockers
+        // can warn/fail when a POP occurs for a location not created by the router.
+        // If we need to exit `/callback`, do a real navigation; otherwise just
+        // replace the URL (no navigation needed).
+        if (window.location.pathname === '/callback') {
+            window.location.replace(url.toString());
+        } else {
+            window.history.replaceState({}, '', url.toString());
+        }
     }, []);
 
     useEffect(() => {

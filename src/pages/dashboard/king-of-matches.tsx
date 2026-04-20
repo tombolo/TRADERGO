@@ -108,8 +108,7 @@ function buildChartModel(counts: number[], total: number): TChartModel {
         tier: leastDigitsSet.has(e.digit) ? 'least' : 'most',
     }));
 
-    const recommendedDiffersDigit =
-        bottomSorted.length > 0 ? bottomSorted[bottomSorted.length - 1].digit : null;
+    const recommendedDiffersDigit = bottomSorted.length > 0 ? bottomSorted[bottomSorted.length - 1].digit : null;
 
     return {
         bars,
@@ -475,9 +474,7 @@ export const KingOfMatchesPanel = ({ onClose }: TKingOfMatchesPanelProps) => {
             }
             setOpenContractRows(next_open);
             if (newly_closed.length > 0) {
-                setClosedContractRows(prev =>
-                    [...newly_closed, ...prev].slice(0, KOM_CLOSED_HISTORY_CAP)
-                );
+                setClosedContractRows(prev => [...newly_closed, ...prev].slice(0, KOM_CLOSED_HISTORY_CAP));
             }
         }, 4000);
         return () => clearInterval(id);
@@ -572,7 +569,8 @@ export const KingOfMatchesPanel = ({ onClose }: TKingOfMatchesPanelProps) => {
                                     <div
                                         key={`kom-bar-${i}-${bar.digit}`}
                                         className={classNames('kom__bar-col', {
-                                            'kom__bar-col--red-block-start': bar.tier === 'least' && i > 0 && bars[i - 1]?.tier === 'most',
+                                            'kom__bar-col--red-block-start':
+                                                bar.tier === 'least' && i > 0 && bars[i - 1]?.tier === 'most',
                                         })}
                                     >
                                         <div className='kom__bar-meta'>
@@ -856,10 +854,7 @@ export const KingOfMatchesPanel = ({ onClose }: TKingOfMatchesPanelProps) => {
                             )}
                         </section>
 
-                        <section
-                            className='kom__contracts-panel'
-                            aria-labelledby='kom-contracts-panel-heading'
-                        >
+                        <section className='kom__contracts-panel' aria-labelledby='kom-contracts-panel-heading'>
                             <h2 id='kom-contracts-panel-heading' className='kom__contracts-panel-title'>
                                 <Localize i18n_default_text='Contracts from this session' />
                             </h2>
@@ -909,11 +904,9 @@ export const KingOfMatchesPanel = ({ onClose }: TKingOfMatchesPanelProps) => {
                                                             <td
                                                                 className={classNames({
                                                                     'kom__contracts-pl--pos':
-                                                                        row.live_profit != null &&
-                                                                        row.live_profit >= 0,
+                                                                        row.live_profit != null && row.live_profit >= 0,
                                                                     'kom__contracts-pl--neg':
-                                                                        row.live_profit != null &&
-                                                                        row.live_profit < 0,
+                                                                        row.live_profit != null && row.live_profit < 0,
                                                                 })}
                                                             >
                                                                 {row.live_profit != null

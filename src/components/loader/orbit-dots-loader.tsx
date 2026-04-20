@@ -9,12 +9,7 @@ type OrbitDotsLoaderProps = {
 
 export default function OrbitDotsLoader({ className, label = 'Loading' }: OrbitDotsLoaderProps) {
     return (
-        <div
-            className={classNames('orbit-dots-loader', className)}
-            role='status'
-            aria-busy='true'
-            aria-label={label}
-        />
+        <div className={classNames('orbit-dots-loader', className)} role='status' aria-busy='true' aria-label={label} />
     );
 }
 

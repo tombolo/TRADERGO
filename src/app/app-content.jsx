@@ -127,10 +127,7 @@ const AppContent = observer(() => {
 
             active_symbols.retrieveActiveSymbols(true).then(() => {
                 const elapsed = Date.now() - load_started_at;
-                setTimeout(
-                    () => setIsLoading(false),
-                    Math.max(0, NETWORK_BOOT_MIN_DISPLAY_MS - elapsed)
-                );
+                setTimeout(() => setIsLoading(false), Math.max(0, NETWORK_BOOT_MIN_DISPLAY_MS - elapsed));
             });
         };
 

@@ -20,7 +20,13 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
     const secondary = hint?.trim();
 
     return (
-        <div className='network-boot' role='status' aria-live='polite' aria-busy='true' data-testid='dt_network_boot_loader'>
+        <div
+            className='network-boot'
+            role='status'
+            aria-live='polite'
+            aria-busy='true'
+            data-testid='dt_network_boot_loader'
+        >
             <div className='network-boot__bg' aria-hidden />
             <div className='network-boot__nebula' aria-hidden />
             <div className='network-boot__grid' aria-hidden />
@@ -70,8 +76,20 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
                     <circle cx='100' cy='100' r='88' fill='url(#network-boot-globe-limb)' />
                     <g className='network-boot__globe-spin'>
                         <ellipse className='network-boot__globe-ring' cx='100' cy='100' rx='88' ry='36' />
-                        <ellipse className='network-boot__globe-ring network-boot__globe-ring--b' cx='100' cy='100' rx='36' ry='88' />
-                        <ellipse className='network-boot__globe-ring network-boot__globe-ring--c' cx='100' cy='100' rx='72' ry='72' />
+                        <ellipse
+                            className='network-boot__globe-ring network-boot__globe-ring--b'
+                            cx='100'
+                            cy='100'
+                            rx='36'
+                            ry='88'
+                        />
+                        <ellipse
+                            className='network-boot__globe-ring network-boot__globe-ring--c'
+                            cx='100'
+                            cy='100'
+                            rx='72'
+                            ry='72'
+                        />
                     </g>
                     <g className='network-boot__globe-dots'>
                         <circle cx='48' cy='92' r='2.5' />
@@ -100,7 +118,11 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
             </div>
 
             <div className='network-boot__constellation' aria-hidden>
-                <svg className='network-boot__constellation-svg' viewBox='0 0 400 260' preserveAspectRatio='xMidYMid slice'>
+                <svg
+                    className='network-boot__constellation-svg'
+                    viewBox='0 0 400 260'
+                    preserveAspectRatio='xMidYMid slice'
+                >
                     <defs>
                         <linearGradient id='network-boot-link' x1='0%' y1='0%' x2='100%' y2='0%'>
                             <stop offset='0%' stopColor='rgba(129,140,248,0.15)' />
@@ -139,11 +161,7 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
 
             <div className='network-boot__nodes' aria-hidden>
                 {Array.from({ length: 14 }).map((_, i) => (
-                    <span
-                        key={i}
-                        className='network-boot__node'
-                        style={{ animationDelay: `${(i % 8) * 0.2}s` }}
-                    />
+                    <span key={i} className='network-boot__node' style={{ animationDelay: `${(i % 8) * 0.2}s` }} />
                 ))}
             </div>
 

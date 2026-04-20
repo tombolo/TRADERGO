@@ -92,7 +92,8 @@ class APIBase {
         this.current_auth_subscriptions = [];
     };
 
-    onsocketopen() {
+    // Keep stable handler references for add/removeEventListener.
+    onsocketopen = () => {
         setConnectionStatus(CONNECTION_STATUS.OPENED);
 
         // Reset reconnection attempts on successful connection
@@ -103,8 +104,13 @@ class APIBase {
             currentClientStore.setIsAccountRegenerating(false);
         }
 
-        this.handleTokenExchangeIfNeeded();
-    }
+        void this.handleTokenExchangeIfNeeded().catch(error => {
+            // Prevent "Uncaught (in promise)" from bubbling to the console and
+            // leaving the UI stuck in an authorizing/loading state on mobile.
+            console.error('[APIBase] handleTokenExchangeIfNeeded failed:', error);
+            setIsAuthorizing(false);
+        });
+    };
 
     private async handleTokenExchangeIfNeeded() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -154,10 +160,10 @@ class APIBase {
         }
     }
 
-    onsocketclose() {
+    onsocketclose = () => {
         setConnectionStatus(CONNECTION_STATUS.CLOSED);
         this.reconnectIfNotConnected();
-    }
+    };
 
     async init(force_create_connection = false) {
         this.toggleRunButton(true);
@@ -176,14 +182,14 @@ class APIBase {
                 ApiHelpers.disposeInstance();
                 setConnectionStatus(CONNECTION_STATUS.CLOSED);
                 this.api.disconnect();
-                this.api.connection.removeEventListener('open', this.onsocketopen.bind(this));
-                this.api.connection.removeEventListener('close', this.onsocketclose.bind(this));
+                this.api.connection.removeEventListener('open', this.onsocketopen);
+                this.api.connection.removeEventListener('close', this.onsocketclose);
             }
 
             this.api = await generateDerivApiInstance();
 
-            this.api?.connection.addEventListener('open', this.onsocketopen.bind(this));
-            this.api?.connection.addEventListener('close', this.onsocketclose.bind(this));
+            this.api?.connection.addEventListener('open', this.onsocketopen);
+            this.api?.connection.addEventListener('close', this.onsocketclose);
 
             // Store the current account ID used for this WebSocket connection
             // This will be used to check if we need to regenerate the connection when the tab becomes active
@@ -194,6 +200,12 @@ class APIBase {
                     currentClientStore.setWebSocketLoginId(active_login_id);
                 }
             }
+        }
+
+        // If we already have an open socket (e.g. init called after OAuth),
+        // trigger the same flow the open event would start.
+        if (this.api?.connection?.readyState === 1) {
+            this.onsocketopen();
         }
 
         const hasAccountID = V2GetActiveAccountId();
@@ -280,9 +292,11 @@ class APIBase {
             const auth_or_balance = hasToken
                 ? await this.api.authorize(token_payload?.token as string)
                 : await this.api.balance();
-            const raw_account_data = (hasToken
-                ? (auth_or_balance as { authorize?: TAuthData }).authorize
-                : (auth_or_balance as { balance?: Balance }).balance) as (TAuthData & Balance) | undefined;
+            const raw_account_data = (
+                hasToken
+                    ? (auth_or_balance as { authorize?: TAuthData }).authorize
+                    : (auth_or_balance as { balance?: Balance }).balance
+            ) as (TAuthData & Balance) | undefined;
             const error = (auth_or_balance as { error?: unknown })?.error;
 
             if (error) {
@@ -311,7 +325,9 @@ class APIBase {
                     authorized_loginid,
                     display_loginid,
                     should_preserve_special_loginid,
-                    has_accounts_map: Boolean(raw_account_data?.accounts && Object.keys(raw_account_data.accounts).length > 0),
+                    has_accounts_map: Boolean(
+                        raw_account_data?.accounts && Object.keys(raw_account_data.accounts).length > 0
+                    ),
                 });
             }
             const normalized_account_data = {
@@ -392,7 +408,9 @@ class APIBase {
                     currency: normalized_account_data?.currency || 'USD',
                     is_virtual: account_type === 'real' ? 0 : 1,
                     balance:
-                        typeof normalized_account_data?.balance === 'number' ? normalized_account_data.balance : undefined,
+                        typeof normalized_account_data?.balance === 'number'
+                            ? normalized_account_data.balance
+                            : undefined,
                 },
             });
 
@@ -417,11 +435,14 @@ class APIBase {
                         : null),
                 } as Balance);
                 if (is_special_case) {
-                    console.log('[SpecialAccount][authorizeAndSubscribe] Seeded all_accounts_balance from auth payload', {
-                        active_loginid,
-                        special_case_balance_loginid,
-                        account_keys: Object.keys(normalized_balance_accounts),
-                    });
+                    console.log(
+                        '[SpecialAccount][authorizeAndSubscribe] Seeded all_accounts_balance from auth payload',
+                        {
+                            active_loginid,
+                            special_case_balance_loginid,
+                            account_keys: Object.keys(normalized_balance_accounts),
+                        }
+                    );
                 }
             }
 

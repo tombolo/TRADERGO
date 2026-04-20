@@ -4,11 +4,7 @@ type TBrandLogoProps = {
     className?: string;
 };
 
-export const BrandLogo = ({
-    width = 120,
-    height = 32,
-    className = ''
-}: TBrandLogoProps) => {
+export const BrandLogo = ({ width = 120, height = 32, className = '' }: TBrandLogoProps) => {
     return (
         <img
             src='/assets/images/MERRICK.png'

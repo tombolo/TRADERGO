@@ -6,9 +6,7 @@ import ChartModalDesktop from './chart-modal-desktop';
 
 export const ChartModal = observer(() => {
     const { isDesktop } = useDevice();
-    return (
-        <Suspense fallback={<OrbitDotsLoaderSuspenseFallback />}>{isDesktop && <ChartModalDesktop />}</Suspense>
-    );
+    return <Suspense fallback={<OrbitDotsLoaderSuspenseFallback />}>{isDesktop && <ChartModalDesktop />}</Suspense>;
 });
 
 export default ChartModal;

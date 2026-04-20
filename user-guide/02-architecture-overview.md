@@ -76,6 +76,7 @@ The application follows a layered architecture:
 **File:** `src/main.tsx`
 
 The application bootstraps by:
+
 1. Configuring MobX (`isolateGlobalState: true`)
 2. Running optional analytics initialization
 3. Rendering the `AuthWrapper` component which handles initial auth state
@@ -85,6 +86,7 @@ The application bootstraps by:
 **File:** `src/app/App.tsx`
 
 Sets up:
+
 - React Router v6 with lazy-loaded routes
 - Translation provider (`@deriv-com/translations`) — optional, defaults to English if no Crowdin CDN is configured
 - MobX `StoreProvider` wrapping the entire app
@@ -208,13 +210,13 @@ The API layer uses RxJS `BehaviorSubject` streams for reactive state that bridge
 
 ### Available Streams
 
-| Stream               | Type                        | Description                    |
-| -------------------- | --------------------------- | ------------------------------ |
-| `connectionStatus$`  | `BehaviorSubject<string>`   | WebSocket connection state     |
-| `isAuthorizing$`     | `BehaviorSubject<boolean>`  | Whether auth is in progress    |
-| `isAuthorized$`      | `BehaviorSubject<boolean>`  | Whether user is authenticated  |
-| `account_list$`      | `BehaviorSubject<array>`    | List of user accounts          |
-| `authData$`          | `BehaviorSubject<object>`   | Full authentication data       |
+| Stream              | Type                       | Description                   |
+| ------------------- | -------------------------- | ----------------------------- |
+| `connectionStatus$` | `BehaviorSubject<string>`  | WebSocket connection state    |
+| `isAuthorizing$`    | `BehaviorSubject<boolean>` | Whether auth is in progress   |
+| `isAuthorized$`     | `BehaviorSubject<boolean>` | Whether user is authenticated |
+| `account_list$`     | `BehaviorSubject<array>`   | List of user accounts         |
+| `authData$`         | `BehaviorSubject<object>`  | Full authentication data      |
 
 ### Data Flow Pattern
 
@@ -240,13 +242,13 @@ WebSocket Message (msg_type: 'balance')
 
 ### Main Routes
 
-| Path          | Component      | Description                           |
-| ------------- | -------------- | ------------------------------------- |
-| `/`           | Dashboard      | Bot statistics and quick actions      |
-| `/bot`        | Bot Builder    | Blockly visual programming workspace  |
-| `/chart`      | Chart          | Trading charts with indicators        |
-| `/tutorials`  | Tutorials      | User guides and help content          |
-| `/callback`   | Callback Page  | OAuth redirect handler                |
+| Path         | Component     | Description                          |
+| ------------ | ------------- | ------------------------------------ |
+| `/`          | Dashboard     | Bot statistics and quick actions     |
+| `/bot`       | Bot Builder   | Blockly visual programming workspace |
+| `/chart`     | Chart         | Trading charts with indicators       |
+| `/tutorials` | Tutorials     | User guides and help content         |
+| `/callback`  | Callback Page | OAuth redirect handler               |
 
 ### Route Structure
 
@@ -318,13 +320,13 @@ Block definitions are in `src/external/bot-skeleton/scratch/blocks/`. Each categ
 
 Custom technical indicator implementations are available in `src/external/indicators/`:
 
-| Indicator                    | Module        | Description                          |
-| ---------------------------- | ------------- | ------------------------------------ |
-| Simple Moving Average        | `sma.js`      | Average price over N periods         |
-| Exponential Moving Average   | `ema.js`      | Weighted moving average              |
-| Bollinger Bands              | `bb.js`       | Volatility bands around SMA          |
-| MACD                         | `macd.js`     | Moving Average Convergence Divergence|
-| Relative Strength Index      | `rsi.js`      | Momentum oscillator (0-100)          |
+| Indicator                  | Module    | Description                           |
+| -------------------------- | --------- | ------------------------------------- |
+| Simple Moving Average      | `sma.js`  | Average price over N periods          |
+| Exponential Moving Average | `ema.js`  | Weighted moving average               |
+| Bollinger Bands            | `bb.js`   | Volatility bands around SMA           |
+| MACD                       | `macd.js` | Moving Average Convergence Divergence |
+| Relative Strength Index    | `rsi.js`  | Momentum oscillator (0-100)           |
 
 These JavaScript modules are used by bot strategies for market analysis during automated trading.
 
@@ -369,6 +371,7 @@ These JavaScript modules are used by bot strategies for market analysis during a
 **Configuration:** `rsbuild.config.ts`
 
 Key features:
+
 - Path aliases resolution (matching `tsconfig.json`)
 - Environment variable injection via `source.define`
 - Asset copying for SmartCharts
@@ -386,23 +389,23 @@ npm run build:analyze      # → dist/  + bundle analyzer on :8888
 
 ## Debugging
 
-| Tool                 | Purpose                              | How to Use                          |
-| -------------------- | ------------------------------------ | ----------------------------------- |
-| React DevTools       | Component hierarchy, props, state    | Browser extension                   |
-| MobX DevTools        | Track state changes and reactions    | `mobx-devtools` browser extension   |
-| Network tab          | WebSocket messages, API calls        | Browser DevTools > Network          |
-| Console              | ErrorLogger output, warnings         | Browser DevTools > Console          |
-| Bundle Analyzer      | Identify large dependencies          | `npm run build:analyze`             |
-| Source Maps          | Debug original TypeScript            | Enabled in development builds       |
+| Tool            | Purpose                           | How to Use                        |
+| --------------- | --------------------------------- | --------------------------------- |
+| React DevTools  | Component hierarchy, props, state | Browser extension                 |
+| MobX DevTools   | Track state changes and reactions | `mobx-devtools` browser extension |
+| Network tab     | WebSocket messages, API calls     | Browser DevTools > Network        |
+| Console         | ErrorLogger output, warnings      | Browser DevTools > Console        |
+| Bundle Analyzer | Identify large dependencies       | `npm run build:analyze`           |
+| Source Maps     | Debug original TypeScript         | Enabled in development builds     |
 
 ### Inspecting WebSocket State
 
 ```javascript
 // In browser console
-console.log(api_base.api?.connection?.url);       // Current WebSocket URL
+console.log(api_base.api?.connection?.url); // Current WebSocket URL
 console.log(api_base.api?.connection?.readyState); // Connection state (0-3)
 console.log(localStorage.getItem('active_loginid')); // Active account
-console.log(sessionStorage.getItem('auth_info'));     // Auth token info
+console.log(sessionStorage.getItem('auth_info')); // Auth token info
 ```
 
 ---

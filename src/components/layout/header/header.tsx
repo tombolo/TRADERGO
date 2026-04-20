@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import { generateOAuthURL } from '@/components/shared';
@@ -7,6 +7,7 @@ import useActiveAccount from '@/hooks/api/account/useActiveAccount';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
+import { getAccountId } from '@/utils/account-helpers';
 import { navigateToTransfer } from '@/utils/transfer-utils';
 import { Localize } from '@deriv-com/translations';
 import { Header, useDevice, Wrapper } from '@deriv-com/ui';
@@ -18,7 +19,7 @@ import './header.scss';
 
 const AppHeader = observer(() => {
     const { isDesktop } = useDevice();
-    const { isAuthorizing, activeLoginid, setIsAuthorizing, authData } = useApiBase();
+    const { isAuthorizing, activeLoginid, setIsAuthorizing, authData, isAuthorized, accountList } = useApiBase();
     const { client } = useStore() ?? {};
     const [authTimeout, setAuthTimeout] = useState(false);
     const is_account_regenerating = client?.is_account_regenerating || false;
@@ -39,12 +40,22 @@ const AppHeader = observer(() => {
 
     const handleLogout = useLogout();
 
+    /** Prefer API stream ids; after OAuth, localStorage / account list can lead React state briefly. */
+    const resolvedLoginId = useMemo(() => {
+        const fromStream = `${activeLoginid || authData?.loginid || ''}`.trim();
+        if (fromStream) return fromStream;
+        if (!isAuthorized) return '';
+        const stored = `${getAccountId() || ''}`.trim();
+        if (stored) return stored;
+        return `${accountList?.[0]?.loginid || ''}`.trim();
+    }, [activeLoginid, authData?.loginid, isAuthorized, accountList]);
+
     // Clear OAuth-pending flag once the account is set (auth succeeded)
     // or after a generous timeout in case something goes wrong.
     useEffect(() => {
         if (!isOAuthPending) return;
 
-        if (activeLoginid) {
+        if (resolvedLoginId) {
             setIsOAuthPending(false);
             return;
         }
@@ -52,7 +63,7 @@ const AppHeader = observer(() => {
         // Safety net: give up after 30 s and let the normal flow decide
         const timer = setTimeout(() => setIsOAuthPending(false), 30_000);
         return () => clearTimeout(timer);
-    }, [isOAuthPending, activeLoginid]);
+    }, [isOAuthPending, resolvedLoginId]);
 
     // Handle direct URL access with legacy token param
     useEffect(() => {
@@ -69,19 +80,26 @@ const AppHeader = observer(() => {
         if (isOAuthPending) return;
 
         const timer = setTimeout(() => {
-            if (isAuthorizing && !activeLoginid) {
+            // Do not call setIsAuthorizing here: it must stay in sync with api-base / isAuthorizing$.
+            // authTimeout alone switches the UI to login; resolvedLoginId still wins when auth completes.
+            if (isAuthorizing && !resolvedLoginId) {
                 setAuthTimeout(true);
-                setIsAuthorizing(false);
             }
         }, 5000);
 
-        if (activeLoginid || !isAuthorizing) {
+        if (resolvedLoginId || !isAuthorizing) {
             if (authTimeout) setAuthTimeout(false);
             clearTimeout(timer);
         }
 
         return () => clearTimeout(timer);
-    }, [isAuthorizing, activeLoginid, setIsAuthorizing, authTimeout, isOAuthPending]);
+    }, [isAuthorizing, resolvedLoginId, authTimeout, isOAuthPending]);
+
+    useEffect(() => {
+        if (resolvedLoginId && authTimeout) {
+            setAuthTimeout(false);
+        }
+    }, [resolvedLoginId, authTimeout]);
 
     const handleSignup = useCallback(async () => {
         try {
@@ -133,7 +151,7 @@ const AppHeader = observer(() => {
     const renderAccountSection = useCallback(
         (position: 'left' | 'right' = 'right') => {
             // Show account switcher and logout when user is fully authenticated
-            if (activeLoginid && !is_account_regenerating) {
+            if (resolvedLoginId && !is_account_regenerating) {
                 if (position === 'left' && !isDesktop) {
                     // Keep mobile left section clean (menu + logo only).
                     return null;
@@ -168,7 +186,7 @@ const AppHeader = observer(() => {
             else if (
                 position === 'right' &&
                 !isOAuthPending &&
-                ((!is_account_regenerating && !isAuthorizing && !activeLoginid) || authTimeout)
+                ((!is_account_regenerating && !isAuthorizing && !resolvedLoginId) || authTimeout)
             ) {
                 return (
                     <div className='auth-actions'>
@@ -211,7 +229,7 @@ const AppHeader = observer(() => {
         [
             isAuthorizing,
             isDesktop,
-            activeLoginid,
+            resolvedLoginId,
             client,
             activeAccount,
             authTimeout,

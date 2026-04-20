@@ -215,11 +215,7 @@ export const DashboardSpeedLabIcon = ({ width = '48px', height = '48px', classNa
             strokeWidth='1.2'
             strokeLinejoin='round'
         />
-        <path
-            d='M30 8l3 5-3 1.5L27 13l3-5z'
-            fill='white'
-            fillOpacity='0.85'
-        />
+        <path d='M30 8l3 5-3 1.5L27 13l3-5z' fill='white' fillOpacity='0.85' />
     </svg>
 );
 
@@ -245,7 +241,14 @@ export const DashboardAnalysisIcon = ({ width = '48px', height = '48px', classNa
 
 /** Alternate face icons for dashboard card flip (pair with primary tile icons). */
 export const DashboardFlipFolderIcon = ({ width = '48px', height = '48px', className }: TIconProps) => (
-    <svg width={width} height={height} viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg' className={className}>
+    <svg
+        width={width}
+        height={height}
+        viewBox='0 0 48 48'
+        fill='none'
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+    >
         <path
             d='M8 14h12l4 4h16v22H8V14z'
             fill='white'
@@ -261,7 +264,14 @@ export const DashboardFlipFolderIcon = ({ width = '48px', height = '48px', class
 );
 
 export const DashboardFlipCloudIcon = ({ width = '48px', height = '48px', className }: TIconProps) => (
-    <svg width={width} height={height} viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg' className={className}>
+    <svg
+        width={width}
+        height={height}
+        viewBox='0 0 48 48'
+        fill='none'
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+    >
         <path
             d='M14 32h22a8 8 0 000-16 10 10 0 00-18.5-3.5A7 7 0 0014 32z'
             fill='white'
@@ -275,7 +285,14 @@ export const DashboardFlipCloudIcon = ({ width = '48px', height = '48px', classN
 );
 
 export const DashboardFlipGearIcon = ({ width = '48px', height = '48px', className }: TIconProps) => (
-    <svg width={width} height={height} viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg' className={className}>
+    <svg
+        width={width}
+        height={height}
+        viewBox='0 0 48 48'
+        fill='none'
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+    >
         <path
             d='M24 16l1.8 3.6 4 .6-2.9 2.8.7 4L24 25.8l-3.6 1.2.7-4-2.9-2.8 4-.6L24 16z'
             fill='white'
@@ -296,7 +313,14 @@ export const DashboardFlipGearIcon = ({ width = '48px', height = '48px', classNa
 );
 
 export const DashboardFlipRocketIcon = ({ width = '48px', height = '48px', className }: TIconProps) => (
-    <svg width={width} height={height} viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg' className={className}>
+    <svg
+        width={width}
+        height={height}
+        viewBox='0 0 48 48'
+        fill='none'
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+    >
         <path
             d='M28 10c8 4 12 14 10 24-6-2-12-2-18 0-2-10 2-20 8-24z'
             fill='white'
@@ -311,7 +335,14 @@ export const DashboardFlipRocketIcon = ({ width = '48px', height = '48px', class
 );
 
 export const DashboardFlipPieIcon = ({ width = '48px', height = '48px', className }: TIconProps) => (
-    <svg width={width} height={height} viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg' className={className}>
+    <svg
+        width={width}
+        height={height}
+        viewBox='0 0 48 48'
+        fill='none'
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+    >
         <circle cx='24' cy='24' r='14' stroke='white' strokeWidth='2' strokeOpacity='0.9' />
         <path d='M24 24V10a14 14 0 0112.1 7l-12.1 7z' fill='white' fillOpacity='0.45' />
         <path d='M24 24l10.4 6a14 14 0 01-20.8-6H24z' fill='white' fillOpacity='0.75' />
@@ -320,7 +351,14 @@ export const DashboardFlipPieIcon = ({ width = '48px', height = '48px', classNam
 );
 
 export const DashboardFlipDiceIcon = ({ width = '48px', height = '48px', className }: TIconProps) => (
-    <svg width={width} height={height} viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg' className={className}>
+    <svg
+        width={width}
+        height={height}
+        viewBox='0 0 48 48'
+        fill='none'
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+    >
         <rect
             x='12'
             y='12'
@@ -341,14 +379,15 @@ export const DashboardFlipDiceIcon = ({ width = '48px', height = '48px', classNa
 );
 
 export const DashboardFlipGaugeIcon = ({ width = '48px', height = '48px', className }: TIconProps) => (
-    <svg width={width} height={height} viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg' className={className}>
-        <path
-            d='M10 28a14 14 0 1128 0'
-            stroke='white'
-            strokeWidth='2.5'
-            strokeLinecap='round'
-            fill='none'
-        />
+    <svg
+        width={width}
+        height={height}
+        viewBox='0 0 48 48'
+        fill='none'
+        xmlns='http://www.w3.org/2000/svg'
+        className={className}
+    >
+        <path d='M10 28a14 14 0 1128 0' stroke='white' strokeWidth='2.5' strokeLinecap='round' fill='none' />
         <path d='M24 28V18' stroke='white' strokeWidth='2.5' strokeLinecap='round' />
         <circle cx='24' cy='28' r='3' fill='white' fillOpacity='0.95' />
         <path d='M16 36h16' stroke='white' strokeOpacity='0.5' strokeWidth='2' strokeLinecap='round' />

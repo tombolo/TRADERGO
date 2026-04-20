@@ -329,9 +329,7 @@ const AppWrapper = observer(() => {
                                 }
                                 id='id-free-bots'
                             >
-                                <Suspense
-                                    fallback={<TabLoader message={localize('Loading free bots...')} />}
-                                >
+                                <Suspense fallback={<TabLoader message={localize('Loading free bots...')} />}>
                                     <FreeBots />
                                 </Suspense>
                             </div>
@@ -344,9 +342,7 @@ const AppWrapper = observer(() => {
                                 }
                                 id='id-trader'
                             >
-                                <Suspense
-                                    fallback={<TabLoader message={localize('Loading D Trader...')} />}
-                                >
+                                <Suspense fallback={<TabLoader message={localize('Loading D Trader...')} />}>
                                     <Trader />
                                 </Suspense>
                             </div>
@@ -359,11 +355,7 @@ const AppWrapper = observer(() => {
                                 }
                                 id='id-copy-trading'
                             >
-                                <Suspense
-                                    fallback={
-                                        <TabLoader message={localize('Loading copy trading...')} />
-                                    }
-                                >
+                                <Suspense fallback={<TabLoader message={localize('Loading copy trading...')} />}>
                                     <CopyTrading />
                                 </Suspense>
                             </div>
@@ -380,9 +372,7 @@ const AppWrapper = observer(() => {
                                         : 'id-charts'
                                 }
                             >
-                                <Suspense
-                                    fallback={<TabLoader message={localize('Loading charts...')} />}
-                                >
+                                <Suspense fallback={<TabLoader message={localize('Loading charts...')} />}>
                                     <ChartWrapper show_digits_stats={false} />
                                 </Suspense>
                             </div>
@@ -395,11 +385,7 @@ const AppWrapper = observer(() => {
                                 }
                                 id='id-analysis-tools'
                             >
-                                <Suspense
-                                    fallback={
-                                        <TabLoader message={localize('Loading analysis tools...')} />
-                                    }
-                                >
+                                <Suspense fallback={<TabLoader message={localize('Loading analysis tools...')} />}>
                                     <AnalysisTools />
                                 </Suspense>
                             </div>
@@ -418,9 +404,7 @@ const AppWrapper = observer(() => {
                 <ChartModal />
                 <TradingViewModal />
             </DesktopWrapper>
-            <MobileWrapper>
-                {!is_open && active_tab !== FREE_BOTS && !is_trader_tab && <RunPanel />}
-            </MobileWrapper>
+            <MobileWrapper>{!is_open && active_tab !== FREE_BOTS && !is_trader_tab && <RunPanel />}</MobileWrapper>
             <Dialog
                 cancel_button_text={cancel_button_text || localize('Cancel')}
                 className='dc-dialog__wrapper--fixed'

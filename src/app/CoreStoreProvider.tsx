@@ -55,7 +55,9 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
         const all_accounts = client?.all_accounts_balance?.accounts;
         const demo_loginid = getFirstDotLoginid(all_accounts);
         const is_special = isSpecialCaseLoginId(activeLoginid);
-        const fallback_demo_account = is_special ? accountList?.find(account => account.loginid?.startsWith('DOT')) : undefined;
+        const fallback_demo_account = is_special
+            ? accountList?.find(account => account.loginid?.startsWith('DOT'))
+            : undefined;
         const balance_loginid = is_special && demo_loginid ? demo_loginid : activeAccount?.loginid;
         const currentBalanceData = all_accounts?.[balance_loginid ?? ''];
         const fallbackBalance = fallback_demo_account?.balance;
@@ -77,7 +79,9 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
 
         if (currentBalanceData) {
             const currency = currentBalanceData.currency;
-            client?.setBalance(currentBalanceData.balance.toFixed(getDecimalPlaces(currency || currentBalanceData.currency)));
+            client?.setBalance(
+                currentBalanceData.balance.toFixed(getDecimalPlaces(currency || currentBalanceData.currency))
+            );
             client?.setCurrency(currency || currentBalanceData.currency);
         } else if (is_special && typeof fallbackBalance === 'number') {
             const fallback_decimals = getDecimalPlaces(fallbackCurrency || 'USD');
@@ -198,7 +202,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 const buy_payload = (data as { buy?: { balance_after?: number } }).buy;
                 if (typeof buy_payload?.balance_after === 'number' && client) {
                     const active_loginid_for_buy = localStorage.getItem('active_loginid');
-                    const buy_loginid = (data as { loginid?: string }).loginid || client.loginid || active_loginid_for_buy || '';
+                    const buy_loginid =
+                        (data as { loginid?: string }).loginid || client.loginid || active_loginid_for_buy || '';
                     if (buy_loginid) {
                         const prev_buy = client.all_accounts_balance;
                         const prev_accounts_buy = prev_buy?.accounts ?? {};
@@ -275,7 +280,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                         balance.loginid ||
                         data_loginid ||
                         (isSpecialCaseLoginId(active_from_storage)
-                            ? getFirstDotLoginid(accounts_for_dot) ?? getDotLoginidFromSession()
+                            ? (getFirstDotLoginid(accounts_for_dot) ?? getDotLoginidFromSession())
                             : undefined) ||
                         client?.loginid ||
                         active_from_storage ||
@@ -289,7 +294,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                     const target_loginid =
                         data_loginid ||
                         (isSpecialCaseLoginId(active_from_storage)
-                            ? getFirstDotLoginid(accounts_for_dot_num) ?? getDotLoginidFromSession()
+                            ? (getFirstDotLoginid(accounts_for_dot_num) ?? getDotLoginidFromSession())
                             : undefined) ||
                         client?.loginid ||
                         active_from_storage ||

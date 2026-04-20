@@ -305,7 +305,10 @@ const TokenManager: React.FC = () => {
                     </div>
                 </section>
 
-                <section className='copy-trading__card copy-trading__card--follower' aria-labelledby='copy-trading-follower-heading'>
+                <section
+                    className='copy-trading__card copy-trading__card--follower'
+                    aria-labelledby='copy-trading-follower-heading'
+                >
                     <h3 id='copy-trading-follower-heading' className='copy-trading__subheading'>
                         {localize('Saved follower token')}
                     </h3>
@@ -320,7 +323,9 @@ const TokenManager: React.FC = () => {
                             <span
                                 className={classNames(
                                     'copy-trading__credential-badge',
-                                    savedToken ? 'copy-trading__credential-badge--ok' : 'copy-trading__credential-badge--empty'
+                                    savedToken
+                                        ? 'copy-trading__credential-badge--ok'
+                                        : 'copy-trading__credential-badge--empty'
                                 )}
                             >
                                 {savedToken ? localize('Stored') : localize('Not set')}

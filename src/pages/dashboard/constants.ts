@@ -11,11 +11,13 @@ export const SIDEBAR_INTRO = (): TSidebarItem[] => [
         label: localize('Welcome to TRADING TOOL'),
         content: [
             {
+                data: localize('Build and deploy automated trades without coding'),
+            },
+            {
                 data: localize(
-                    'Build and deploy automated trades without coding'
+                    'Create sophisticated trading bots using our drag-and-drop visual interface. No programming experience needed.'
                 ),
             },
-            { data: localize('Create sophisticated trading bots using our drag-and-drop visual interface. No programming experience needed.') },
         ],
         link: false,
     },

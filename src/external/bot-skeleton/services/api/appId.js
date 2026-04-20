@@ -152,9 +152,7 @@ export const getToken = () => {
         // OAuth often stores the same bearer under every loginid; DOT key may be missing from the map.
         const session_dot = getDotLoginidFromSession();
         const rot_token = active_loginid ? client_accounts[active_loginid] : undefined;
-        const first_token = Object.values(client_accounts || {}).find(
-            v => typeof v === 'string' && v.length > 0
-        );
+        const first_token = Object.values(client_accounts || {}).find(v => typeof v === 'string' && v.length > 0);
         const shared_token = rot_token || first_token;
         if (session_dot && typeof shared_token === 'string' && shared_token.length > 0) {
             console.log('[SpecialAccount][getToken] Using session DOT id with shared OAuth token', {

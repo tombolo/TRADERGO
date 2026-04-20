@@ -211,7 +211,8 @@ const Cards = observer(({ is_mobile, has_dashboard_strategies, onOpenSpeedLab, o
                                                     'tab__dashboard__table__images',
                                                     `tab__dashboard__table__images--${id}`,
                                                     {
-                                                        'tab__dashboard__table__images--minimized': has_dashboard_strategies,
+                                                        'tab__dashboard__table__images--minimized':
+                                                            has_dashboard_strategies,
                                                     }
                                                 )}
                                                 onClick={() => {
@@ -229,7 +230,8 @@ const Cards = observer(({ is_mobile, has_dashboard_strategies, onOpenSpeedLab, o
                                                     'tab__dashboard__table__images--flip-back',
                                                     `tab__dashboard__table__images--${id}`,
                                                     {
-                                                        'tab__dashboard__table__images--minimized': has_dashboard_strategies,
+                                                        'tab__dashboard__table__images--minimized':
+                                                            has_dashboard_strategies,
                                                     }
                                                 )}
                                                 onClick={() => {

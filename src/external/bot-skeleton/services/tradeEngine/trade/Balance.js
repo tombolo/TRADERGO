@@ -37,10 +37,7 @@ export default Engine =>
                                 [storageLoginid]: {
                                     ...(prevAccounts[storageLoginid] ?? {}),
                                     balance: b,
-                                    currency:
-                                        currency ||
-                                        prevAccounts[storageLoginid]?.currency ||
-                                        client.currency,
+                                    currency: currency || prevAccounts[storageLoginid]?.currency || client.currency,
                                     loginid: storageLoginid,
                                 },
                             },

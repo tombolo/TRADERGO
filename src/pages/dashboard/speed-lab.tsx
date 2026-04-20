@@ -107,8 +107,7 @@ const TRADING_MODES: {
     },
 ];
 
-const formatUsd = (n: number) =>
-    n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatUsd = (n: number) => n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const TICK_DEBOUNCE_MS = 550;
 const INTERVAL_MS = 2800;
@@ -191,10 +190,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
     const interval_ref = React.useRef<ReturnType<typeof setInterval> | null>(null);
     const tick_cleanup_ref = React.useRef<(() => void) | null>(null);
 
-    const symbol_candidates = React.useMemo(
-        () => markets.filter(m => m.is_open).map(m => m.symbol),
-        [markets]
-    );
+    const symbol_candidates = React.useMemo(() => markets.filter(m => m.is_open).map(m => m.symbol), [markets]);
 
     /** Group order matches Quick Strategy (`getSymbolsForBot` iteration order). */
     const asset_group_order = React.useMemo(() => {
@@ -248,9 +244,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
     const hedge_available = trade_types.some(t => t.value === SPEED_LAB_CALLPUT_TRADETYPE);
 
     const contract_pick_ok =
-        Boolean(tradetype) &&
-        contract_options.length > 0 &&
-        contract_options.some(c => c.value === contract_type_api);
+        Boolean(tradetype) && contract_options.length > 0 && contract_options.some(c => c.value === contract_type_api);
     const duration_pick_ok = duration_options.length > 0 && duration_unit_api !== 'na';
 
     const prediction_pick_ok = speedLabPredictionInputValid(contract_type_api, trade_prediction);
@@ -299,11 +293,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
                 const prev = selected_symbol_ref.current;
                 const match = list.find(m => m.symbol === prev);
                 const default_sym = list.find(m => m.symbol === SPEED_LAB_DEFAULT_ASSET_SYMBOL);
-                const pick =
-                    match ??
-                    default_sym ??
-                    list.find(m => m.is_open) ??
-                    list[0];
+                const pick = match ?? default_sym ?? list.find(m => m.is_open) ?? list[0];
                 if (pick) {
                     setSelectedSymbol(pick.symbol);
                     setMarketQuery(pick.display_name);
@@ -356,7 +346,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
         }
         const opts = speedLabContractTypes(tradetype);
         setContractOptions(opts);
-        setContractTypeApi(prev => (opts.some(o => o.value === prev) ? prev : opts[0]?.value ?? ''));
+        setContractTypeApi(prev => (opts.some(o => o.value === prev) ? prev : (opts[0]?.value ?? '')));
     }, [tradetype]);
 
     React.useEffect(() => {
@@ -406,7 +396,8 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
         }
         syncMarketListboxPosition();
         const el = market_input_ref.current;
-        const ro = typeof ResizeObserver !== 'undefined' && el ? new ResizeObserver(() => syncMarketListboxPosition()) : null;
+        const ro =
+            typeof ResizeObserver !== 'undefined' && el ? new ResizeObserver(() => syncMarketListboxPosition()) : null;
         if (el && ro) ro.observe(el);
         window.addEventListener('scroll', syncMarketListboxPosition, true);
         window.addEventListener('resize', syncMarketListboxPosition);
@@ -486,14 +477,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
         });
         api_base.pushSubscription(sub);
         return () => sub.unsubscribe();
-    }, [
-        is_running,
-        martingale_enabled,
-        martingale_max_stake,
-        martingale_multiplier,
-        martingale_reset_after,
-        stake,
-    ]);
+    }, [is_running, martingale_enabled, martingale_max_stake, martingale_multiplier, martingale_reset_after, stake]);
 
     const place_round = React.useCallback(async () => {
         if (!client?.currency || !api_base.api) {
@@ -578,8 +562,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
         if (!client?.currency) return;
         if (!selected_symbol && trading_mode !== 'multi_market') return;
 
-        const use_ticks =
-            trade_every_tick && (trading_mode !== 'multi_market' || Boolean(selected_symbol));
+        const use_ticks = trade_every_tick && (trading_mode !== 'multi_market' || Boolean(selected_symbol));
 
         if (use_ticks && selected_symbol) {
             tick_cleanup_ref.current = subscribeSpeedLabTicks(selected_symbol, () => {
@@ -666,8 +649,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
         trading_mode,
     ]);
 
-    const win_rate_pct =
-        wins + losses > 0 ? Math.round((wins / (wins + losses)) * 1000) / 10 : 0;
+    const win_rate_pct = wins + losses > 0 ? Math.round((wins / (wins + losses)) * 1000) / 10 : 0;
 
     const commit_stake_input = React.useCallback(() => {
         const n = parseFloat(stake_input);
@@ -773,26 +755,31 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
     };
 
     return (
-    <div className='speed-lab'>
-        <div className='speed-lab__glow' aria-hidden />
-        <header className='speed-lab__head'>
-            <button type='button' className='speed-lab__close' onClick={onClose} aria-label='Close Speed Lab'>
-                <LegacyClose1pxIcon height='18px' width='18px' fill='currentColor' className='icon-general-fill-path' />
-            </button>
-            <p className='speed-lab__badge'>
-                <LabelPairedGaugeMaxCaptionFillIcon
-                    className='speed-lab__badge-icon'
-                    height='14px'
-                    width='14px'
-                    fill='currentColor'
-                    aria-hidden
-                />
-                <Localize i18n_default_text='HFT' />
-            </p>
-            <h2 id='speed-lab-heading' className='speed-lab__title'>
-                <Localize i18n_default_text='Speed Lab' />
-            </h2>
-            <p className='speed-lab__subtitle'>
+        <div className='speed-lab'>
+            <div className='speed-lab__glow' aria-hidden />
+            <header className='speed-lab__head'>
+                <button type='button' className='speed-lab__close' onClick={onClose} aria-label='Close Speed Lab'>
+                    <LegacyClose1pxIcon
+                        height='18px'
+                        width='18px'
+                        fill='currentColor'
+                        className='icon-general-fill-path'
+                    />
+                </button>
+                <p className='speed-lab__badge'>
+                    <LabelPairedGaugeMaxCaptionFillIcon
+                        className='speed-lab__badge-icon'
+                        height='14px'
+                        width='14px'
+                        fill='currentColor'
+                        aria-hidden
+                    />
+                    <Localize i18n_default_text='HFT' />
+                </p>
+                <h2 id='speed-lab-heading' className='speed-lab__title'>
+                    <Localize i18n_default_text='Speed Lab' />
+                </h2>
+                <p className='speed-lab__subtitle'>
                     <Localize i18n_default_text='High-frequency trading — all speed features in one place' />
                 </p>
 
@@ -812,12 +799,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
                                     aria-hidden
                                 />
                             ) : (
-                                <LabelPairedPlayMdFillIcon
-                                    height='18px'
-                                    width='18px'
-                                    fill='currentColor'
-                                    aria-hidden
-                                />
+                                <LabelPairedPlayMdFillIcon height='18px' width='18px' fill='currentColor' aria-hidden />
                             )}
                             <span>
                                 {is_running ? (
@@ -950,11 +932,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
                                     }
                                 }}
                             >
-                                <LabelPairedChevronDownLgRegularIcon
-                                    height='22px'
-                                    width='22px'
-                                    fill='currentColor'
-                                />
+                                <LabelPairedChevronDownLgRegularIcon height='22px' width='22px' fill='currentColor' />
                             </button>
                             {typeof document !== 'undefined' &&
                                 market_list_open &&
@@ -1074,11 +1052,7 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
                         <span className='speed-lab__label' id='speed-lab-tt-lbl'>
                             <Localize i18n_default_text='Trade categories' />
                         </span>
-                        <div
-                            className='speed-lab__trade-type-row'
-                            role='group'
-                            aria-labelledby='speed-lab-tt-lbl'
-                        >
+                        <div className='speed-lab__trade-type-row' role='group' aria-labelledby='speed-lab-tt-lbl'>
                             {contracts_loading && !trade_types.length ? (
                                 <span className='speed-lab__inline-hint'>
                                     <Localize i18n_default_text='Loading trade types…' />
@@ -1116,24 +1090,17 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
                                 ))
                             )}
                         </div>
-                        {!contracts_loading &&
-                            qs_ready &&
-                            selected_symbol &&
-                            trade_types.length === 0 && (
-                                <span className='speed-lab__inline-hint' role='status'>
-                                    <Localize i18n_default_text='No trade categories for this symbol. Try another market.' />
-                                </span>
-                            )}
+                        {!contracts_loading && qs_ready && selected_symbol && trade_types.length === 0 && (
+                            <span className='speed-lab__inline-hint' role='status'>
+                                <Localize i18n_default_text='No trade categories for this symbol. Try another market.' />
+                            </span>
+                        )}
                     </div>
                     <div className='speed-lab__field'>
                         <span className='speed-lab__label' id='speed-lab-ct-lbl'>
                             <Localize i18n_default_text='Contract' />
                         </span>
-                        <div
-                            className='speed-lab__contract-grid'
-                            role='group'
-                            aria-labelledby='speed-lab-ct-lbl'
-                        >
+                        <div className='speed-lab__contract-grid' role='group' aria-labelledby='speed-lab-ct-lbl'>
                             {contract_options.map(opt => (
                                 <button
                                     key={opt.value}
@@ -1150,13 +1117,11 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
                                 </button>
                             ))}
                         </div>
-                        {Boolean(tradetype) &&
-                            !contracts_loading &&
-                            contract_options.length === 0 && (
-                                <span className='speed-lab__inline-hint' role='status'>
-                                    <Localize i18n_default_text='No contract types for this category on your account.' />
-                                </span>
-                            )}
+                        {Boolean(tradetype) && !contracts_loading && contract_options.length === 0 && (
+                            <span className='speed-lab__inline-hint' role='status'>
+                                <Localize i18n_default_text='No contract types for this category on your account.' />
+                            </span>
+                        )}
                     </div>
                     {prediction_mode === 'barrier_digit' && (
                         <div className='speed-lab__field'>
@@ -1215,14 +1180,13 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
                             <Localize i18n_default_text='Basis' />: Stake
                         </span>
                         <span className='speed-lab__qs-pill'>
-                            <Localize i18n_default_text='Entry' />:{' '}
-                            <Localize i18n_default_text='Immediate' />
+                            <Localize i18n_default_text='Entry' />: <Localize i18n_default_text='Immediate' />
                         </span>
                         <span className='speed-lab__qs-pill'>
                             <Localize i18n_default_text='Sell / exit' />:{' '}
                             <Localize i18n_default_text='At expiry (QS vanilla flow)' />
-                    </span>
-                </div>
+                        </span>
+                    </div>
                 </section>
 
                 <section className='speed-lab__section' aria-labelledby='speed-lab-s4'>
@@ -1469,18 +1433,18 @@ export const SpeedLabPanel = ({ onClose }: TSpeedLabPanelProps) => {
                                 >
                                     {total_pnl >= 0 ? '+' : ''}
                                     {formatUsd(total_pnl)}
-                    </span>
-                </div>
+                                </span>
+                            </div>
                             <div className='speed-lab__stat'>
                                 <span className='speed-lab__stat-label'>
                                     <Localize i18n_default_text='Win rate' />
                                 </span>
                                 <span className='speed-lab__stat-value'>{win_rate_pct}%</span>
-                </div>
-            </div>
+                            </div>
+                        </div>
                         <p className='speed-lab__stats-note'>
                             <Localize i18n_default_text='P/L and win/loss update when contracts settle (sell). Uses the same proposal → buy flow as Quick Strategy / the trading engine.' />
-                </p>
+                        </p>
                     </section>
                 )}
             </div>

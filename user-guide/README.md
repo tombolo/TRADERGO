@@ -6,16 +6,16 @@ End-to-end documentation for third-party developers setting up, customizing, and
 
 ## Documentation Index
 
-| #  | Guide                                                    | Description                                              |
-| -- | -------------------------------------------------------- | -------------------------------------------------------- |
-| 01 | [Getting Started](./01-getting-started.md)               | Prerequisites, project setup, commands, environment variables |
-| 02 | [Architecture Overview](./02-architecture-overview.md)   | Application layers, state management (MobX), RxJS streams, bot engine |
-| 03 | [White Labeling](./03-white-labeling.md)                 | Branding, colors, typography, logo, menus, theme configuration |
-| 04 | [Authentication](./04-authentication.md)                 | OAuth 2.0 with PKCE, token exchange, session management, logout |
-| 05 | [WebSocket Integration](./05-websocket-integration.md)   | Connection architecture, public/authenticated endpoints, DerivWS API |
-| 06 | [Error Handling](./06-error-handling.md)                  | Centralized ErrorLogger, reporting service integration, migration |
-| 07 | [Monitoring & Analytics](./07-monitoring-analytics.md)   | Datadog RUM, TrackJS, Rudderstack, Growthbook feature flags |
-| 08 | [Changelog](./08-changelog.md)                          | All architectural changes from original Deriv Bot to this boilerplate |
+| #   | Guide                                                  | Description                                                           |
+| --- | ------------------------------------------------------ | --------------------------------------------------------------------- |
+| 01  | [Getting Started](./01-getting-started.md)             | Prerequisites, project setup, commands, environment variables         |
+| 02  | [Architecture Overview](./02-architecture-overview.md) | Application layers, state management (MobX), RxJS streams, bot engine |
+| 03  | [White Labeling](./03-white-labeling.md)               | Branding, colors, typography, logo, menus, theme configuration        |
+| 04  | [Authentication](./04-authentication.md)               | OAuth 2.0 with PKCE, token exchange, session management, logout       |
+| 05  | [WebSocket Integration](./05-websocket-integration.md) | Connection architecture, public/authenticated endpoints, DerivWS API  |
+| 06  | [Error Handling](./06-error-handling.md)               | Centralized ErrorLogger, reporting service integration, migration     |
+| 07  | [Monitoring & Analytics](./07-monitoring-analytics.md) | Datadog RUM, TrackJS, Rudderstack, Growthbook feature flags           |
+| 08  | [Changelog](./08-changelog.md)                         | All architectural changes from original Deriv Bot to this boilerplate |
 
 ---
 
@@ -62,15 +62,15 @@ For the full setup walkthrough, see [Getting Started](./01-getting-started.md).
 
 ## Tech Stack Summary
 
-| Technology         | Purpose                      |
-| ------------------ | ---------------------------- |
-| React 18           | UI framework                 |
-| TypeScript         | Type-safe JavaScript         |
-| MobX               | Reactive state management    |
-| RxJS               | Observable streams (API layer)|
-| Blockly            | Visual programming (bot builder) |
-| RSBuild            | Build tool (Rust-based)      |
-| Jest               | Testing framework            |
-| SCSS               | Styling                      |
-| React Router v6    | Client-side routing          |
-| DerivAPI           | WebSocket trading API        |
+| Technology      | Purpose                          |
+| --------------- | -------------------------------- |
+| React 18        | UI framework                     |
+| TypeScript      | Type-safe JavaScript             |
+| MobX            | Reactive state management        |
+| RxJS            | Observable streams (API layer)   |
+| Blockly         | Visual programming (bot builder) |
+| RSBuild         | Build tool (Rust-based)          |
+| Jest            | Testing framework                |
+| SCSS            | Styling                          |
+| React Router v6 | Client-side routing              |
+| DerivAPI        | WebSocket trading API            |

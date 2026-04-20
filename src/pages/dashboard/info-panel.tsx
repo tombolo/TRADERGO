@@ -22,13 +22,8 @@ const InfoPanel = observer(() => {
     const is_tnc_needed = useIsTNCNeeded();
     const [is_tour_open, setIsTourOpen] = React.useState(false);
 
-    const {
-        is_info_panel_visible,
-        setActiveTab,
-        setActiveTabTutorial,
-        setInfoPanelVisibility,
-        setFaqTitle,
-    } = dashboard;
+    const { is_info_panel_visible, setActiveTab, setActiveTabTutorial, setInfoPanelVisibility, setFaqTitle } =
+        dashboard;
     const switchTab = (link: boolean, label: string, faq_id: string) => {
         const tutorial_link = link ? setActiveTab(DBOT_TABS.TUTORIAL) : null;
         const tutorial_label = label === 'Guide' ? setActiveTabTutorial(0) : setActiveTabTutorial(1);

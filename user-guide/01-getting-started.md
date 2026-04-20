@@ -16,12 +16,12 @@ A step-by-step guide to setting up your own trading bot platform derived from th
 
 ## Prerequisites
 
-| Requirement  | Version  | Purpose                                 |
-| ------------ | -------- | --------------------------------------- |
-| **Node.js**  | 20.x     | JavaScript runtime (enforced in `package.json` engines) |
-| **npm**      | 9+       | Package management                      |
-| **Git**      | 2.30+    | Version control                         |
-| **Browser**  | Chrome, Firefox, or Safari (latest) | Development and testing |
+| Requirement | Version                             | Purpose                                                 |
+| ----------- | ----------------------------------- | ------------------------------------------------------- |
+| **Node.js** | 20.x                                | JavaScript runtime (enforced in `package.json` engines) |
+| **npm**     | 9+                                  | Package management                                      |
+| **Git**     | 2.30+                               | Version control                                         |
+| **Browser** | Chrome, Firefox, or Safari (latest) | Development and testing                                 |
 
 Verify your environment:
 
@@ -186,39 +186,39 @@ trading-bot-template/
 
 ### Development
 
-| Command          | Description                                      |
-| ---------------- | ------------------------------------------------ |
-| `npm start`      | Start dev server at `https://localhost:8443`      |
-| `npm run watch`  | Build in watch mode (no server)                  |
+| Command         | Description                                  |
+| --------------- | -------------------------------------------- |
+| `npm start`     | Start dev server at `https://localhost:8443` |
+| `npm run watch` | Build in watch mode (no server)              |
 
 ### Building
 
-| Command                | Description                                   |
-| ---------------------- | --------------------------------------------- |
-| `npm run build`        | Production build                              |
-| `npm run build:analyze`| Production build with bundle analyzer (port 8888) |
+| Command                 | Description                                       |
+| ----------------------- | ------------------------------------------------- |
+| `npm run build`         | Production build                                  |
+| `npm run build:analyze` | Production build with bundle analyzer (port 8888) |
 
 ### Testing
 
-| Command                               | Description                    |
-| ------------------------------------- | ------------------------------ |
-| `npm test`                            | Run all tests (Jest)           |
-| `npm test -- --watch`                 | Run tests in watch mode        |
-| `npm test -- dashboard.spec.tsx`      | Run a specific test file       |
-| `npm run coverage`                    | Generate coverage report       |
+| Command                          | Description              |
+| -------------------------------- | ------------------------ |
+| `npm test`                       | Run all tests (Jest)     |
+| `npm test -- --watch`            | Run tests in watch mode  |
+| `npm test -- dashboard.spec.tsx` | Run a specific test file |
+| `npm run coverage`               | Generate coverage report |
 
 ### Code Quality
 
-| Command              | Description                           |
-| -------------------- | ------------------------------------- |
-| `npm run test:lint`  | Run Prettier + ESLint checks          |
-| `npm run test:fix`   | Auto-fix formatting and lint issues   |
+| Command             | Description                         |
+| ------------------- | ----------------------------------- |
+| `npm run test:lint` | Run Prettier + ESLint checks        |
+| `npm run test:fix`  | Auto-fix formatting and lint issues |
 
 ### Branding
 
-| Command                       | Description                          |
-| ----------------------------- | ------------------------------------ |
-| `npm run generate:brand-css`  | Generate CSS variables from `brand.config.json` |
+| Command                      | Description                                     |
+| ---------------------------- | ----------------------------------------------- |
+| `npm run generate:brand-css` | Generate CSS variables from `brand.config.json` |
 
 ---
 
@@ -228,38 +228,38 @@ Environment variables are injected via RSBuild's `source.define` in `rsbuild.con
 
 ### Translations (Optional)
 
-| Variable              | Description                          | Example                                      |
-| --------------------- | ------------------------------------ | -------------------------------------------- |
-| `TRANSLATIONS_CDN_URL`| Translation files CDN URL            | `https://cdn.example.com/translations`       |
-| `R2_PROJECT_NAME`     | Crowdin project name                 | `dbot`                                       |
-| `CROWDIN_BRANCH_NAME` | Crowdin branch for translations      | `master`                                     |
+| Variable               | Description                     | Example                                |
+| ---------------------- | ------------------------------- | -------------------------------------- |
+| `TRANSLATIONS_CDN_URL` | Translation files CDN URL       | `https://cdn.example.com/translations` |
+| `R2_PROJECT_NAME`      | Crowdin project name            | `dbot`                                 |
+| `CROWDIN_BRANCH_NAME`  | Crowdin branch for translations | `master`                               |
 
 > **Note:** The application is wrapped with `@deriv-com/translations` `TranslationProvider`, but multi-language support **only works** when you have a Crowdin project configured with translation files served via a CDN. Without this, the app defaults to English and functions normally. To show the language switcher in the UI, set `enable_language_settings: true` in `brand.config.json` (see [White Labeling Guide - Footer](./03-white-labeling.md#footer)). If you are not using translations, set it to `false` to hide the language selector.
 
 ### Authentication (Required for Login)
 
-| Variable       | Description                              | Example                           |
-| -------------- | ---------------------------------------- | --------------------------------- |
-| `CLIENT_ID`    | OAuth client ID for Deriv authentication | `32izC2lBT4MmiSNWuxq2l`           |
-| `APP_ID`       | Legacy Deriv API app ID (optional — only needed if you maintain a Legacy Deriv API app) | `12345` |
-| `GD_CLIENT_ID` | Google Drive OAuth client                | `xxxx.apps.googleusercontent.com` |
-| `GD_APP_ID`    | Google Drive app ID                      | `123456789`                       |
-| `GD_API_KEY`   | Google Drive API key                     | `AIza...`                         |
+| Variable       | Description                                                                             | Example                           |
+| -------------- | --------------------------------------------------------------------------------------- | --------------------------------- |
+| `CLIENT_ID`    | OAuth client ID for Deriv authentication                                                | `32izC2lBT4MmiSNWuxq2l`           |
+| `APP_ID`       | Legacy Deriv API app ID (optional — only needed if you maintain a Legacy Deriv API app) | `12345`                           |
+| `GD_CLIENT_ID` | Google Drive OAuth client                                                               | `xxxx.apps.googleusercontent.com` |
+| `GD_APP_ID`    | Google Drive app ID                                                                     | `123456789`                       |
+| `GD_API_KEY`   | Google Drive API key                                                                    | `AIza...`                         |
 
 ### Monitoring (Optional)
 
-| Variable                              | Description                    |
-| ------------------------------------- | ------------------------------ |
-| `DATADOG_APPLICATION_ID`              | Datadog RUM application ID     |
-| `DATADOG_CLIENT_TOKEN`                | Datadog RUM client token       |
-| `DATADOG_SESSION_REPLAY_SAMPLE_RATE`  | Session replay sample rate     |
-| `DATADOG_SESSION_SAMPLE_RATE`         | Session sample rate            |
-| `RUDDERSTACK_KEY`                     | Rudderstack write key          |
-| `TRACKJS_TOKEN`                       | TrackJS error tracking token   |
-| `POSTHOG_KEY`                         | PostHog API key                |
-| `POSTHOG_HOST`                        | PostHog host URL               |
-| `GROWTHBOOK_CLIENT_KEY`               | Growthbook client key          |
-| `GROWTHBOOK_DECRYPTION_KEY`           | Growthbook decryption key      |
+| Variable                             | Description                  |
+| ------------------------------------ | ---------------------------- |
+| `DATADOG_APPLICATION_ID`             | Datadog RUM application ID   |
+| `DATADOG_CLIENT_TOKEN`               | Datadog RUM client token     |
+| `DATADOG_SESSION_REPLAY_SAMPLE_RATE` | Session replay sample rate   |
+| `DATADOG_SESSION_SAMPLE_RATE`        | Session sample rate          |
+| `RUDDERSTACK_KEY`                    | Rudderstack write key        |
+| `TRACKJS_TOKEN`                      | TrackJS error tracking token |
+| `POSTHOG_KEY`                        | PostHog API key              |
+| `POSTHOG_HOST`                       | PostHog host URL             |
+| `GROWTHBOOK_CLIENT_KEY`              | Growthbook client key        |
+| `GROWTHBOOK_DECRYPTION_KEY`          | Growthbook decryption key    |
 
 Reference the variables in `rsbuild.config.ts`:
 
@@ -293,17 +293,17 @@ After initial setup, verify these items:
 
 The project uses path aliases configured in both `tsconfig.json` and `rsbuild.config.ts`. Always use these instead of relative paths:
 
-| Alias            | Maps to            |
-| ---------------- | ------------------ |
-| `@/components`   | `src/components`   |
-| `@/hooks`        | `src/hooks`        |
-| `@/utils`        | `src/utils`        |
-| `@/constants`    | `src/constants`    |
-| `@/stores`       | `src/stores`       |
-| `@/external`     | `src/external`     |
-| `@/analytics`    | `src/analytics`    |
-| `@/adapters`     | `src/adapters`     |
-| `@/pages`        | `src/pages`        |
+| Alias          | Maps to          |
+| -------------- | ---------------- |
+| `@/components` | `src/components` |
+| `@/hooks`      | `src/hooks`      |
+| `@/utils`      | `src/utils`      |
+| `@/constants`  | `src/constants`  |
+| `@/stores`     | `src/stores`     |
+| `@/external`   | `src/external`   |
+| `@/analytics`  | `src/analytics`  |
+| `@/adapters`   | `src/adapters`   |
+| `@/pages`      | `src/pages`      |
 
 Example usage:
 
@@ -319,30 +319,30 @@ import { ErrorLogger } from '@/utils/error-logger';
 - **Formatter:** Prettier (auto-runs via lint-staged on commit)
 - **Linter:** ESLint with TypeScript parser
 - **Import order** (enforced by `eslint-plugin-simple-import-sort`):
-  1. `react` first
-  2. External packages
-  3. Packages starting with `@`
-  4. Internal aliases (`@/components`, `@/utils`, etc.)
-  5. Relative imports (`../`, `./`)
-  6. Style imports (`.scss`)
+    1. `react` first
+    2. External packages
+    3. Packages starting with `@`
+    4. Internal aliases (`@/components`, `@/utils`, etc.)
+    5. Relative imports (`../`, `./`)
+    6. Style imports (`.scss`)
 
 - **Commit messages:** Conventional commits enforced via commitlint:
-  - `feat:` New features
-  - `fix:` Bug fixes
-  - `refactor:` Code refactoring
-  - `test:` Test additions/changes
-  - `docs:` Documentation changes
-  - `chore:` Maintenance tasks
+    - `feat:` New features
+    - `fix:` Bug fixes
+    - `refactor:` Code refactoring
+    - `test:` Test additions/changes
+    - `docs:` Documentation changes
+    - `chore:` Maintenance tasks
 
 ---
 
 ## Next Steps
 
-| Topic                              | Guide                                                  |
-| ---------------------------------- | ------------------------------------------------------ |
-| Understand the architecture        | [Architecture Overview](./02-architecture-overview.md) |
-| Customize branding and appearance  | [White Labeling Guide](./03-white-labeling.md)         |
-| Set up authentication              | [Authentication Guide](./04-authentication.md)         |
-| Configure WebSocket connections    | [WebSocket Integration](./05-websocket-integration.md) |
-| Set up error handling              | [Error Handling Guide](./06-error-handling.md)         |
-| Add monitoring and analytics       | [Monitoring & Analytics](./07-monitoring-analytics.md) |
+| Topic                             | Guide                                                  |
+| --------------------------------- | ------------------------------------------------------ |
+| Understand the architecture       | [Architecture Overview](./02-architecture-overview.md) |
+| Customize branding and appearance | [White Labeling Guide](./03-white-labeling.md)         |
+| Set up authentication             | [Authentication Guide](./04-authentication.md)         |
+| Configure WebSocket connections   | [WebSocket Integration](./05-websocket-integration.md) |
+| Set up error handling             | [Error Handling Guide](./06-error-handling.md)         |
+| Add monitoring and analytics      | [Monitoring & Analytics](./07-monitoring-analytics.md) |

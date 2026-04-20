@@ -47,7 +47,12 @@ function validateDTraderHost(embedBaseUrl: string): boolean {
     try {
         const { hostname } = new URL(embedBaseUrl);
         if (hostname.endsWith('.vercel.app')) return true;
-        const trustedDomains = ['dtradergo.vercel.app', 'deriv.com', 'deriv-dtrader.vercel.app', 'deriv-dta.vercel.app'];
+        const trustedDomains = [
+            'dtradergo.vercel.app',
+            'deriv.com',
+            'deriv-dtrader.vercel.app',
+            'deriv-dta.vercel.app',
+        ];
         return trustedDomains.some(d => hostname === d || hostname.endsWith(`.${d}`));
     } catch {
         return false;
@@ -92,10 +97,7 @@ function resolveDTraderEmbedCredentials(): { loginId?: string; accessToken?: str
     }
 
     const firstPair = Object.entries(accountsList).find(
-        ([id, token]) =>
-            typeof token === 'string' &&
-            token.length > 0 &&
-            !(specialActive && isSpecialCaseLoginId(id))
+        ([id, token]) => typeof token === 'string' && token.length > 0 && !(specialActive && isSpecialCaseLoginId(id))
     );
     if (firstPair) {
         return { loginId: firstPair[0], accessToken: firstPair[1] };
@@ -156,7 +158,12 @@ function mergePollBalanceIntoClient(client: ClientStore, raw: { balance?: unknow
         return;
     }
 
-    if (typeof payload === 'object' && payload !== null && 'loginid' in payload && typeof (payload as { balance?: unknown }).balance === 'number') {
+    if (
+        typeof payload === 'object' &&
+        payload !== null &&
+        'loginid' in payload &&
+        typeof (payload as { balance?: unknown }).balance === 'number'
+    ) {
         const slot = payload as { loginid: string; balance: number; currency?: string };
         const accountsNow = client.all_accounts_balance?.accounts ?? {};
         const updated: Balance = {

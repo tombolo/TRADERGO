@@ -558,7 +558,11 @@
         &__info-panel {
             position: relative;
             background:
-                linear-gradient(160deg, rgba(var(--general-main-1-rgb), 0.98) 0%, rgba(var(--general-section-1-rgb), 0.92) 100%),
+                linear-gradient(
+                    160deg,
+                    rgba(var(--general-main-1-rgb), 0.98) 0%,
+                    rgba(var(--general-section-1-rgb), 0.92) 100%
+                ),
                 url('data:image/svg+xml,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="g" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M12 0H0V12" fill="none" stroke="%2394a3b8" stroke-width="0.35" opacity="0.12"/></pattern></defs><rect width="100%25" height="100%25" fill="transparent"/><rect width="100%25" height="100%25" fill="url(%23g)"/></svg>');
             padding: 0.85rem 1rem 1rem;
             margin-inline-start: 1.2rem;

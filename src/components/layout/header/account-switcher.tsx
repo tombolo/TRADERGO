@@ -43,7 +43,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 is_virtual: Number(
                     typeof is_virtual !== 'undefined'
                         ? is_virtual
-                        : by_loginid.get(loginid)?.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0)
+                        : (by_loginid.get(loginid)?.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0))
                 ),
             });
         };
@@ -86,9 +86,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const resolvedActiveLoginid = activeLoginid || localStorage.getItem('active_loginid') || '';
     const hasAccounts = fallbackAccountList.length > 0;
     const canSwitchAccounts = fallbackAccountList.length > 1;
-    const demoLoginid = useMemo(() => fallbackAccountList.find(acc => isDemoAccount(acc.loginid))?.loginid, [
-        fallbackAccountList,
-    ]);
+    const demoLoginid = useMemo(
+        () => fallbackAccountList.find(acc => isDemoAccount(acc.loginid))?.loginid,
+        [fallbackAccountList]
+    );
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -327,7 +328,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                 }}
                             >
                                 <span className='acc-dropdown__icon' aria-hidden='true'>
-                                    <CurrencyIcon currency={account.currency?.toLowerCase()} isVirtual={account.isVirtual} />
+                                    <CurrencyIcon
+                                        currency={account.currency?.toLowerCase()}
+                                        isVirtual={account.isVirtual}
+                                    />
                                 </span>
                                 <div className='acc-dropdown__identity'>
                                     <Text size='xs' weight='bold' className='acc-dropdown__currency-code'>

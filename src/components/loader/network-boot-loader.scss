@@ -322,7 +322,14 @@ $amber: #fbbf24;
         left: -3rem;
         width: 4rem;
         height: 2px;
-        background: linear-gradient(90deg, transparent, $signal-dim, rgba(248, 250, 252, 0.65), $signal-dim, transparent);
+        background: linear-gradient(
+            90deg,
+            transparent,
+            $signal-dim,
+            rgba(248, 250, 252, 0.65),
+            $signal-dim,
+            transparent
+        );
         border-radius: 2px;
         opacity: 0.9;
         animation: network-boot-packet 7.5s linear infinite;

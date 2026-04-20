@@ -12,10 +12,7 @@ const AppContent = lazy(() => import('./app-content'));
 
 const AppRootLoader = () => {
     return (
-        <NetworkBootLoader
-            message={localize('Loading...')}
-            hint={localize('Initializing secure API connection…')}
-        />
+        <NetworkBootLoader message={localize('Loading...')} hint={localize('Initializing secure API connection…')} />
     );
 };
 

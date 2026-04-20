@@ -33,7 +33,12 @@ $sl-font-scale: 1.18;
     overflow-x: hidden;
     overflow-y: visible;
     color: var(--sl-ink-soft);
-    font-family: system-ui, -apple-system, 'Segoe UI', 'Inter', sans-serif;
+    font-family:
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        'Inter',
+        sans-serif;
     font-size: sl-fs(1.3125rem);
     line-height: 1.58;
     background: linear-gradient(165deg, #ecfeff 0%, #f0fdfa 28%, #fff7ed 58%, #f1f5f9 100%);
@@ -172,7 +177,6 @@ $sl-font-scale: 1.18;
         &__markets-msg {
             font-size: sl-fs(1.4375rem);
         }
-
     }
 
     &__glow {

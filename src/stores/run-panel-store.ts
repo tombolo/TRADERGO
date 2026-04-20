@@ -423,10 +423,7 @@ export default class RunPanelStore {
                             runInAction(() => {
                                 this.mirror_connection_status = 'error';
                             });
-                            if (
-                                data.error.code === 'InvalidToken' ||
-                                data.error.code === 'AuthorizationRequired'
-                            ) {
+                            if (data.error.code === 'InvalidToken' || data.error.code === 'AuthorizationRequired') {
                                 console.error(
                                     '[Mirror] Invalid token. Please check your API token in the Copy Trading page.'
                                 );
@@ -1087,10 +1084,7 @@ export default class RunPanelStore {
     onBotContractEvent = (data: any): void => {
         console.log('[Mirror] Received bot contract event:', data);
 
-        const is_buy_event =
-            data?.transaction_ids?.buy != null &&
-            data?.buy_price != null &&
-            data?.contract_id != null;
+        const is_buy_event = data?.transaction_ids?.buy != null && data?.buy_price != null && data?.contract_id != null;
 
         if (!is_buy_event) {
             console.log('[Mirror] Ignoring bot contract event (not a buy event)', {

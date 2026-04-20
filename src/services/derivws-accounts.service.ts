@@ -269,7 +269,7 @@ export class DerivWSAccountsService {
             let targetAccount: DerivAccount =
                 (activeLoginId && accounts.find(a => a.account_id === activeLoginId)) || accounts[0];
 
-            // UI keeps active_loginid as ROT90168653 while trades must run on the paired DOT wallet.
+            // UI keeps active_loginid as a ROT special-case id while trades must run on the paired DOT wallet.
             // OTP / WebSocket URL is account-scoped — if we request ROT here, the session has ROT funds
             // and proposal/buy hits InsufficientBalance while the header shows demo-mapped balance.
             if (isSpecialCaseLoginId(activeLoginId)) {

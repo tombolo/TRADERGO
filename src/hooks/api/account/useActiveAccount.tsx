@@ -16,10 +16,14 @@ const useActiveAccount = ({
     allBalanceData: Balance | null;
     directBalance?: string;
 }) => {
-    const { accountList, activeLoginid } = useApiBase();
+    const { accountList, activeLoginid, authData, isAuthorized } = useApiBase();
     const { client } = useStore() ?? {};
 
-    const resolved_loginid = activeLoginid || getAccountId() || '';
+    const resolved_loginid =
+        `${activeLoginid || authData?.loginid || ''}`.trim() ||
+        (isAuthorized ? `${getAccountId() || ''}`.trim() : '') ||
+        `${accountList?.[0]?.loginid || ''}`.trim() ||
+        '';
 
     const activeAccount = useMemo(
         () => accountList?.find(account => account.loginid === resolved_loginid),
@@ -74,12 +78,14 @@ const useActiveAccount = ({
             Boolean(resolved_loginid) && (client?.loginid === resolved_loginid || !client?.loginid);
 
         const from_direct =
-            directBalance && client_matches_active
-                ? addComma(parseFloat(directBalance).toFixed(decimals))
-                : undefined;
+            directBalance && client_matches_active ? addComma(parseFloat(directBalance).toFixed(decimals)) : undefined;
 
         const formatted_balance =
-            from_accounts_map ?? from_special_demo_fallback ?? from_account_list ?? from_direct ?? addComma(parseFloat('0').toFixed(decimals));
+            from_accounts_map ??
+            from_special_demo_fallback ??
+            from_account_list ??
+            from_direct ??
+            addComma(parseFloat('0').toFixed(decimals));
 
         return {
             ...activeAccount,
