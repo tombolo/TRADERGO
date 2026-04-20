@@ -246,10 +246,18 @@ export class OAuthTokenExchangeService {
                         });
 
                         // Trigger WebSocket initialization by reloading or reinitializing api_base
-                        // The api_base will pick up the active_loginid and authorize via onsocketopen
+                        // The api_base will pick up the active_loginid and authorize
                         const { api_base } = await import('@/external/bot-skeleton');
                         await api_base.init(true); // Force new connection with the account
-                        // authorizeAndSubscribe() is called internally via onsocketopen → handleTokenExchangeIfNeeded
+
+                        // Explicitly authorize: onsocketopen calls handleTokenExchangeIfNeeded() without await.
+                        // Add a small delay to allow socket to fully open and event listeners to attach.
+                        await new Promise(resolve => setTimeout(resolve, 100));
+
+                        // Check if we're not already authorized before calling authorize
+                        if (!api_base.is_authorized) {
+                            await api_base.authorizeAndSubscribe();
+                        }
                     } else {
                         // No accounts returned - this is an error condition
                         ErrorLogger.error('OAuth', 'No accounts returned after token exchange');
