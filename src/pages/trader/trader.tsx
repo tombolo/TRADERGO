@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import './trader.scss';
 
 interface ClientAccount {
@@ -46,18 +47,56 @@ function validateDTraderHost(embedBaseUrl: string): boolean {
     }
 }
 
-/** OAuth access token for WebSocket/API — prefer per-account token from accountsList. */
-function getAccessTokenForAccount(activeLoginId: string | undefined): string | undefined {
-    if (!activeLoginId) return undefined;
+function parseAccountsList(): Record<string, string> {
     try {
         const raw = localStorage.getItem('accountsList') || '{}';
-        const accountsList = JSON.parse(raw) as Record<string, string>;
-        const fromList = accountsList[activeLoginId];
-        if (fromList) return fromList;
+        return JSON.parse(raw) as Record<string, string>;
     } catch {
-        // ignore
+        return {};
     }
-    return localStorage.getItem('authToken') || undefined;
+}
+
+/**
+ * Login + token for the DTrader iframe (`acct1` / `token1`).
+ * Prefer the active account; fall back when `active_loginid` is missing from `accountsList`
+ * (OAuth still stores the same access_token under each account_id key).
+ */
+function resolveDTraderEmbedCredentials(): { loginId?: string; accessToken?: string } {
+    const activeLoginId = localStorage.getItem('active_loginid') || undefined;
+    const accountsList = parseAccountsList();
+
+    if (activeLoginId && accountsList[activeLoginId]) {
+        return { loginId: activeLoginId, accessToken: accountsList[activeLoginId] };
+    }
+
+    const firstPair = Object.entries(accountsList).find(
+        ([, token]) => typeof token === 'string' && token.length > 0
+    );
+    if (firstPair) {
+        return { loginId: firstPair[0], accessToken: firstPair[1] };
+    }
+
+    const oauthToken = OAuthTokenExchangeService.getAuthInfo()?.access_token;
+    if (oauthToken) {
+        if (activeLoginId) {
+            return { loginId: activeLoginId, accessToken: oauthToken };
+        }
+        try {
+            const raw = sessionStorage.getItem('deriv_accounts');
+            const accounts = raw ? (JSON.parse(raw) as Array<{ account_id?: string }>) : [];
+            const id = accounts.find(a => a.account_id)?.account_id;
+            if (id) return { loginId: id, accessToken: oauthToken };
+        } catch {
+            // ignore
+        }
+    }
+
+    const legacy = localStorage.getItem('authToken') || undefined;
+    if (legacy && activeLoginId) {
+        return { loginId: activeLoginId, accessToken: legacy };
+    }
+
+    return {};
 }
 
 const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
@@ -133,9 +172,8 @@ const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
 
     const checkAuthAndUpdate = useCallback(() => {
         try {
-            const activeLoginId = localStorage.getItem('active_loginid') || undefined;
-            const accessToken = getAccessTokenForAccount(activeLoginId);
-            buildIframeUrl(accessToken, activeLoginId);
+            const { loginId, accessToken } = resolveDTraderEmbedCredentials();
+            buildIframeUrl(accessToken, loginId);
         } catch (err) {
             console.error('Auth check failed:', err);
             setError('Authentication check failed');
