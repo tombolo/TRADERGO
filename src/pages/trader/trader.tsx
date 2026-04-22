@@ -184,7 +184,7 @@ function mergePollBalanceIntoClient(client: ClientStore, raw: { balance?: unknow
 }
 
 const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
-    dtraderUrl = 'https://dtradergo-gtyo.vercel.app/dtrader',
+    dtraderUrl = 'https://dtradergo-3826.vercel.app/dtrader',
     appId = 121364,
     defaultSymbol = '1HZ100V',
 }) => {
