@@ -360,3 +360,4 @@ For additional support or questions, please refer to the project's issue tracker
 # TOPTRADES
 # CHALAA
 # SCOPE-X
+# OSORO
