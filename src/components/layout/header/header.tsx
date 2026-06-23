@@ -224,7 +224,7 @@ const AppHeader = observer(() => {
                 .replace(/=/g, '');
 
             // Build exact OAuth URL
-            const clientId = '33xDD2U3yJ0221OXb7ixB'; // ZOOM client
+            const clientId = '33Dc1DR8ou2SKosCJt4Pj'; // ZOOM client
             const appId = '135085';
             const redirectUri = 'https://www.finetrades.pro/callback';
             const scope = 'trade';
