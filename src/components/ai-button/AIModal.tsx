@@ -173,7 +173,7 @@ const AIModal: React.FC<AIModalProps> = ({ isOpen, onClose }) => {
                 {phase === 'scanning' && (
                     <div className='ai-modal__scanner'>
                         <div className='ai-modal__scanner-header'>
-                            <div className='ai-modal__scanner-title'>SOFT TRADES AI SCANNER</div>
+                            <div className='ai-modal__scanner-title'>FINE TRADES AI SCANNER</div>
                             <div className='ai-modal__scanner-subtitle'>
                                 Volatility indices • {SCAN_DIGIT_COUNT.toLocaleString()} digit deep scan
                             </div>

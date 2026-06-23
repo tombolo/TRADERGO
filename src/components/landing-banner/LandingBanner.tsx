@@ -73,7 +73,7 @@ const LandingBanner = () => {
                     </div>
 
                     <h1 className='landing-banner__title'>
-                        Join the <em>SOFT TRADES</em>
+                        Join the <em>FINE TRADES</em>
                         <br />
                         Inner Circle
                     </h1>

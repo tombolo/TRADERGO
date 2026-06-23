@@ -1,4 +1,4 @@
-# SOFT TRADES — allow all search engines
+# FINE TRADES — allow all search engines
 User-agent: *
 Allow: /
 
@@ -10,4 +10,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://softtrades.pro/sitemap.xml
+Sitemap: https://finetrades.pro/sitemap.xml

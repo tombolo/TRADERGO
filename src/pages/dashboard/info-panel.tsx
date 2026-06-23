@@ -78,7 +78,7 @@ const InfoPanel = observer(() => {
                     as='h1'
                     className='db-info-panel__title'
                 >
-                    Welcome to SOFT TRADES
+                    Welcome to FINE TRADES
                 </Text>
                 <Text
                     color='general'

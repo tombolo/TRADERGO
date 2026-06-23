@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://softtrades.pro/</loc>
+    <loc>https://finetrades.pro/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://softtrades.pro/#dashboard</loc>
+    <loc>https://finetrades.pro/#dashboard</loc>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://softtrades.pro/#bot_builder</loc>
+    <loc>https://finetrades.pro/#bot_builder</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://softtrades.pro/#free_bots</loc>
+    <loc>https://finetrades.pro/#free_bots</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://softtrades.pro/#trader</loc>
+    <loc>https://finetrades.pro/#trader</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://softtrades.pro/#copy_trading</loc>
+    <loc>https://finetrades.pro/#copy_trading</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://softtrades.pro/#chart</loc>
+    <loc>https://finetrades.pro/#chart</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://softtrades.pro/#analysis_tools</loc>
+    <loc>https://finetrades.pro/#analysis_tools</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

@@ -90,10 +90,8 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
                     </div>
                 ))}
             </div>
-            <div className='network-boot__overlay' aria-hidden />
-
             <div className='network-boot__content'>
-                <p className='network-boot__brand'>SOFT TRADES</p>
+                <p className='network-boot__brand'>FINE TRADES</p>
                 <p className='network-boot__tagline'>Trading Platform</p>
 
                 <div className='network-boot__spinner-panel'>
