@@ -372,7 +372,7 @@ const AppWrapper = observer(() => {
                                 label={
                                     <>
                                         <MainTabIcon variant='trader' />
-                                        <Localize i18n_default_text='D Trader' />
+                                        <Localize i18n_default_text='Manual Trader' />
                                     </>
                                 }
                                 id='id-trader'

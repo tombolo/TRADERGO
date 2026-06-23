@@ -226,7 +226,7 @@ const AppHeader = observer(() => {
             // Build exact OAuth URL
             const clientId = '33xDD2U3yJ0221OXb7ixB'; // ZOOM client
             const appId = '135085';
-            const redirectUri = 'https://www.softtrades.pro/callback';
+            const redirectUri = 'https://www.finetrades.pro/callback';
             const scope = 'trade';
 
             const oauthUrl = `https://auth.deriv.com/oauth2/auth?scope=${scope}&response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256&app_id=${appId}`;
