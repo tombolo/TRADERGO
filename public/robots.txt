@@ -1,4 +1,4 @@
-# FINE TRADES — allow all search engines
+# PROFIT SCOPE — allow all search engines
 User-agent: *
 Allow: /
 
@@ -10,4 +10,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://finetrades.pro/sitemap.xml
+Sitemap: https://profitscopex.pro/sitemap.xml
