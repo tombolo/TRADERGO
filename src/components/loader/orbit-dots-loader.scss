@@ -1,0 +1,40 @@
+.orbit-dots-loader {
+    width: 70px;
+    aspect-ratio: 1;
+    background:
+        radial-gradient(farthest-side, #ffa516 90%, #0000) center / 16px 16px,
+        radial-gradient(farthest-side, green 90%, #0000) bottom / 12px 12px;
+    background-repeat: no-repeat;
+    animation: orbit-dots-loader-spin 1s infinite linear;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.orbit-dots-loader::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    aspect-ratio: 1;
+    inset: auto 0 16px;
+    margin: auto;
+    background: #ccc;
+    border-radius: 50%;
+    transform-origin: 50% calc(100% + 10px);
+    animation: orbit-dots-loader-spin 0.5s infinite linear;
+}
+
+@keyframes orbit-dots-loader-spin {
+    100% {
+        transform: rotate(1turn);
+    }
+}
+
+/** Centered wrapper for Suspense / modal fallbacks */
+.orbit-dots-loader-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 16rem;
+    padding: 2rem;
+}

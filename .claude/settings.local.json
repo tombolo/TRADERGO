@@ -1,0 +1,14 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(xargs grep *)",
+            "Bash(git checkout *)",
+            "Bash(grep -E \"\\\\.\\(tsx|ts|scss|css\\)$\")",
+            "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+            "Bash(npm run *)",
+            "Bash(ls -la \"C:\\\\\\\\Users\\\\\\\\Brian\\\\\\\\Desktop\\\\\\\\GAINER\\\\\\\\src\\\\\\\\pages\\\\\\\\\")",
+            "Bash(find \"C:\\\\\\\\Users\\\\\\\\Brian\\\\\\\\Desktop\" -maxdepth 2 -type d -name \"GAINER\")",
+            "Bash(npm install *)"
+        ]
+    }
+}

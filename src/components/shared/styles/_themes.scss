@@ -1,0 +1,366 @@
+@use './constants';
+
+:host,
+:root {
+    // Text sizes
+    --text-size-xxxxs: 0.8rem;
+    --text-size-xxxs: 1rem;
+    --text-size-xxs: 1.2rem;
+    --text-size-xs: 1.4rem;
+    --text-size-s: 1.6rem;
+    --text-size-xsm: 1.8rem;
+    --text-size-sm: 2rem;
+    --text-size-m: 2.4rem;
+    --text-size-l: 3.2rem;
+    --text-size-xl: 4.8rem;
+    --text-size-xxl: 6.4rem;
+
+    // Line Height
+    --text-lh-xxs: 1;
+    --text-lh-xs: 1.25;
+    --text-lh-s: 1.4;
+    --text-lh-m: 1.5;
+    --text-lh-l: 1.75;
+    --text-lh-xl: 2;
+    --text-lh-xxl: 2.4;
+
+    // Font Weight
+    --text-weight-lighter: lighter;
+    --text-weight-normal: normal;
+    --text-weight-bold: bold;
+    --text-weight-bolder: bolder;
+
+    // Text Align
+    --text-align-left: start;
+    --text-align-right: right;
+    --text-align-center: center;
+
+
+
+
+
+    /* Brand colors - dynamically generated from brand.config.json */
+    --brand-white: #ffffff;
+    --brand-dark-grey: #1A1A2E;
+    --brand-red-coral: #010a2d; /* legacy compatibility — now royal blue */
+    --brand-orange: #FAF8F4; /* legacy compatibility — now warm background */
+
+    /* Dynamic brand colors (set by brand configuration) */
+    --brand-primary: #010a2d;
+    --brand-secondary: #010a2d;
+    --brand-tertiary: #FAF8F4;
+    --brand-success: #059669;
+    --brand-danger: #DC2626;
+    --brand-warning: #D97706;
+    --brand-info: #010a2d;
+    --brand-neutral: #B0A898;
+
+    /* Brand typography - dynamically generated from brand.config.json */
+    --brand-font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --brand-font-secondary: Georgia, 'Times New Roman', Times, serif;
+    --brand-font-monospace: 'Courier New', Courier, monospace;
+
+    --hub-leaf: #2f855a;
+
+    // App Cards gradient background
+    --app-card-virtual: #{constants.$gradient-virtual};
+    --app-card-virtual-swap-free: #{constants.$gradient-virtual-swap-free};
+
+    // Opacity
+    --tw-border-opacity: 1;
+
+    .theme--light {
+        // General
+        --general-main-1: #FAF8F4;
+        --general-main-2: #FFFFFF;
+        --general-main-3: #FFFFFF;
+        --general-main-4: #F5F1EA;
+        --general-section-1: #FFFFFF;
+        --general-section-2: #FAF8F4;
+        --general-section-3: #FFFFFF;
+        --general-section-4: #FFFFFF;
+        --general-section-5: #F5F1EA;
+        --general-section-6: #FAF8F4;
+        --general-disabled: #E8E2D9;
+        --general-hover: #F5F1EA;
+        --general-active: #EDE7DE;
+
+        // Icons and Texts
+        --text-general: #1A1A2E;
+        --text-primary: #1A1A2E;
+        --text-less-prominent: #B0A898;
+        --text-prominent: #1A1A2E;
+        --text-disabled: #B0A898;
+        --text-disabled-1: #B0A898;
+        --text-loss-danger: #DC2626;
+        --text-profit-success: #059669;
+        --text-warning: #D97706;
+        --text-red: #{constants.$color-red};
+        --text-green: #{constants.$color-green-6};
+        --text-blue: #{constants.$color-blue-3};
+        --text-info-blue: #{constants.$color-blue};
+        --text-info-blue-background: #{constants.$color-blue-5};
+        --text-colored-background: #{constants.$color-white};
+        --icon-light-background: #{constants.$color-black-9};
+        --icon-dark-background: #{constants.$color-white};
+        --icon-grey-background: #{constants.$color-grey-2};
+        --icon-black-plus: #{constants.$color-black-7};
+        --text-status-info-blue: #{constants.$color-blue};
+        --text-hint: #{constants.$color-black-1};
+
+        // Purchase
+        --purchase-main-1: #{constants.$color-green-1};
+        --purchase-section-1: #{constants.$color-green-2};
+        --purchase-main-2: #{constants.$color-red-1};
+        --purchase-section-2: #{constants.$color-red-4};
+        --purchase-disabled-main: #{constants.$color-grey-3};
+        --purchase-disabled-section: #{constants.$color-grey-4};
+
+        // Buttons
+        --button-primary-default: var(--brand-red-coral);
+        --button-secondary-default: #010a2d;
+        --button-tertiary-default: transparent;
+        --button-primary-light-default: #E8EDFF;
+        --button-primary-hover: #010a2d;
+        --button-secondary-hover: #010a2d;
+        --button-tertiary-hover: #E8EDFF;
+        --button-primary-light-hover: #E8EDFF;
+        --button-toggle-primary: #010a2d;
+        --button-toggle-secondary: #F5F1EA;
+        --button-toggle-alternate: #FFFFFF;
+
+        // Overlay
+        --overlay-outside-dialog: #{constants.$alpha-color-black-1};
+        --overlay-inside-dialog: #{constants.$alpha-color-white-1};
+
+        // Shadow
+        --shadow-menu: #0000001A;
+        --shadow-menu-2: #0000001A;
+        --shadow-drop: #0000001A;
+        --shadow-box: #0000001A;
+
+        // States
+        --state-normal: #FFFFFF;
+        --state-hover: #F5F1EA;
+        --state-active: #EDE7DE;
+        --state-disabled: #E8E2D9;
+        --checkbox-disabled-grey: #{constants.$color-grey-6};
+        --sidebar-tab: #{constants.$color-grey-6};
+
+        // Border
+        --border-normal: #E8E2D9;
+        --border-normal-1: #E8E2D9;
+        --border-normal-2: #E8E2D9;
+        --border-normal-3: #E8E2D9;
+        --border-hover: #010a2d;
+        --border-hover-1: #{constants.$color-black-9};
+        --border-active: var(--brand-secondary);
+        --border-disabled: #E8E2D9;
+        --border-divider: #E8E2D9;
+
+        // Fill
+        --fill-normal: #FFFFFF;
+        --fill-normal-1: #FAF8F4;
+        --fill-hover: #F5F1EA;
+        --fill-active: var(--brand-secondary);
+        --fill-disabled: #E8E2D9;
+
+        // Status
+        --status-default: #B0A898;
+        --status-adjustment: #010a2d;
+        --status-danger: #DC2626;
+        --status-success: #059669;
+        --status-warning: #D97706;
+        --status-warning-transparent: #{constants.$alpha-color-yellow-1};
+        --status-transfer: #{constants.$color-orange};
+        --status-info: #010a2d;
+        --status-colored-background: #{constants.$color-white};
+        --status-alert-background: #{constants.$color-yellow-3};
+
+        // Dashboard
+        --dashboard-swap-free: #{constants.$gradient-color-black-3};
+        --dashboard-app: #{constants.$gradient-color-black-4};
+
+        // Transparentize
+        --transparent-success: #{constants.$alpha-color-green-1};
+        --transparent-info: #{constants.$alpha-color-blue-1};
+        --transparent-hint: #{constants.$alpha-color-blue-3};
+        --transparent-danger: #{constants.$alpha-color-red-2};
+        --transparent-correct-message: #{constants.$color-green-5};
+        --transparent-fake-message: #{constants.$color-red-6};
+
+        // Gradient
+        --gradient-success: #{constants.$gradient-color-green-1};
+        --gradient-danger: #{constants.$gradient-color-red-1};
+        --contract-gradient-danger: #{constants.$contract-gradient-color-red-1};
+        --gradient-right-edge: #{constants.$gradient-color-white};
+        --gradient-blue: #{constants.$gradient-color-blue-5};
+        --gradient-gold: #{constants.$gradient-color-gold};
+        --gradient-green: #{constants.$gradient-color-green-4};
+
+        // Badge
+        --badge-white: #{constants.$color-white};
+        --badge-blue: #{constants.$color-blue-4};
+        --badge-violet: #{constants.$color-blue-2};
+        --badge-green: #{constants.$color-green-3};
+
+        // TradersHub Banner
+        --traders-hub-banner-border-color: #{constants.$color-grey-4};
+
+        // Demo view
+        --demo-text-color-1: #{constants.$color-grey};
+        --demo-text-color-2: #{constants.$color-white};
+
+        // Header
+        --header-background-mt5: #{constants.$color-blue-8};
+        --header-background-others: #{constants.$color-green-7};
+    }
+
+    .theme--dark {
+        // General
+        --general-main-1: #0D0D1F;
+        --general-main-2: #151525;
+        --general-main-3: #1E1E32;
+        --general-main-4: #0A0A18;
+        --general-section-1: #151525;
+        --general-section-2: #0D0D1F;
+        --general-section-3: #1E1E32;
+        --general-section-4: #151525;
+        --general-section-5: #0A0A18;
+        --general-section-6: #0D0D1F;
+        --general-disabled: #2A2A44;
+        --general-hover: #1E1E32;
+        --general-active: #28284A;
+
+        // Icons and Texts
+        --text-prominent: #FFFFFF;
+        --text-general: #E8E2F0;
+        --text-less-prominent: #8A7EB8;
+        --text-primary: #F0EEF8;
+        --text-disabled: #3E3A5E;
+        --text-disabled-1: #3E3A5E;
+        --text-profit-success: #34D399;
+        --text-loss-danger: #F87171;
+        --text-warning: #FBBF24;
+        --text-red: #{constants.$color-red};
+        --text-green: #{constants.$color-green-6};
+        --text-blue: #{constants.$color-blue-3};
+        --text-colored-background: #{constants.$color-white};
+        --text-info-blue: #93C5FD;
+        --text-info-blue-background: #1E2A4A;
+        --text-status-info-blue: #93C5FD;
+        --text-hint: #8A7EB8;
+        --icon-light-background: #{constants.$color-white};
+        --icon-dark-background: #{constants.$color-black-9};
+        --icon-grey-background: #2A2A44;
+        --icon-black-plus: #{constants.$color-white};
+
+        // Purchase
+        --purchase-main-1: #{constants.$color-green-3};
+        --purchase-section-1: #{constants.$color-green-4};
+        --purchase-main-2: #{constants.$color-red-2};
+        --purchase-section-2: #{constants.$color-red-3};
+        --purchase-disabled-main: #{constants.$color-black-4};
+        --purchase-disabled-section: #{constants.$color-black};
+
+        // Buttons
+        --button-primary-default: var(--brand-red-coral);
+        --button-secondary-default: #28284A;
+        --button-tertiary-default: transparent;
+        --button-primary-light-default: #1E2A4A;
+        --button-primary-hover: #1E1E32;
+        --button-secondary-hover: #3A3A5E;
+        --button-tertiary-hover: #1E2A4A;
+        --button-primary-light-hover: #1E2A4A;
+        --button-toggle-primary: #F0EEF8;
+        --button-toggle-secondary: #1E1E32;
+        --button-toggle-alternate: #2A2A44;
+        --button-get-started-bg: #1E1E32;
+
+        // Overlay
+        --overlay-outside-dialog: rgba(0, 0, 0, 0.6);
+        --overlay-inside-dialog: rgba(0, 0, 0, 0.4);
+
+        // Shadow
+        --shadow-menu: rgba(0, 0, 0, 0.4);
+        --shadow-menu-2: rgba(0, 0, 0, 0.4);
+        --shadow-drop: rgba(0, 0, 0, 0.4);
+        --shadow-box: rgba(0, 0, 0, 0.4);
+
+        // States
+        --state-normal: #151525;
+        --state-hover: #1E1E32;
+        --state-active: #28284A;
+        --state-disabled: #2A2A44;
+        --checkbox-disabled-grey: #3A3A5E;
+        --sidebar-tab: #3A3A5E;
+
+        // Border
+        --border-normal: #2A2A44;
+        --border-normal-1: #2A2A44;
+        --border-normal-2: #2A2A44;
+        --border-normal-3: #2A2A44;
+        --border-hover: #7C3AED;
+        --border-hover-1: #7C3AED;
+        --border-active: var(--brand-secondary);
+        --border-disabled: #2A2A44;
+        --border-divider: #1E1E32;
+
+        // Fill
+        --fill-normal: #151525;
+        --fill-normal-1: #0D0D1F;
+        --fill-hover: #1E1E32;
+        --fill-active: var(--brand-secondary);
+        --fill-disabled: #2A2A44;
+
+        // Status
+        --status-default: #8A7EB8;
+        --status-adjustment: #93C5FD;
+        --status-danger: #F87171;
+        --status-warning: #FBBF24;
+        --status-warning-transparent: rgba(251, 191, 36, 0.16);
+        --status-success: #34D399;
+        --status-transfer: #{constants.$color-orange};
+        --status-info: #93C5FD;
+        --status-colored-background: #151525;
+        --status-alert-background: #2A2010;
+
+        // Dashboard
+        --dashboard-swap-free: #{constants.$gradient-color-black-3};
+        --dashboard-app: #{constants.$gradient-color-black-4};
+
+        // Transparentize
+        --transparent-success: rgba(52, 211, 153, 0.16);
+        --transparent-info: rgba(147, 197, 253, 0.16);
+        --transparent-hint: rgba(147, 197, 253, 0.16);
+        --transparent-danger: rgba(248, 113, 113, 0.16);
+        --transparent-correct-message: #{constants.$color-green-5};
+        --transparent-fake-message: #{constants.$color-red-6};
+
+        // Gradient
+        --gradient-success: #{constants.$gradient-color-green-midnight};
+        --gradient-danger: #{constants.$gradient-color-red-midnight};
+        --contract-gradient-danger: #{constants.$contract-gradient-color-red-midnight};
+        --gradient-right-edge: #{constants.$gradient-color-midnight};
+        --gradient-blue: #{constants.$gradient-color-blue-5};
+        --gradient-gold: #{constants.$gradient-color-gold};
+        --gradient-green: #{constants.$gradient-color-green-4};
+
+        // Badge
+        --badge-white: #2A2A44;
+        --badge-blue: #{constants.$color-blue-4};
+        --badge-violet: #{constants.$color-blue-2};
+        --badge-green: #{constants.$color-green-3};
+
+        // TradersHub Banner
+        --traders-hub-banner-border-color: #2A2A44;
+
+        // Demo view
+        --demo-text-color-1: #E8E2F0;
+        --demo-text-color-2: #F0EEF8;
+
+        // Header
+        --header-background-mt5: #{constants.$color-blue-8};
+        --header-background-others: #{constants.$color-green-7};
+    }
+}

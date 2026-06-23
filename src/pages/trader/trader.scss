@@ -1,0 +1,21 @@
+@use 'components/shared/styles/devices' as *;
+
+.trader-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+    height: 79vh;
+
+    @include desktop-screen {
+        height: 85vh;
+    }
+
+    &__iframe {
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        border: none;
+        background-color: #f5f5f5;
+    }
+}

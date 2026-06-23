@@ -1,0 +1,317 @@
+@use 'components/shared/styles/mixins' as *;
+
+/* ─── Page shell ─────────────────────────────────────────────────────────── */
+.free-bots-page {
+    box-sizing: border-box;
+    width: 100%;
+    height: 90vh;
+    min-height: 0;
+    padding: 2rem 1.6rem 2.4rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+
+    background:
+        radial-gradient(ellipse at 0% 0%, rgba(43, 186, 217, 0.1) 0%, transparent 55%),
+        radial-gradient(ellipse at 100% 0%, rgba(126, 63, 242, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 100%, rgba(77, 163, 255, 0.06) 0%, transparent 55%),
+        #060d17;
+
+    @include desktop-screen {
+        height: 90vh;
+    }
+
+    color: #e2e8f0;
+
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 102, 241, 0.4) transparent;
+
+    &::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.4);
+        border-radius: 99px;
+    }
+
+    @include mobile-screen {
+        border-radius: 0;
+    }
+
+    @include tablet-or-desktop-screen {
+        padding: 2.4rem 2.4rem 3rem;
+    }
+
+    @include desktop-screen {
+        padding: 2.8rem 3.2rem 3.6rem;
+    }
+}
+
+/* ─── Grid ───────────────────────────────────────────────────────────────── */
+.free-bots__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.4rem;
+    width: 100%;
+
+    @include tablet-or-desktop-screen {
+        grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+        gap: 1.6rem;
+    }
+
+    @include desktop-screen {
+        grid-template-columns: repeat(auto-fill, minmax(26rem, 1fr));
+        gap: 2rem;
+    }
+}
+
+/* ─── Card ───────────────────────────────────────────────────────────────── */
+.free-bots__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    padding: 1.5rem 1.5rem 1.3rem;
+    border-radius: 1.6rem;
+    overflow: hidden;
+
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.065) 0%,
+        rgba(255, 255, 255, 0.025) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+        0 4px 30px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    transition:
+        transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+
+    @include mobile-screen {
+        border-radius: 0;
+
+        &::before {
+            border-radius: 0;
+        }
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        border-radius: 1.6rem 1.6rem 0 0;
+        background: linear-gradient(90deg, #6366f1, #06b6d4);
+        opacity: 0.7;
+    }
+
+    &:nth-child(3n)::before   { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+    &:nth-child(3n+1)::before { background: linear-gradient(90deg, #0ea5e9, #22d3ee); }
+    &:nth-child(3n+2)::before { background: linear-gradient(90deg, #10b981, #6366f1); }
+
+    &:hover {
+        transform: translateY(-4px) scale(1.01);
+        border-color: rgba(99, 102, 241, 0.35);
+        box-shadow:
+            0 12px 50px rgba(99, 102, 241, 0.22),
+            0 4px 20px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    @include desktop-screen {
+        padding: 1.75rem 1.75rem 1.5rem;
+    }
+}
+
+.free-bots__card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.9rem;
+}
+
+.free-bots__card-name {
+    margin: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #f1f5f9;
+    letter-spacing: -0.01em;
+
+    @include desktop-screen {
+        font-size: 1.6rem;
+    }
+}
+
+.free-bots__card-folder {
+    flex: 0 0 auto;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 0.3rem 0.8rem;
+    border-radius: 99px;
+    background: rgba(99, 102, 241, 0.18);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: #a5b4fc;
+}
+
+.free-bots__card-desc {
+    margin: 0 0 0.6rem;
+    font-size: 1.3rem;
+    line-height: 1.55;
+    color: #94a3b8;
+
+    @include desktop-screen {
+        font-size: 1.4rem;
+    }
+}
+
+.free-bots__card-meta {
+    margin: 0 0 1.2rem;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    color: rgba(148, 163, 184, 0.55);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    &::before {
+        content: '⬡';
+        font-size: 0.9rem;
+        color: rgba(99, 102, 241, 0.5);
+    }
+}
+
+.free-bots__card-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.free-bots__social {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.free-bots__avatars {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.free-bots__avatar {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0c1222;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    margin-inline-start: -0.6rem;
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25);
+
+    &:first-child {
+        margin-inline-start: 0;
+    }
+
+    @include desktop-screen {
+        width: 2.6rem;
+        height: 2.6rem;
+        margin-inline-start: -0.65rem;
+    }
+}
+
+.free-bots__using {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #64748b;
+    white-space: nowrap;
+
+    @include desktop-screen {
+        font-size: 1.25rem;
+    }
+}
+
+.free-bots__load-btn {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    padding: 0.6rem 1.3rem;
+    border: none;
+    border-radius: 0.7rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+    color: #fff;
+    box-shadow:
+        0 2px 12px rgba(99, 102, 241, 0.4),
+        0 1px 3px rgba(0, 0, 0, 0.3);
+
+    transition:
+        transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(120deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    @include desktop-screen {
+        padding: 0.7rem 1.5rem;
+        font-size: 1.3rem;
+    }
+
+    &:hover {
+        transform: translateY(-1px) scale(1.04);
+        box-shadow:
+            0 6px 22px rgba(99, 102, 241, 0.55),
+            0 2px 8px rgba(0, 0, 0, 0.3);
+        filter: brightness(1.1);
+
+        &::before {
+            opacity: 1;
+        }
+    }
+
+    &:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    &:focus-visible {
+        outline: 2px solid #6366f1;
+        outline-offset: 3px;
+    }
+}

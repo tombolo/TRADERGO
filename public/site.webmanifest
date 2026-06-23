@@ -1,0 +1,23 @@
+{
+    "name": "SOFT TRADES",
+    "short_name": "SOFT TRADES",
+    "description": "SOFT TRADES (softtrades.pro) — binary tools, trade schemes, and automated Deriv trading bots. Trade smarter.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#22c55e",
+    "icons": [
+        {
+            "src": "/assets/images/MERRICK.png",
+            "sizes": "612x408",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/images/MERRICK.png",
+            "sizes": "612x408",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

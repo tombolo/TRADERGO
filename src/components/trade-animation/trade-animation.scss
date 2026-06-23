@@ -1,0 +1,361 @@
+@use 'components/shared/styles/constants' as *;
+@use 'components/shared/styles/devices' as *;
+
+@keyframes animate-progress {
+    0% {
+        width: 0%;
+    }
+
+    100% {
+        width: 51%;
+    }
+}
+
+@keyframes animate-progress-complete {
+    0% {
+        width: 50%;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes animate-circle {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.5);
+    }
+
+    100% {
+        transform: scale(0);
+    }
+}
+
+@keyframes animate-circle-appear {
+    0% {
+        transform: scale(0);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes animation-speed-flash {
+    0% {
+        filter: brightness(1);
+    }
+
+    35% {
+        filter: brightness(1.08);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
+}
+
+@keyframes animate-circle-pop {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(0);
+    }
+}
+
+.animation {
+    $static-circle-diameter: 2px;
+    $dynamic-circle-diameter: 10px;
+    $animation: &;
+
+    &__wrapper {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        gap: 0;
+    }
+
+    &__controls {
+        display: flex;
+        align-items: stretch;
+        height: 100%;
+        flex-shrink: 0;
+    }
+
+    &__overlay {
+        border-top-left-radius: 0;
+        border-bottom-right-radius: $BORDER_RADIUS;
+    }
+
+    &__run-button {
+        width: fit-content;
+        height: 100% !important;
+        border-start-end-radius: 0 !important;
+        border-end-end-radius: 0 !important;
+        background-color: var(--purchase-main-1);
+
+        &:hover {
+            background-color: var(--purchase-main-1) !important;
+        }
+    }
+
+    &__stop-button {
+        width: fit-content;
+        height: 100% !important;
+        border-start-end-radius: 0 !important;
+        border-end-end-radius: 0 !important;
+        background-color: var(--button-primary-default);
+
+        &:hover {
+            background-color: var(--button-primary-default) !important;
+        }
+    }
+
+    &__container {
+        height: 100%;
+        padding: 5px 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        border-start-end-radius: $BORDER_RADIUS;
+        border-end-end-radius: $BORDER_RADIUS;
+        border: solid 1px var(--border-normal);
+        position: relative;
+        background-color: var(--general-main-1);
+        transition:
+            background-color 0.35s ease,
+            border-color 0.35s ease,
+            box-shadow 0.35s ease;
+    }
+
+    &--speed-fast {
+        background: linear-gradient(180deg, #f3fbf6 0%, #e8f7ee 100%);
+        border-color: #9fd4b3;
+        box-shadow: inset 0 0 0 1px rgb(76 175 120 / 12%);
+    }
+
+    &--speed-slow {
+        background: linear-gradient(180deg, #fff8eb 0%, #ffefd1 100%);
+        border-color: #e8c36a;
+        box-shadow: inset 0 0 0 1px rgb(216 137 29 / 14%);
+    }
+
+    &--speed-changed {
+        animation: animation-speed-flash 0.7s ease;
+    }
+
+    &__text {
+        color: var(--text-general);
+        font-size: 12px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
+        line-height: 18px;
+    }
+
+    &__progress {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        height: 6px;
+
+        .circular-wrapper {
+            width: $static-circle-diameter;
+            height: $static-circle-diameter;
+            align-self: center;
+            display: flex;
+
+            .static-circle {
+                width: $static-circle-diameter;
+                height: $static-circle-diameter;
+                background-color: $color-black-7;
+                border-radius: 100%;
+                align-self: center;
+                z-index: 1;
+            }
+
+            .dynamic-circle {
+                border-radius: 100%;
+                height: $dynamic-circle-diameter;
+                width: $dynamic-circle-diameter;
+                margin-left: -4px;
+                margin-top: -4px;
+                opacity: 0.32;
+                position: absolute;
+            }
+
+            &:nth-child(2) {
+                margin-left: 3px;
+            }
+
+            &:last-child {
+                margin-right: 3px;
+            }
+        }
+
+        &-line {
+            background-color: var(--border-normal);
+            height: 100%;
+            width: 100%;
+            border-radius: $BORDER_RADIUS;
+            position: absolute;
+        }
+
+        &-bar {
+            background-color: var(--status-success);
+            border-radius: $BORDER_RADIUS;
+            width: 0;
+            height: 100%;
+        }
+
+        &-4 {
+            animation: animate-progress 0.5s 1;
+            animation-fill-mode: forwards;
+        }
+
+        &-5 {
+            width: 51%;
+            border-radius: 5px 0 0 5px;
+        }
+
+        &-6 {
+            animation: animate-progress-complete 0.5s 1;
+            animation-fill-mode: forwards;
+        }
+    }
+
+    &--running {
+        #{$animation}__progress {
+            .circular-wrapper {
+                &.completed,
+                &.active {
+                    .static-circle {
+                        background-color: $color-green-2;
+                    }
+                }
+
+                &.active {
+                    .dynamic-circle {
+                        animation: animate-circle 0.8s infinite;
+                        animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+                        background-color: var(--status-success);
+
+                        // transform: translate(-50%, -50%);
+                        // z-index: 1;
+                    }
+                }
+
+                .static-circle {
+                    animation: animate-circle-appear 1s;
+                    background-color: $COLOR_CORAL_RED;
+                }
+
+                .dynamic-circle {
+                    animation: animate-circle 1s;
+                    background-color: $COLOR_CORAL_RED;
+                    transform: scale(0);
+                }
+            }
+        }
+    }
+}
+
+.dc-modal__container_animation__modal {
+    @include mobile-or-tablet-screen {
+        width: 31.2rem !important;
+    }
+}
+
+.execution-speed {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    min-width: 11.6rem;
+    height: 100%;
+    padding: 0.4rem 0.8rem 0.4rem 1rem;
+    border: solid 1px #e8dfd0;
+    border-inline-start: none;
+    border-radius: 0;
+    background: linear-gradient(180deg, #fffaf0 0%, #f8f1e4 100%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
+
+    &__copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+    }
+
+    &__label {
+        color: #8a8175;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        line-height: 1.1;
+        text-transform: uppercase;
+    }
+
+    &__value {
+        color: #1f2937;
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        line-height: 1.2;
+    }
+
+    &__switch {
+        position: relative;
+        width: 3.4rem;
+        height: 1.8rem;
+        padding: 0;
+        border: 1px solid #d4c4a8;
+        border-radius: 999px;
+        background: #fffdf8;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease;
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        &--slow {
+            background: #fff4df;
+            border-color: #e0b56d;
+
+            .execution-speed__switch-thumb {
+                transform: translateX(0);
+            }
+        }
+
+        &:not(&--slow) .execution-speed__switch-thumb {
+            transform: translateX(1.5rem);
+        }
+    }
+
+    &__switch-thumb {
+        position: absolute;
+        top: 0.15rem;
+        left: 0.15rem;
+        width: 1.4rem;
+        height: 1.4rem;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #f6c56b 0%, #d8891d 100%);
+        box-shadow: 0 1px 4px rgb(180 120 20 / 35%);
+        transition: transform 0.2s ease;
+    }
+}

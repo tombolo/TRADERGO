@@ -1,0 +1,191 @@
+@use 'components/shared/styles/mixins' as *;
+
+.hub-page {
+    --hub-accent: var(--brand-red-coral);
+    --hub-accent-soft: var(--general-section-1);
+    --hub-leaf: var(--brand-success);
+    --hub-danger: var(--brand-danger);
+    --hub-card-bg: var(--general-main-1);
+    --hub-card-border: var(--general-section-1);
+
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    min-height: 100%;
+    padding: 1.6rem 1.6rem 2.4rem;
+    color: var(--text-prominent);
+    background: var(--general-main-2);
+
+    @include tablet-or-desktop-screen {
+        padding: 2rem 2.4rem 3rem;
+    }
+
+    @include desktop-screen {
+        padding: 2.4rem 3.2rem 3.6rem;
+    }
+}
+
+.hub-page__hero {
+    width: 100%;
+    max-width: none;
+    margin: 0 0 2rem;
+    text-align: center;
+
+    @include desktop-screen {
+        margin-bottom: 2.5rem;
+    }
+}
+
+.hub-page__hero-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 5rem;
+    height: 5rem;
+    margin-bottom: 1.25rem;
+    border-radius: 0.5rem;
+    background: var(--general-main-1);
+    border: 1px solid var(--general-section-1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    @include desktop-screen {
+        width: 5.5rem;
+        height: 5.5rem;
+    }
+}
+
+.hub-page__title {
+    margin: 0 0 0.6rem;
+    font-size: var(--text-size-xsm);
+    font-weight: var(--text-weight-bold);
+    line-height: var(--text-lh-xs);
+    color: var(--text-prominent);
+
+    @include desktop-screen {
+        font-size: var(--text-size-sm);
+    }
+}
+
+.hub-page__subtitle {
+    margin: 0 auto;
+    max-width: 52rem;
+    font-size: var(--text-size-xxs);
+    line-height: var(--text-lh-m);
+    color: var(--text-general);
+
+    @include desktop-screen {
+        font-size: var(--text-size-xs);
+        max-width: 60rem;
+    }
+}
+
+.hub-page__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+
+    @include tablet-or-desktop-screen {
+        grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+        gap: 1.5rem;
+    }
+
+    @include desktop-screen {
+        grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+        gap: 1.75rem;
+    }
+}
+
+.hub-page__card {
+    position: relative;
+    padding: 1.6rem 1.5rem;
+    border-radius: 0.5rem;
+    background: var(--hub-card-bg);
+    border: 1px solid var(--hub-card-border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+
+    @include desktop-screen {
+        padding: 1.85rem 1.65rem;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 3px;
+        background: var(--brand-red-coral);
+        opacity: 1;
+    }
+
+    &:hover {
+        border-color: var(--general-hover);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+}
+
+.hub-page__card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background: var(--general-section-1);
+    border: 1px solid var(--general-hover);
+
+    @include desktop-screen {
+        width: 3.25rem;
+        height: 3.25rem;
+    }
+}
+
+.hub-page__card-title {
+    margin: 0 0 0.5rem;
+    font-size: var(--text-size-xxs);
+    font-weight: var(--text-weight-bold);
+    line-height: var(--text-lh-s);
+    color: var(--text-prominent);
+
+    @include desktop-screen {
+        font-size: var(--text-size-xs);
+    }
+}
+
+.hub-page__card-text {
+    margin: 0;
+    font-size: var(--text-size-xxxxs);
+    line-height: var(--text-lh-m);
+    color: var(--text-general);
+
+    @include desktop-screen {
+        font-size: var(--text-size-xxxs);
+    }
+}
+
+.hub-page__badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-top: 1.35rem;
+}
+
+.hub-page__badge {
+    font-size: var(--text-size-xxxxs);
+    font-weight: var(--text-weight-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    background: var(--general-main-1);
+    color: var(--text-prominent);
+    border: 1px solid var(--general-section-1);
+}

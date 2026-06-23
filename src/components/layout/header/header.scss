@@ -1,0 +1,557 @@
+@use 'components/shared/styles/constants' as *;
+@use 'components/shared/styles/mixins' as *;
+
+.app-header {
+    &__brand {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        min-width: 0;
+    }
+
+    &--desktop {
+        .app-header__logo {
+            padding-inline-end: 0.6rem;
+        }
+
+        .app-header__logo-img {
+            max-width: 200px;
+            height: 44px;
+        }
+    }
+
+    position: relative;
+    z-index: 9000;
+    --text-prominent: #0f172a;
+    --text-general: #334155;
+    --text-less-prominent: #64748b;
+    --text-primary: #2bbad9;
+    --text-hint: #94a3b8;
+
+    background: #ffffff;
+    color: #0f172a;
+    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgb(15 23 42 / 8%);
+    backdrop-filter: none;
+    overflow: visible;
+
+    &--mobile {
+        // Collapse the left wrapper to content width so logo + toggle
+        // sit flush together and the right side gets maximum space for balance.
+        .deriv-header__wrapper--left {
+            flex: 0 0 auto;
+        }
+
+        .app-header__logo {
+            padding-inline-end: 0;
+        }
+
+        .mobile-menu__toggle {
+            padding-inline-start: 0.4rem;
+            padding-inline-end: 0.6rem;
+            min-width: unset;
+            border-inline-end-color: #e2e8f0;
+
+            svg path,
+            svg g path {
+                fill: #0f172a;
+            }
+        }
+    }
+
+    &::after {
+        content: none;
+    }
+
+    &__account-settings {
+        padding-inline-end: 1.3rem;
+        border-inline-end: 0.1rem solid #e2e8f0;
+    }
+
+    &__account-settings,
+    .notifications__wrapper,
+    &__menu {
+        svg > path,
+        svg > g > path {
+            fill: var(--text-prominent);
+        }
+    }
+
+    .acc-info__balance {
+        color: #0f172a;
+    }
+
+    .acc-info--is-virtual .acc-info__balance {
+        color: #0f172a;
+    }
+
+    .acc-info__loginid {
+        color: #334155;
+    }
+
+    .acc-info__account-type {
+        color: #8b6914;
+    }
+}
+
+.auth-actions {
+    display: flex;
+    align-items: center;
+    padding-block: 8px;
+    gap: 0.8rem;
+    margin-inline-end: 1.6rem;
+
+    button {
+        font-weight: 700;
+        margin-inline-end: 0;
+        border-radius: 0.6rem !important;
+        position: relative;
+        overflow: hidden;
+        letter-spacing: 0.02em;
+        transition:
+            transform 0.15s ease,
+            box-shadow 0.22s ease,
+            filter 0.22s ease,
+            background 0.2s ease !important;
+
+        &::before {
+            display: none;
+        }
+
+        &:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        &:active:not(:disabled) {
+            transform: translateY(0) scale(0.98);
+        }
+    }
+
+    .dc-btn--tertiary {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 1px 2px rgb(15 23 42 / 6%) !important;
+
+        .dc-btn__text,
+        .dc-btn__icon,
+        span:not(.auth-actions__spinner) {
+            color: #0f172a !important;
+        }
+
+        &:hover:not(:disabled) {
+            background: #f8fafc !important;
+            border-color: #94a3b8 !important;
+            box-shadow: 0 2px 6px rgb(15 23 42 / 10%) !important;
+        }
+    }
+
+    .dc-btn--primary {
+        background: linear-gradient(135deg, #6d2fe0 0%, #7e3ff2 55%, #9b6dff 100%) !important;
+        color: #ffffff !important;
+        border: 1px solid #7e3ff2 !important;
+        box-shadow: 0 1px 4px rgb(126 63 242 / 32%) !important;
+
+        .dc-btn__text,
+        .dc-btn__icon,
+        span:not(.auth-actions__spinner) {
+            color: #ffffff !important;
+        }
+
+        &:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5b24c4 0%, #6d2fe0 55%, #7e3ff2 100%) !important;
+            box-shadow: 0 2px 8px rgb(126 63 242 / 38%) !important;
+        }
+    }
+}
+
+.deposit-button,
+.manage-funds-button {
+    margin-inline-end: 1.2rem;
+    background: linear-gradient(135deg, #6d2fe0 0%, #7e3ff2 55%, #9b6dff 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #7e3ff2 !important;
+    font-weight: 700;
+    padding: 0.5rem 1.4rem !important;
+    border-radius: 0.6rem !important;
+    min-height: 2.4rem !important;
+    box-shadow: 0 1px 4px rgb(126 63 242 / 32%) !important;
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease !important;
+
+    &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #5b24c4 0%, #6d2fe0 55%, #7e3ff2 100%) !important;
+        box-shadow: 0 2px 8px rgb(126 63 242 / 38%) !important;
+        transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0) scale(0.97);
+    }
+}
+
+.signin-text {
+    color: #334155 !important;
+    font-weight: 600;
+    display: inline-block;
+    animation: snake-scroll 1.8s ease-in-out infinite;
+    letter-spacing: 0.5px;
+}
+
+.auth-actions--loading {
+    align-items: center;
+    margin-inline-end: 1.6rem;
+
+    .auth-actions__spinner {
+        width: 2.4rem;
+        height: 2.4rem;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        // Outer rotating ring
+        &::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2.5px solid transparent;
+            border-top-color: var(--text-prominent);
+            border-right-color: var(--text-prominent);
+            border-radius: 50%;
+            animation: auth-spinner-rotate 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+            opacity: 1;
+        }
+
+        // Inner pulsing ring
+        &::after {
+            content: '';
+            position: absolute;
+            width: 65%;
+            height: 65%;
+            border: 1.5px solid var(--text-prominent);
+            border-radius: 50%;
+            animation: auth-spinner-pulse 2s ease-in-out infinite;
+            opacity: 0.3;
+        }
+
+        svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            color: var(--text-prominent);
+        }
+    }
+}
+
+@keyframes btn-shimmer {
+    0% { left: -130%; }
+    55% { left: 210%; }
+    100% { left: 210%; }
+}
+
+@keyframes btn-bg-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes snake-scroll {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    25% {
+        transform: translateY(-6px);
+        opacity: 0.95;
+    }
+    50% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    75% {
+        transform: translateY(6px);
+        opacity: 0.95;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes auth-spinner-rotate {
+    0% {
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: rotate(360deg);
+        opacity: 1;
+    }
+}
+
+@keyframes auth-spinner-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.2;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.4;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.2;
+    }
+}
+
+.account-switcher {
+    &__item {
+        .deriv-account-switcher-item {
+            padding: 0.6rem 1.6rem;
+
+            &__detail {
+                .deriv-account-switcher-item__currency {
+                    margin-bottom: 2px;
+                    font-size: 1.4rem;
+                }
+            }
+
+            &__icon {
+                margin-right: unset;
+                margin-inline-end: 10px;
+            }
+        }
+
+        &--disabled {
+            opacity: 0.32;
+        }
+    }
+
+    &__separator:after {
+        background-color: var(--general-section-2);
+        content: '';
+        height: 4px;
+        position: absolute;
+        width: 100%;
+        z-index: 1;
+    }
+
+    &-footer {
+        background: var(--general-main-1);
+
+        &__actions {
+            display: flex;
+            justify-content: right;
+            align-items: center;
+            background-color: var(--du-general-main-2);
+            padding: 1.6rem 0.8rem;
+
+            &--hide-manage-button {
+                justify-content: flex-end;
+            }
+
+            .manage-button {
+                background: none;
+                border: 1px solid var(--button-secondary-default);
+                margin-inline-end: 0.7rem;
+                height: auto;
+                padding: 0.4rem 1.2rem;
+                white-space: break-spaces;
+
+                &:hover {
+                    background-color: unset !important;
+                }
+
+                span {
+                    color: var(--text-prominent);
+                    font-size: var(--text-size-xs);
+                    cursor: pointer;
+                    font-weight: 700;
+                }
+            }
+        }
+    }
+}
+
+.derivs-secondary-tabs {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--general-main-1);
+
+    .derivs-text__size--md {
+        font-size: 14px;
+        line-height: 18px;
+    }
+}
+
+.deriv-account-switcher {
+    &-item {
+        &__balance {
+            button {
+                border-width: 1px;
+                height: 2.4rem;
+                min-width: 4.8rem;
+
+                span {
+                    color: var(--text-prominent) !important;
+                }
+            }
+        }
+    }
+
+    &__button {
+        margin-inline-end: 0.8rem;
+
+        @include mobile-or-tablet-screen {
+            margin-inline-end: 0;
+        }
+
+        .deriv-context-menu {
+            box-shadow: 0 0 2px 0 var(--du-shadow-box, #00000014);
+        }
+
+        /* Royal blue accent on light header */
+        .deriv-account-switcher__balance + svg {
+            path,
+            g path {
+                fill: #010a2d;
+            }
+
+            @include mobile-screen {
+                height: 1.14rem;
+                width: 1.15rem;
+            }
+        }
+
+        &:hover {
+            background-color: unset;
+        }
+    }
+
+    &__currency {
+        margin-bottom: 2px;
+    }
+
+    &__icon {
+        margin-right: 7px;
+    }
+
+    &__balance {
+        padding: 0 1rem 0.1rem 0;
+    }
+
+    &__list {
+        &.account-switcher-panel {
+            padding: 0.4rem 0.8rem 0;
+
+            .account-switcher-panel__no-eu-accounts {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .add-button {
+                    background: none;
+
+                    span {
+                        color: var(--text-general);
+                        font-size: 12px;
+                        border: solid 2px var(--text-disabled-1);
+                        padding: 0.1rem 1.6rem;
+                        border-radius: 0.5em;
+                        cursor: pointer;
+                    }
+                }
+
+                .deriv-account-switcher-item {
+                    background: none;
+                }
+            }
+        }
+
+        .deriv-accordion {
+            &__content {
+                background: unset;
+                overflow: auto;
+            }
+
+            &__text {
+                margin-top: 0;
+            }
+
+            &__icon {
+                margin-left: unset;
+                margin-inline-start: auto;
+            }
+        }
+    }
+
+    &__title {
+        height: 5rem;
+        margin: 0 auto;
+        padding: 1.2rem 0.6rem;
+    }
+
+    &__container--mobile {
+        min-height: auto;
+        max-width: 600px;
+    }
+
+    &__container {
+        max-height: 80vh;
+        overflow: auto;
+        background: var(--general-main-1);
+        background-color: var(--general-main-2);
+        border-radius: 4px;
+        box-shadow: 0 8px 16px 0 var(--shadow-menu) !important;
+        position: absolute;
+        transition:
+            transform 0.3s ease,
+            opacity 0.25s linear;
+        width: 320px;
+        top: 55px;
+        right: unset;
+        inset-inline-end: 0;
+    }
+
+    &__tradershub-link {
+        background: var(--du-general-main-2);
+        color: var(--text-prominent);
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    &__footer {
+        padding: 0;
+        display: block;
+    }
+}
+
+.languages-modal {
+    background: var(--general-section-1);
+
+    .deriv-modal__header {
+        border-bottom: 2px solid var(--general-section-5);
+    }
+
+    .deriv-modal__close-icon {
+        path {
+            fill: var(--text-prominent);
+        }
+    }
+
+    .deriv-text {
+        color: var(--text-prominent) !important;
+    }
+}
+
+.deriv-accordion--underline {
+    border-bottom: none;
+}

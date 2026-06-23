@@ -1,0 +1,13 @@
+# SOFT TRADES — allow all search engines
+User-agent: *
+Allow: /
+
+# Google
+User-agent: Googlebot
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://softtrades.pro/sitemap.xml
