@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import scopeLandscapeBg from '@/components/backgrounds/scope-landscape.png';
+import scopeLandscapeBg from '@/components/backgrounds/totori.mp4';
 import scopePotraitBg from '@/components/backgrounds/tomtom.mp4';
 import './network-boot-loader.scss';
 
@@ -48,17 +48,20 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
             aria-busy='true'
             aria-label={message || 'Loading trading platform'}
             data-testid='dt_network_boot_loader'
-            style={
-                {
-                    '--bg-landscape': `url(${scopeLandscapeBg})`,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                } as any
-            }
         >
             <div className='network-boot__bg' aria-hidden>
                 <video
-                    className='network-boot__bg-video'
+                    className='network-boot__bg-video network-boot__bg-video--portrait'
                     src={scopePotraitBg}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload='auto'
+                />
+                <video
+                    className='network-boot__bg-video network-boot__bg-video--landscape'
+                    src={scopeLandscapeBg}
                     autoPlay
                     loop
                     muted

@@ -12,13 +12,6 @@
     &__bg {
         position: absolute;
         inset: 0;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-
-        @media (min-width: 768px) {
-            background-image: var(--bg-landscape);
-        }
     }
 
     &__bg-video {
@@ -29,8 +22,18 @@
         object-fit: cover;
         object-position: center;
 
-        @media (min-width: 768px) {
+        &--portrait {
+            @media (min-width: 768px) {
+                display: none;
+            }
+        }
+
+        &--landscape {
             display: none;
+
+            @media (min-width: 768px) {
+                display: block;
+            }
         }
     }
 
