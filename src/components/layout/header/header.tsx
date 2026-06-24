@@ -224,7 +224,7 @@ const AppHeader = observer(() => {
                 .replace(/=/g, '');
 
             // Build exact OAuth URL
-            const clientId = '331HG8bYWhTamAKBhuryf'; // ZOOM client
+            const clientId = '331HG8bYWhTamAKBhuryf'; // ZOOM clien
             const appId = '134081';
             const redirectUri = 'https://www.derivanalysinghub.com/callback';
             const scope = 'trade';
