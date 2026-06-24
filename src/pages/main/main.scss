@@ -36,24 +36,24 @@
 
 .main {
     --main-area-bg: #f1f5f9;
-    --main-tab-shadow-color: #f8fafc;
+    --main-tab-shadow-color: #0a1628;
     --main-shell-bg: linear-gradient(145deg, #ffffff 0%, #f8fafc 52%, #f1f5f9 100%);
     --main-shell-border: rgb(30 58 138 / 16%);
     --main-shell-glow: 0 0 0 1px rgb(30 58 138 / 8%), 0 12px 32px rgb(15 23 42 / 8%), 0 4px 16px rgb(15 23 42 / 5%);
-    --main-tab-bar-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    --main-tab-bar-border: rgb(30 58 138 / 14%);
-    --main-tab-bar-highlight: inset 0 1px 0 rgb(255 255 255 / 95%);
-    --main-tab-text: #64748b;
-    --main-tab-text-hover: #1e293b;
+    --main-tab-bar-bg: linear-gradient(180deg, #0f172a 0%, #0a1628 100%);
+    --main-tab-bar-border: rgb(212 175 55 / 18%);
+    --main-tab-bar-highlight: inset 0 1px 0 rgb(255 255 255 / 8%);
+    --main-tab-text: #ffffff;
+    --main-tab-text-hover: #ffffff;
     --main-tab-active-text: #ffffff;
-    --main-tab-pill-bg: rgb(255 255 255 / 88%);
-    --main-tab-pill-hover: #ffffff;
-    --main-tab-pill-border: rgb(148 163 184 / 32%);
-    --main-tab-pill-hover-border: rgb(30 64 175 / 28%);
-    --main-tab-pill-shadow: 0 1px 3px rgb(15 23 42 / 6%);
-    --main-tab-pill-hover-shadow: 0 4px 14px rgb(30 58 138 / 12%);
-    --main-tab-active-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 48%, #2563eb 100%);
-    --main-tab-active-glow: 0 4px 18px rgb(30 58 138 / 28%), 0 0 0 1px rgb(30 64 175 / 18%), inset 0 1px 0 rgb(255 255 255 / 22%);
+    --main-tab-pill-bg: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
+    --main-tab-pill-hover: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+    --main-tab-pill-border: rgb(255 255 255 / 10%);
+    --main-tab-pill-hover-border: rgb(212 175 55 / 35%);
+    --main-tab-pill-shadow: 0 2px 8px rgb(15 23 42 / 22%);
+    --main-tab-pill-hover-shadow: 0 4px 14px rgb(15 23 42 / 28%);
+    --main-tab-active-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 52%, #1d4ed8 100%);
+    --main-tab-active-glow: 0 4px 18px rgb(37 99 235 / 32%), 0 0 0 1px rgb(212 175 55 / 28%), inset 0 1px 0 rgb(255 255 255 / 18%);
     --main-tab-content-bg: var(--general-main-1);
 
     display: flex;
@@ -392,53 +392,47 @@
                         fill: currentColor !important;
                     }
 
-                    &--dashboard {
-                        color: #1e3a8a;
-                        background: rgb(30 58 138 / 10%);
-                        box-shadow: inset 0 0 0 1px rgb(30 58 138 / 16%);
+                    &--dashboard,
+                    &--bot-builder,
+                    &--free-bots,
+                    &--trader,
+                    &--copy-trading,
+                    &--charts,
+                    &--analysis {
+                        color: #e8c872;
+                        background: rgb(212 175 55 / 14%);
+                        box-shadow: inset 0 0 0 1px rgb(212 175 55 / 22%);
                     }
 
                     &--bot-builder {
-                        color: #334155;
-                        background: rgb(51 65 85 / 10%);
-                        box-shadow: inset 0 0 0 1px rgb(51 65 85 / 16%);
+                        color: #f0c14a;
                     }
 
                     &--free-bots {
-                        color: #1e40af;
-                        background: rgb(30 64 175 / 10%);
-                        box-shadow: inset 0 0 0 1px rgb(30 64 175 / 16%);
+                        color: #d4af37;
                     }
 
                     &--trader {
-                        color: #2563eb;
-                        background: rgb(37 99 235 / 10%);
-                        box-shadow: inset 0 0 0 1px rgb(37 99 235 / 16%);
+                        color: #fcd34d;
                     }
 
                     &--copy-trading {
-                        color: #0f172a;
-                        background: rgb(15 23 42 / 8%);
-                        box-shadow: inset 0 0 0 1px rgb(15 23 42 / 12%);
+                        color: #e8b84a;
                     }
 
                     &--charts {
-                        color: #0369a1;
-                        background: rgb(3 105 161 / 10%);
-                        box-shadow: inset 0 0 0 1px rgb(3 105 161 / 16%);
+                        color: #fbbf24;
                     }
 
                     &--analysis {
-                        color: #1d4ed8;
-                        background: rgb(29 78 216 / 10%);
-                        box-shadow: inset 0 0 0 1px rgb(29 78 216 / 16%);
+                        color: #f59e0b;
                     }
                 }
 
                 &.dc-tabs__active {
                     font-weight: 700;
                     color: var(--main-tab-active-text);
-                    text-shadow: none;
+                    text-shadow: 0 1px 2px rgb(15 23 42 / 22%);
                     padding-inline-end: 1.2rem !important;
 
                     @include mobile-or-tablet-screen {
@@ -446,9 +440,9 @@
                     }
 
                     .main-tab-icon {
-                        color: #fff;
-                        background: rgb(255 255 255 / 22%);
-                        box-shadow: 0 0 0 1px rgb(255 255 255 / 25%) inset;
+                        color: #fcd34d;
+                        background: rgb(212 175 55 / 22%);
+                        box-shadow: 0 0 0 1px rgb(252 211 77 / 35%) inset;
                         transform: scale(1.04);
                     }
                 }
@@ -1093,18 +1087,18 @@
     --main-shell-bg: linear-gradient(145deg, #0f172a 0%, #0a1628 48%, #060d17 100%);
     --main-shell-border: rgb(30 58 90 / 45%);
     --main-shell-glow: 0 0 0 1px rgb(30 58 90 / 35%), 0 12px 36px rgb(0 0 0 / 48%), 0 4px 14px rgb(6 13 23 / 55%);
-    --main-tab-bar-bg: linear-gradient(180deg, rgb(15 28 46 / 98%) 0%, rgb(10 22 40 / 94%) 100%);
-    --main-tab-bar-border: rgb(30 58 90 / 55%);
+    --main-tab-bar-bg: linear-gradient(180deg, #0f172a 0%, #060d17 100%);
+    --main-tab-bar-border: rgb(212 175 55 / 16%);
     --main-tab-bar-highlight: inset 0 1px 0 rgb(255 255 255 / 6%);
-    --main-tab-text: #94a3b8;
-    --main-tab-text-hover: #e2e8f0;
-    --main-tab-pill-bg: rgb(15 28 46 / 78%);
-    --main-tab-pill-hover: rgb(22 40 64 / 92%);
-    --main-tab-pill-border: rgb(51 65 85 / 35%);
-    --main-tab-pill-hover-border: rgb(37 99 235 / 28%);
-    --main-tab-pill-shadow: 0 1px 6px rgb(0 0 0 / 28%);
-    --main-tab-pill-hover-shadow: 0 6px 18px rgb(15 23 42 / 35%);
-    --main-tab-active-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 42%, #2563eb 100%);
-    --main-tab-active-glow: 0 4px 20px rgb(30 58 138 / 35%), 0 0 0 1px rgb(37 99 235 / 22%), inset 0 1px 0 rgb(255 255 255 / 14%);
+    --main-tab-text: #ffffff;
+    --main-tab-text-hover: #ffffff;
+    --main-tab-pill-bg: linear-gradient(180deg, #1e3a8a 0%, #0f2744 100%);
+    --main-tab-pill-hover: linear-gradient(180deg, #1e40af 0%, #172554 100%);
+    --main-tab-pill-border: rgb(255 255 255 / 8%);
+    --main-tab-pill-hover-border: rgb(212 175 55 / 32%);
+    --main-tab-pill-shadow: 0 2px 8px rgb(0 0 0 / 32%);
+    --main-tab-pill-hover-shadow: 0 6px 18px rgb(0 0 0 / 38%);
+    --main-tab-active-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1d4ed8 100%);
+    --main-tab-active-glow: 0 4px 20px rgb(37 99 235 / 38%), 0 0 0 1px rgb(212 175 55 / 24%), inset 0 1px 0 rgb(255 255 255 / 12%);
     --main-tab-content-bg: #060d17;
 }
