@@ -18,6 +18,77 @@
     background: #ffffff;
     box-shadow: 0 1px 4px rgb(15 23 42 / 7%);
 
+    &--inline {
+        width: auto;
+        flex: 0 0 auto;
+        height: auto;
+        min-height: 0;
+        padding: 0;
+        gap: 0.65rem;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+
+        .acc-info__id-icon {
+            width: 2.4rem;
+            height: 2.4rem;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .acc-info__balance {
+            gap: 0.4rem;
+        }
+
+        .acc-info__balance-amount,
+        .acc-info__balance-currency {
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #36b3b9;
+        }
+
+        .acc-info__select-arrow {
+            margin-left: 0.1rem;
+            color: #334155;
+        }
+
+        &.acc-info--interactive:hover {
+            background: transparent;
+            border-color: transparent;
+        }
+
+        @include mobile-or-tablet-screen {
+            gap: 0.5rem;
+
+            .acc-info__id-icon {
+                width: 2.1rem;
+                height: 2.1rem;
+            }
+
+            .acc-info__balance-amount,
+            .acc-info__balance-currency {
+                font-size: 1.15rem;
+            }
+
+            .acc-info__select-arrow svg {
+                width: 1rem;
+                height: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            gap: 0.4rem;
+
+            .acc-info__balance-amount,
+            .acc-info__balance-currency {
+                font-size: 1.05rem;
+            }
+        }
+    }
+
     &--balance-pill {
         width: auto;
         flex: 0 0 auto;
@@ -107,7 +178,7 @@
     &--interactive {
         transition: background-color 0.2s ease;
 
-        &:hover:not(.acc-info--balance-pill) {
+        &:hover:not(.acc-info--balance-pill):not(.acc-info--inline) {
             background-color: #f8fafc;
             border-color: #cbd5e1;
         }
@@ -505,12 +576,20 @@
         &--balance-pill:hover:not(.show, &--is-disabled) {
             background: #eef1f5;
         }
+
+        &--inline.acc-info--interactive:hover {
+            background: transparent;
+        }
     }
 
     @include mobile-or-tablet-screen {
         &--balance-pill.acc-info--interactive:active {
             background: #eef1f5;
             border-color: #d7dee8;
+        }
+
+        &--inline.acc-info--interactive:active {
+            background: transparent;
         }
     }
 
@@ -992,6 +1071,16 @@
     background: #0f172a;
     border-color: #334155;
 
+    &--inline {
+        background: transparent;
+        border-color: transparent;
+
+        &.acc-info--interactive:hover {
+            background: transparent;
+            border-color: transparent;
+        }
+    }
+
     &--balance-pill {
         background: #1e293b;
         border-color: #475569;
@@ -1003,7 +1092,7 @@
         }
     }
 
-    &:hover.acc-info--interactive:not(.acc-info--balance-pill) {
+    &:hover.acc-info--interactive:not(.acc-info--balance-pill):not(.acc-info--inline) {
         background: #1e293b;
         border-color: #475569;
     }

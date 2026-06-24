@@ -8,7 +8,7 @@
 
     /* Mobile run drawer: handle at bottom when closed; panel drops from below main tabs when open */
     &.dc-drawer {
-        @include mobile-or-tablet-screen {
+        @include mobile-screen {
             display: flex;
             left: 0 !important;
             right: 0 !important;
@@ -111,6 +111,41 @@
                         padding-inline-end: 0.8rem;
                     }
                 }
+            }
+        }
+
+        @media (min-width: 768px) {
+            display: flex;
+            flex-direction: row !important;
+            left: calc(100vw - 16px) !important;
+            right: auto !important;
+            top: 10.4rem !important;
+            bottom: auto !important;
+            width: auto !important;
+            transform: none !important;
+            box-shadow: none;
+
+            &:not(.dc-drawer--open) {
+                height: var(--bot-content-height) !important;
+                overflow: visible;
+
+                .dc-drawer__container {
+                    display: flex;
+                }
+            }
+
+            &.dc-drawer--open {
+                flex-direction: row !important;
+                top: 10.4rem !important;
+                bottom: auto !important;
+                height: var(--bot-content-height) !important;
+                max-height: none !important;
+            }
+
+            .dc-drawer__toggle {
+                position: absolute;
+                width: 16px;
+                height: 100%;
             }
         }
     }

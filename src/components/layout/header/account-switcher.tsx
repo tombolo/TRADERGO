@@ -400,26 +400,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     return (
         <div className='acc-info__wrapper' ref={wrapperRef}>
-            {currency && (
-                <button
-                    type='button'
-                    className={classNames('acc-info__currency-pill', {
-                        'acc-info__currency-pill--open': isOpen,
-                    })}
-                    aria-expanded={isOpen}
-                    aria-haspopup='listbox'
-                    onClick={toggleDropdown}
-                >
-                    <span className='acc-info__currency-pill-label'>{currencyCode}</span>
-                    <span
-                        className={classNames('acc-info__currency-pill-arrow', {
-                            'acc-info__currency-pill-arrow--invert': isOpen,
-                        })}
-                    >
-                        <ChevronDown />
-                    </span>
-                </button>
-            )}
             <AccountInfoWrapper>
                 <div
                     data-testid='dt_acc_info'
@@ -428,7 +408,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     tabIndex={0}
                     aria-expanded={isOpen}
                     aria-haspopup='listbox'
-                    className={classNames('acc-info', 'acc-info--balance-pill', {
+                    className={classNames('acc-info', 'acc-info--inline', {
                         'acc-info--is-virtual': isVirtual,
                         'acc-info--interactive': hasAccounts,
                         'acc-info--switch-disabled': !hasAccounts,
