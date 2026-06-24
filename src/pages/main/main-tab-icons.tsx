@@ -1,16 +1,16 @@
 import classNames from 'classnames';
 import type { IconType } from 'react-icons';
 import {
-    MdAnalytics,
-    MdCandlestickChart,
-    MdExtension,
-    MdSmartToy,
-    MdSpaceDashboard,
-    MdStackedLineChart,
-    MdSwapHoriz,
-} from 'react-icons/md';
+    HiOutlineBriefcase,
+    HiOutlineChartBarSquare,
+    HiOutlineCog6Tooth,
+    HiOutlineComputerDesktop,
+    HiOutlineHome,
+    HiOutlineMagnifyingGlass,
+} from 'react-icons/hi2';
+import { RiRobot2Line } from 'react-icons/ri';
 
-const TAB_ICON_PX = 36;
+const TAB_ICON_PX = 22;
 
 export type MainTabIconVariant =
     | 'dashboard'
@@ -22,13 +22,13 @@ export type MainTabIconVariant =
     | 'analysis';
 
 const ICONS: Record<MainTabIconVariant, IconType> = {
-    dashboard: MdSpaceDashboard,
-    'bot-builder': MdExtension,
-    'free-bots': MdSmartToy,
-    trader: MdStackedLineChart,
-    'copy-trading': MdSwapHoriz,
-    charts: MdCandlestickChart,
-    analysis: MdAnalytics,
+    dashboard: HiOutlineHome,
+    'bot-builder': HiOutlineCog6Tooth,
+    'free-bots': RiRobot2Line,
+    trader: HiOutlineComputerDesktop,
+    'copy-trading': HiOutlineBriefcase,
+    charts: HiOutlineChartBarSquare,
+    analysis: HiOutlineMagnifyingGlass,
 };
 
 type MainTabIconProps = {
@@ -36,9 +36,7 @@ type MainTabIconProps = {
     className?: string;
 };
 
-/**
- * Colored tab icons for main navigation; each sits in an accent pill (see main.scss).
- */
+/** Outline tab icons — gold tint applied in main.scss */
 export const MainTabIcon = ({ variant, className }: MainTabIconProps) => {
     const Icon = ICONS[variant];
     return (

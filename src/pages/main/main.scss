@@ -35,33 +35,35 @@
 }
 
 .main {
-    --main-area-bg: #f1f5f9;
-    --main-tab-shadow-color: #0a1628;
-    --main-shell-bg: linear-gradient(145deg, #ffffff 0%, #f8fafc 52%, #f1f5f9 100%);
-    --main-shell-border: rgb(30 58 138 / 16%);
-    --main-shell-glow: 0 0 0 1px rgb(30 58 138 / 8%), 0 12px 32px rgb(15 23 42 / 8%), 0 4px 16px rgb(15 23 42 / 5%);
-    --main-tab-bar-bg: linear-gradient(180deg, #0f172a 0%, #0a1628 100%);
-    --main-tab-bar-border: rgb(212 175 55 / 18%);
-    --main-tab-bar-highlight: inset 0 1px 0 rgb(255 255 255 / 8%);
+    --main-area-bg: #060d17;
+    --main-tab-shadow-color: #060d17;
+    --main-shell-bg: #060d17;
+    --main-shell-border: rgb(30 58 90 / 35%);
+    --main-shell-glow: none;
+    --main-tab-bar-bg: #0a1628;
+    --main-tab-bar-border: rgb(30 58 90 / 45%);
+    --main-tab-bar-highlight: none;
     --main-tab-text: #ffffff;
     --main-tab-text-hover: #ffffff;
     --main-tab-active-text: #ffffff;
-    --main-tab-pill-bg: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
-    --main-tab-pill-hover: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
-    --main-tab-pill-border: rgb(255 255 255 / 10%);
-    --main-tab-pill-hover-border: rgb(212 175 55 / 35%);
-    --main-tab-pill-shadow: 0 2px 8px rgb(15 23 42 / 22%);
-    --main-tab-pill-hover-shadow: 0 4px 14px rgb(15 23 42 / 28%);
-    --main-tab-active-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 52%, #1d4ed8 100%);
-    --main-tab-active-glow: 0 4px 18px rgb(37 99 235 / 32%), 0 0 0 1px rgb(212 175 55 / 28%), inset 0 1px 0 rgb(255 255 255 / 18%);
-    --main-tab-content-bg: var(--general-main-1);
+    --main-tab-pill-bg: transparent;
+    --main-tab-pill-hover: rgb(255 255 255 / 4%);
+    --main-tab-pill-border: transparent;
+    --main-tab-pill-hover-border: transparent;
+    --main-tab-pill-shadow: none;
+    --main-tab-pill-hover-shadow: none;
+    --main-tab-active-gradient: #2bbad9;
+    --main-tab-active-glow: none;
+    --main-tab-divider: rgb(255 255 255 / 10%);
+    --main-tab-icon-color: #d4af37;
+    --main-tab-content-bg: #060d17;
 
     display: flex;
     box-sizing: border-box;
     overflow: hidden;
     width: 100%;
     height: calc(100vh - 7.6rem);
-    padding: 0 1.6rem 1.6rem;
+    padding: 0;
     background: var(--main-area-bg);
 
     @include mobile-or-tablet-screen {
@@ -205,13 +207,14 @@
             .dc-tabs__list--header--main__tabs {
                 flex-shrink: 0;
                 display: flex;
-                align-items: center;
+                align-items: stretch;
                 background: var(--main-tab-bar-bg);
                 border-bottom: 1px solid var(--main-tab-bar-border);
-                box-shadow: var(--main-tab-bar-highlight);
+                box-shadow: none;
+                min-height: 4.8rem;
 
                 &.dc-tabs__list--header-fit-content {
-                    justify-content: flex-start !important;
+                    justify-content: stretch !important;
                     width: 100%;
                 }
 
@@ -220,6 +223,7 @@
                     overflow-x: auto;
                     padding: 0;
                     margin: 0;
+                    min-height: 4.4rem;
                 }
             }
 
@@ -254,26 +258,12 @@
                 color: var(--main-tab-active-text);
                 background: var(--main-tab-active-gradient);
                 border: none;
-                border-radius: 0.55rem;
-                box-shadow: var(--main-tab-active-glow);
-                text-shadow: 0 1px 2px rgb(15 23 42 / 18%);
-                transform: translateY(-1px);
-                position: relative;
-                overflow: hidden;
+                border-radius: 0;
+                box-shadow: none;
+                text-shadow: none;
+                transform: none;
 
-                &::before {
-                    content: '';
-                    position: absolute;
-                    inset: 0;
-                    background: linear-gradient(
-                        105deg,
-                        transparent 0%,
-                        rgb(255 255 255 / 22%) 45%,
-                        transparent 70%
-                    );
-                    pointer-events: none;
-                }
-
+                &::before,
                 &::after {
                     display: none;
                 }
@@ -285,27 +275,22 @@
 
             .dc-tabs__list {
                 background: transparent;
-                justify-content: flex-start !important;
+                justify-content: stretch !important;
                 border-bottom: none;
                 flex-wrap: nowrap;
-                align-items: center;
+                align-items: stretch;
                 line-height: 1;
                 flex-shrink: 0;
-
-                @include desktop-screen {
-                    gap: 0.55rem;
-                    padding: 0.45rem 0.6rem;
-                    margin: 0;
-                }
+                gap: 0;
+                padding: 0;
+                margin: 0;
 
                 @include mobile-or-tablet-screen {
-                    gap: 0.5rem;
+                    justify-content: flex-start !important;
                     overflow-x: auto;
                     overflow-y: hidden;
                     -ms-overflow-style: none;
                     scrollbar-width: none;
-                    padding: 0.45rem 0.55rem;
-                    margin: 0;
                     min-width: 100%;
                     flex-wrap: nowrap;
 
@@ -321,54 +306,64 @@
                 }
 
                 &--main__tabs {
-                    justify-content: flex-start !important;
+                    justify-content: stretch !important;
                 }
             }
 
             .dc-tabs__item {
+                position: relative;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                flex: 0 0 auto !important;
-                gap: 0.8rem;
+                justify-content: center;
+                flex: 1 1 0;
+                gap: 0.65rem;
                 margin: 0 !important;
-                padding: 0.75rem 1.15rem 0.75rem 0.85rem !important;
-                font-size: 1.4rem;
-                font-weight: 600;
-                letter-spacing: 0.01em;
-                line-height: 1.15;
+                padding: 0.85rem 1rem !important;
+                font-size: 1.35rem;
+                font-weight: 700;
+                letter-spacing: 0;
+                line-height: 1.2;
                 color: var(--main-tab-text);
                 cursor: pointer;
-                border: 1px solid var(--main-tab-pill-border);
-                border-radius: 0.55rem;
+                border: none;
+                border-radius: 0;
                 background: var(--main-tab-pill-bg);
-                box-shadow: var(--main-tab-pill-shadow);
+                box-shadow: none;
                 white-space: nowrap;
                 transition:
-                    color 0.22s ease,
-                    background 0.22s ease,
-                    border-color 0.22s ease,
-                    box-shadow 0.22s ease,
-                    transform 0.22s ease;
+                    color 0.18s ease,
+                    background 0.18s ease;
+
+                @include desktop-screen {
+                    min-width: 0;
+                }
 
                 @include mobile-or-tablet-screen {
-                    gap: 0.85rem;
-                    padding: 0.95rem 1.35rem 0.95rem 1rem !important;
-                    font-size: 1.2rem;
                     flex: 0 0 auto;
+                    gap: 0.55rem;
+                    padding: 0.9rem 1.15rem !important;
+                    font-size: 1.2rem;
+                }
+
+                &:not(:last-child) {
+                    box-shadow: inset -1px 0 0 var(--main-tab-divider);
                 }
 
                 &:not(.dc-tabs__item--header-fit-content) {
                     width: auto !important;
-                    max-width: max-content;
+                    max-width: none;
                 }
 
                 &:hover:not(.dc-tabs__active) {
                     color: var(--main-tab-text-hover);
                     background: var(--main-tab-pill-hover);
-                    border-color: var(--main-tab-pill-hover-border);
-                    transform: translateY(-2px);
-                    box-shadow: var(--main-tab-pill-hover-shadow);
+                    transform: none;
+                    box-shadow: inset -1px 0 0 var(--main-tab-divider);
+
+                    &:last-child {
+                        box-shadow: none;
+                    }
                 }
 
                 .main-tab-icon {
@@ -376,74 +371,40 @@
                     align-items: center;
                     justify-content: center;
                     flex-shrink: 0;
-                    width: 2rem;
-                    height: 2rem;
-                    border-radius: 0.45rem;
-                    transition:
-                        color 0.22s ease,
-                        background 0.22s ease,
-                        box-shadow 0.22s ease,
-                        transform 0.22s ease;
+                    width: 2.2rem;
+                    height: 2.2rem;
+                    border-radius: 0;
+                    color: var(--main-tab-icon-color);
+                    background: transparent;
+                    box-shadow: none;
+                    transition: color 0.18s ease;
 
                     svg {
                         display: block;
                         width: 2.2rem;
                         height: 2.2rem;
-                        fill: currentColor !important;
-                    }
-
-                    &--dashboard,
-                    &--bot-builder,
-                    &--free-bots,
-                    &--trader,
-                    &--copy-trading,
-                    &--charts,
-                    &--analysis {
-                        color: #e8c872;
-                        background: rgb(212 175 55 / 14%);
-                        box-shadow: inset 0 0 0 1px rgb(212 175 55 / 22%);
-                    }
-
-                    &--bot-builder {
-                        color: #f0c14a;
-                    }
-
-                    &--free-bots {
-                        color: #d4af37;
-                    }
-
-                    &--trader {
-                        color: #fcd34d;
-                    }
-
-                    &--copy-trading {
-                        color: #e8b84a;
-                    }
-
-                    &--charts {
-                        color: #fbbf24;
-                    }
-
-                    &--analysis {
-                        color: #f59e0b;
+                        fill: none;
+                        stroke: currentColor;
+                        stroke-width: 1.65;
                     }
                 }
 
                 &.dc-tabs__active {
                     font-weight: 700;
                     color: var(--main-tab-active-text);
-                    text-shadow: 0 1px 2px rgb(15 23 42 / 22%);
-                    padding-inline-end: 1.2rem !important;
+                    text-shadow: none;
+                    padding-inline-end: 1rem !important;
+                    box-shadow: none;
 
                     @include mobile-or-tablet-screen {
-                        padding-inline-end: 1.4rem !important;
+                        padding-inline-end: 1.15rem !important;
                     }
 
                     .main-tab-icon {
-                        color: #fcd34d;
-                        background: rgb(212 175 55 / 22%);
-                        box-shadow: 0 0 0 1px rgb(252 211 77 / 35%) inset;
-                        transform: scale(1.04);
+                        color: #f0d78c;
+                        background: transparent;
+                        box-shadow: none;
+                        transform: none;
                     }
                 }
             }
@@ -487,20 +448,20 @@
     &__tabs-wrapper {
         position: relative;
         background: var(--main-shell-bg);
-        border-radius: 1rem;
+        border-radius: 0;
         padding: 0;
         flex: 1 1 auto;
         min-height: 0;
         display: flex;
         flex-direction: column;
-        box-shadow: var(--main-shell-glow);
-        border: 1px solid var(--main-shell-border);
+        box-shadow: none;
+        border: none;
         overflow: hidden;
 
         @include mobile-or-tablet-screen {
             border-radius: 0;
             border-inline: none;
-            box-shadow: 0 4px 24px rgb(15 23 42 / 10%);
+            box-shadow: none;
         }
     }
 
@@ -1083,22 +1044,22 @@
 
 .theme--dark .main {
     --main-area-bg: #060d17;
-    --main-tab-shadow-color: #0a1628;
-    --main-shell-bg: linear-gradient(145deg, #0f172a 0%, #0a1628 48%, #060d17 100%);
-    --main-shell-border: rgb(30 58 90 / 45%);
-    --main-shell-glow: 0 0 0 1px rgb(30 58 90 / 35%), 0 12px 36px rgb(0 0 0 / 48%), 0 4px 14px rgb(6 13 23 / 55%);
-    --main-tab-bar-bg: linear-gradient(180deg, #0f172a 0%, #060d17 100%);
-    --main-tab-bar-border: rgb(212 175 55 / 16%);
-    --main-tab-bar-highlight: inset 0 1px 0 rgb(255 255 255 / 6%);
-    --main-tab-text: #ffffff;
-    --main-tab-text-hover: #ffffff;
-    --main-tab-pill-bg: linear-gradient(180deg, #1e3a8a 0%, #0f2744 100%);
-    --main-tab-pill-hover: linear-gradient(180deg, #1e40af 0%, #172554 100%);
-    --main-tab-pill-border: rgb(255 255 255 / 8%);
-    --main-tab-pill-hover-border: rgb(212 175 55 / 32%);
-    --main-tab-pill-shadow: 0 2px 8px rgb(0 0 0 / 32%);
-    --main-tab-pill-hover-shadow: 0 6px 18px rgb(0 0 0 / 38%);
-    --main-tab-active-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1d4ed8 100%);
-    --main-tab-active-glow: 0 4px 20px rgb(37 99 235 / 38%), 0 0 0 1px rgb(212 175 55 / 24%), inset 0 1px 0 rgb(255 255 255 / 12%);
+    --main-tab-shadow-color: #060d17;
+    --main-shell-bg: #060d17;
+    --main-shell-border: rgb(30 58 90 / 35%);
+    --main-shell-glow: none;
+    --main-tab-bar-bg: #0a1628;
+    --main-tab-bar-border: rgb(30 58 90 / 45%);
+    --main-tab-pill-bg: transparent;
+    --main-tab-pill-hover: rgb(255 255 255 / 4%);
+    --main-tab-active-gradient: #2bbad9;
     --main-tab-content-bg: #060d17;
+}
+
+.theme--light .main {
+    --main-area-bg: #eef1f6;
+    --main-tab-shadow-color: #0a1628;
+    --main-shell-bg: #eef1f6;
+    --main-tab-bar-bg: #0a1628;
+    --main-tab-content-bg: var(--general-main-1);
 }
