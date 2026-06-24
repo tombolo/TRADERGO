@@ -213,7 +213,7 @@ const AppHeader = observer(() => {
             sessionStorage.setItem('oauth_code_verifier', codeVerifier);
             sessionStorage.setItem('oauth_code_verifier_timestamp', Date.now().toString());
 
-            // Generate PKCE code challenge - SHA-256 hash of verifier
+            // Generate PKCE code challenge - SHA-256 hash of verifie
             const encoder = new TextEncoder();
             const data = encoder.encode(codeVerifier);
             const hashBuffer = await crypto.subtle.digest('SHA-256', data);
