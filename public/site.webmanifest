@@ -1,7 +1,7 @@
 {
-    "name": "TRADER GO (tradergo.pro)",
-    "short_name": "TRADER GO",
-    "description": "TRADER GO (tradergo.pro) — binary tools, trade schemes, and automated Deriv trading bots. Trade smarter.",
+    "name": "DERIV ANALYSING HUB (derivanalysinghub.com)",
+    "short_name": "DERIV ANALYSING HUB",
+    "description": "DERIV ANALYSING HUB (derivanalysinghub.com) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#000000",

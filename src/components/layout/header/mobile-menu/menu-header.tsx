@@ -15,8 +15,8 @@ const MenuHeader = ({ hideLanguageSetting, openLanguageSetting }: TMenuHeader) =
     return (
         <div className='mobile-menu__header'>
             <div className='mobile-menu__header__title'>
-                <span className='mobile-menu__header__title-main'>TRADER GO</span>
-                <span className='mobile-menu__header__title-sub'>Trading Platform</span>
+                <span className='mobile-menu__header__title-main'>DERIV ANALYSING HUB</span>
+                <span className='mobile-menu__header__title-sub'>Analysing Platform</span>
             </div>
 
             {!hideLanguageSetting && (

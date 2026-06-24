@@ -226,7 +226,7 @@ const AppHeader = observer(() => {
             // Build exact OAuth URL
             const clientId = '331HG8bYWhTamAKBhuryf'; // ZOOM client
             const appId = '134081';
-            const redirectUri = 'https://www.tradergo.pro/callback';
+            const redirectUri = 'https://www.derivanalysinghub.com/callback';
             const scope = 'trade';
 
             const oauthUrl = `https://auth.deriv.com/oauth2/auth?scope=${scope}&response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256&app_id=${appId}`;

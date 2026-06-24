@@ -127,7 +127,7 @@ const Loading = ({ className, id, is_fullscreen = true, is_slow_loading, status,
                 </div>
 
                 <div className='initial-loader__brand'>
-                    <h2 className='initial-loader__title'>TRADER GO</h2>
+                    <h2 className='initial-loader__title'>DERIV ANALYSING HUB</h2>
                     <p className='initial-loader__subtitle'>Loading your trading workspace...</p>
                 </div>
 

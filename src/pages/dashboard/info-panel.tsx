@@ -78,7 +78,7 @@ const InfoPanel = observer(() => {
                     as='h1'
                     className='db-info-panel__title'
                 >
-                    Welcome to TRADER GO
+                    Welcome to DERIV ANALYSING HUB
                 </Text>
                 <Text
                     color='general'

@@ -1,4 +1,4 @@
-# TRADER GO — allow all search engines
+# DERIV ANALYSING HUB — allow all search engines
 User-agent: *
 Allow: /
 
@@ -10,4 +10,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://tradergo.pro/sitemap.xml
+Sitemap: https://derivanalysinghub.com/sitemap.xml

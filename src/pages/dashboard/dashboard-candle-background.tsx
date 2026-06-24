@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useStore } from '@/hooks/useStore';
 
 type TCandle = {
     x: number;
@@ -32,6 +33,8 @@ const createCandles = (width: number, height: number): TCandle[] =>
 
 export const DashboardCandleBackground = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const { ui } = useStore();
+    const isDark = ui?.is_dark_mode_on ?? false;
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -44,6 +47,11 @@ export const DashboardCandleBackground = () => {
         let animationId = 0;
         let frameCount = 0;
         let candles: TCandle[] = [];
+        const overlayFill = isDark ? 'rgba(8, 12, 24, 0.35)' : 'rgba(238, 242, 255, 0.45)';
+        const greenBody = isDark ? 'rgba(45, 212, 191, 0.11)' : 'rgba(16, 185, 129, 0.14)';
+        const redBody = isDark ? 'rgba(248, 113, 113, 0.1)' : 'rgba(239, 68, 68, 0.12)';
+        const greenWick = isDark ? 'rgba(45, 212, 191, 0.08)' : 'rgba(16, 185, 129, 0.1)';
+        const redWick = isDark ? 'rgba(248, 113, 113, 0.07)' : 'rgba(239, 68, 68, 0.09)';
 
         const resize = () => {
             const parent = canvas.parentElement;
@@ -66,7 +74,7 @@ export const DashboardCandleBackground = () => {
             const height = canvas.clientHeight;
 
             ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = 'rgba(8, 12, 24, 0.35)';
+            ctx.fillStyle = overlayFill;
             ctx.fillRect(0, 0, width, height);
 
             const baseY = height * 0.58;
@@ -88,8 +96,8 @@ export const DashboardCandleBackground = () => {
                 const lowY = baseY - low * yScale;
 
                 const isGreen = close >= open;
-                const bodyColor = isGreen ? 'rgba(45, 212, 191, 0.11)' : 'rgba(248, 113, 113, 0.1)';
-                const wickColor = isGreen ? 'rgba(45, 212, 191, 0.08)' : 'rgba(248, 113, 113, 0.07)';
+                const bodyColor = isGreen ? greenBody : redBody;
+                const wickColor = isGreen ? greenWick : redWick;
                 const halfWidth = candle.width / 2;
 
                 ctx.strokeStyle = wickColor;
@@ -118,7 +126,7 @@ export const DashboardCandleBackground = () => {
             window.cancelAnimationFrame(animationId);
             observer.disconnect();
         };
-    }, []);
+    }, [isDark]);
 
     return (
         <canvas

@@ -58,14 +58,14 @@
         "css_variable_prefix": "--brand"
     },
     "platform": {
-        "name": "TRADER GO",
+        "name": "DERIV ANALYSING HUB",
         "logo": {
             "type": "component",
             "component_name": "BrandLogo",
-            "alt_text": "TRADER GO",
+            "alt_text": "DERIV ANALYSING HUB",
             "link_url": "/",
             "show_text": false,
-            "text": "TRADER GO"
+            "text": "DERIV ANALYSING HUB"
         },
         "footer": {
             "enable_language_settings": false,
