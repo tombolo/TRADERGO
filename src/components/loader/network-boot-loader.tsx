@@ -94,7 +94,7 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
                 ))}
             </div>
             <div className='network-boot__content'>
-                <p className='network-boot__brand'>PROFIT SCOPE</p>
+                <p className='network-boot__brand'>TRADER GO</p>
                 <p className='network-boot__tagline'>Trading Platform</p>
 
                 <div className='network-boot__spinner-panel'>

@@ -1,4 +1,4 @@
-# PROFIT SCOPE — allow all search engines
+# TRADER GO — allow all search engines
 User-agent: *
 Allow: /
 
@@ -10,4 +10,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://profitscopex.pro/sitemap.xml
+Sitemap: https://tradergo.pro/sitemap.xml

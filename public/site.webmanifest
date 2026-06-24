@@ -1,7 +1,7 @@
 {
-    "name": "PROFIT SCOPE",
-    "short_name": "PROFIT SCOPE",
-    "description": "PROFIT SCOPE (profitscopex.pro) — binary tools, trade schemes, and automated Deriv trading bots. Trade smarter.",
+    "name": "TRADER GO (tradergo.pro)",
+    "short_name": "TRADER GO",
+    "description": "TRADER GO (tradergo.pro) — binary tools, trade schemes, and automated Deriv trading bots. Trade smarter.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#000000",

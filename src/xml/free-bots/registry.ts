@@ -7,7 +7,7 @@ export type TFreeBotFile = {
     xml: string;
 };
 
-const MASTER_BOT_NAME = 'PROFIT SCOPE MASTER BOT';
+const MASTER_BOT_NAME = 'TRADER GO MASTER BOT';
 
 const entries: TFreeBotFile[] = [
     { folder: 'WIZARD', name: MASTER_BOT_NAME, xml: wizardDollarminer },

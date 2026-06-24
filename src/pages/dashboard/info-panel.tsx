@@ -78,7 +78,7 @@ const InfoPanel = observer(() => {
                     as='h1'
                     className='db-info-panel__title'
                 >
-                    Welcome to PROFIT SCOPE
+                    Welcome to TRADER GO
                 </Text>
                 <Text
                     color='general'

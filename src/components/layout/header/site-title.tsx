@@ -5,9 +5,9 @@ import './site-title.scss';
  */
 export const SiteTitle = () => (
     <div className='site-title'>
-        <span className='site-title__wordmark' aria-label='PROFIT SCOPE'>
-            <span className='site-title__market'>PROFIT</span>
-            <span className='site-title__hunter'>SCOPE</span>
+        <span className='site-title__wordmark' aria-label='TRADER GO'>
+            <span className='site-title__market'>TRADER</span>
+            <span className='site-title__hunter'>GO</span>
         </span>
         <span className='site-title__tagline'>Elite Precision Trading</span>
     </div>

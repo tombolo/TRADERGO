@@ -55,7 +55,7 @@ const getDefaultServerURL = () => {
  * Gets the WebSocket URL using the new authenticated flow
  * This function orchestrates the complete flow:
  * 1. Check if this is an ELITE account (has auth_system='ELITE')
- * 2. For ELITE: return URL with app_id=135085 for ELITE OAuth flow
+ * 2. For ELITE: return URL with app_id=134081 for ELITE OAuth flow
  * 3. For ZOOM: Get access token from auth_info and fetch authenticated URL
  * 4. Fallback to default server if no auth available
  *
@@ -72,7 +72,7 @@ export const getSocketURL = async (): Promise<string> => {
             // ELITE callback tokens (acctN/tokenN) are authorized via legacy websocket route.
             // Per Deriv docs, legacy websocket host is ws.derivws.com.
             const host = 'ws.derivws.com';
-            const appId = (process.env.APP_ID || '135085').trim() || '135085';
+            const appId = (process.env.APP_ID || '134081').trim() || '134081';
             const eliteUrl = `wss://${host}/websockets/v3?app_id=${encodeURIComponent(appId)}`;
 
             console.log(

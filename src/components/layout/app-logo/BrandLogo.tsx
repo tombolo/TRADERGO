@@ -8,7 +8,7 @@ export const BrandLogo = ({ width = 120, height = 32, className = '' }: TBrandLo
     return (
         <img
             src='/assets/images/MERRICK.png'
-            alt='TRADER'
+            alt='TRADER GO'
             width={width}
             height={height}
             className={className}
