@@ -435,9 +435,7 @@ const AppWrapper = observer(() => {
                         <div className='main__run-strategy-wrapper'>
                             <RunStrategy />
                         </div>
-                        <div className='main__run-panel-wrapper'>
-                            <RunPanel />
-                        </div>
+                        <RunPanel />
                     </>
                 )}
                 <ChartModal />

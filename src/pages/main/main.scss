@@ -480,23 +480,6 @@
         }
     }
 
-    &__run-panel-wrapper {
-        @media (min-width: 768px) {
-            position: fixed;
-            top: 0;
-            inset-inline-end: 0;
-            width: 0;
-            height: 0;
-            z-index: 2;
-            overflow: visible;
-            pointer-events: none;
-
-            .run-panel {
-                pointer-events: auto;
-            }
-        }
-    }
-
     &__run-strategy-wrapper {
         z-index: 3;
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import Journal from '@/components/journal';
@@ -15,6 +16,7 @@ import { DBOT_TABS } from '@/constants/bot-contents';
 import { popover_zindex } from '@/constants/z-indexes';
 import { useStore } from '@/hooks/useStore';
 import { Localize, localize } from '@deriv-com/translations';
+import { isMobile } from '@/components/shared/utils/screen';
 import { useDevice } from '@deriv-com/ui';
 import ThemedScrollbars from '../shared_ui/themed-scrollbars';
 
@@ -313,14 +315,14 @@ const RunPanel = observer(() => {
     const show_run_panel = [BOT_BUILDER, CHART].includes(active_tab) || active_tour;
     if ((!show_run_panel && isDesktop) || active_tour === 'bot_builder') return null;
 
-    return (
+    const panel = (
         <>
             <div className={!isDesktop && is_drawer_open ? 'run-panel__container--mobile' : 'run-panel'}>
                 <Drawer
                     anchor='right'
                     className={classNames('run-panel', {
-                        'run-panel__container': isDesktop,
-                        'run-panel__container--tour-active': isDesktop && active_tour,
+                        'run-panel__container': !isMobile(),
+                        'run-panel__container--tour-active': !isMobile() && active_tour,
                     })}
                     contentClassName='run-panel__content'
                     header={header}
@@ -342,6 +344,12 @@ const RunPanel = observer(() => {
             />
         </>
     );
+
+    if (!isMobile()) {
+        return createPortal(panel, document.body);
+    }
+
+    return panel;
 });
 
 export default RunPanel;
