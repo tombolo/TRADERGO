@@ -431,10 +431,12 @@ const AppWrapper = observer(() => {
             </div>
             <DesktopWrapper>
                 {!is_trader_tab && (
-                    <div className='main__run-strategy-wrapper'>
-                        <RunStrategy />
+                    <>
+                        <div className='main__run-strategy-wrapper'>
+                            <RunStrategy />
+                        </div>
                         <RunPanel />
-                    </div>
+                    </>
                 )}
                 <ChartModal />
                 <TradingViewModal />
