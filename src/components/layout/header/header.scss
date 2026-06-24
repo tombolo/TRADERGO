@@ -42,8 +42,19 @@
             flex: 0 0 auto;
         }
 
+        .deriv-header__wrapper--right {
+            flex: 1 1 auto;
+            min-width: 0;
+            justify-content: flex-end;
+        }
+
         .app-header__logo {
             padding-inline-end: 0;
+        }
+
+        .acc-info__wrapper {
+            margin-inline-end: 0.2rem;
+            max-width: 100%;
         }
 
         .mobile-menu__toggle {

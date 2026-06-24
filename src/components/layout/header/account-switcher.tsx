@@ -378,7 +378,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     if (!activeAccount) return null;
 
-    const { currency, isVirtual, balance, loginid } = activeAccount;
+    const { currency, isVirtual, balance } = activeAccount;
     const displayedAccounts = activeTab === 'demo' ? demoAccounts : realAccounts;
     const formattedDisplayedAccounts = formattedAccounts(displayedAccounts);
 
@@ -400,7 +400,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     return (
         <div className='acc-info__wrapper' ref={wrapperRef}>
-            {isDesktop && currency && (
+            {currency && (
                 <button
                     type='button'
                     className={classNames('acc-info__currency-pill', {
@@ -428,11 +428,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     tabIndex={0}
                     aria-expanded={isOpen}
                     aria-haspopup='listbox'
-                    className={classNames('acc-info', {
+                    className={classNames('acc-info', 'acc-info--balance-pill', {
                         'acc-info--is-virtual': isVirtual,
                         'acc-info--interactive': hasAccounts,
                         'acc-info--switch-disabled': !hasAccounts,
-                        'acc-info--desktop-pill': isDesktop,
                     })}
                     onClick={toggleDropdown}
                     onKeyDown={e => {
@@ -442,69 +441,29 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                         }
                     }}
                 >
-                    {isDesktop ? (
-                        <>
-                            <span className='acc-info__id' aria-hidden='true'>
-                                <span className='acc-info__id-icon'>
-                                    <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
-                                </span>
-                            </span>
-                            {(typeof balance !== 'undefined' || !currency) && (
-                                <p
-                                    data-testid='dt_balance'
-                                    className={classNames('acc-info__balance', {
-                                        'acc-info__balance--no-currency': !currency && !isVirtual,
-                                    })}
-                                >
-                                    {renderBalanceText()}
-                                </p>
-                            )}
-                            <span
-                                className={classNames('acc-info__select-arrow', {
-                                    'acc-info__select-arrow--invert': isOpen,
-                                    'acc-info__select-arrow--disabled': !canSwitchAccounts,
-                                })}
-                            >
-                                <ChevronDown />
-                            </span>
-                        </>
-                    ) : (
-                        <>
-                            <span className='acc-info__id' aria-hidden='true'>
-                                <span className='acc-info__id-icon'>
-                                    <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
-                                </span>
-                            </span>
-                            <div className='acc-info__content'>
-                                <div className='acc-info__account-type-header acc-info__account-type-header--dropdown'>
-                                    <p className='acc-info__account-type'>
-                                        <Localize i18n_default_text={isVirtual ? 'Demo' : 'Real'} />
-                                    </p>
-                                    {loginid ? <p className='acc-info__loginid'>{loginid}</p> : null}
-                                </div>
-                                {(typeof balance !== 'undefined' || !currency) && (
-                                    <div className='acc-info__balance-section'>
-                                        <p
-                                            data-testid='dt_balance'
-                                            className={classNames('acc-info__balance', {
-                                                'acc-info__balance--no-currency': !currency && !isVirtual,
-                                            })}
-                                        >
-                                            {renderBalanceText()}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                            <span
-                                className={classNames('acc-info__select-arrow', {
-                                    'acc-info__select-arrow--invert': isOpen,
-                                    'acc-info__select-arrow--disabled': !canSwitchAccounts,
-                                })}
-                            >
-                                <ChevronDown />
-                            </span>
-                        </>
+                    <span className='acc-info__id' aria-hidden='true'>
+                        <span className='acc-info__id-icon'>
+                            <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
+                        </span>
+                    </span>
+                    {(typeof balance !== 'undefined' || !currency) && (
+                        <p
+                            data-testid='dt_balance'
+                            className={classNames('acc-info__balance', {
+                                'acc-info__balance--no-currency': !currency && !isVirtual,
+                            })}
+                        >
+                            {renderBalanceText()}
+                        </p>
                     )}
+                    <span
+                        className={classNames('acc-info__select-arrow', {
+                            'acc-info__select-arrow--invert': isOpen,
+                            'acc-info__select-arrow--disabled': !canSwitchAccounts,
+                        })}
+                    >
+                        <ChevronDown />
+                    </span>
                 </div>
             </AccountInfoWrapper>
             {isOpen &&

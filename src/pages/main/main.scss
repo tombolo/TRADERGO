@@ -214,7 +214,7 @@
                 min-height: 4.8rem;
 
                 @include desktop-screen {
-                    justify-content: center !important;
+                    justify-content: flex-start !important;
                 }
 
                 &.dc-tabs__list--header-fit-content {
@@ -292,7 +292,7 @@
                 margin: 0;
 
                 @include desktop-screen {
-                    justify-content: center !important;
+                    justify-content: flex-start !important;
                 }
 
                 @include mobile-or-tablet-screen {

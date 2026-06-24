@@ -18,7 +18,7 @@
     background: #ffffff;
     box-shadow: 0 1px 4px rgb(15 23 42 / 7%);
 
-    &--desktop-pill {
+    &--balance-pill {
         width: auto;
         flex: 0 0 auto;
         min-height: 3.6rem;
@@ -59,6 +59,45 @@
             background: #eef1f5;
             border-color: #d7dee8;
         }
+
+        @include mobile-or-tablet-screen {
+            min-height: 3.2rem;
+            height: 3.2rem;
+            padding: 0.3rem 0.75rem 0.3rem 0.4rem;
+            gap: 0.5rem;
+
+            .acc-info__id-icon {
+                width: 2.1rem;
+                height: 2.1rem;
+            }
+
+            .acc-info__balance-amount,
+            .acc-info__balance-currency {
+                font-size: 1.15rem;
+            }
+
+            .acc-info__select-arrow {
+                width: 1.4rem;
+                height: 1.4rem;
+
+                svg {
+                    width: 1rem;
+                    height: 1rem;
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            min-height: 3rem;
+            height: 3rem;
+            padding: 0.25rem 0.65rem 0.25rem 0.35rem;
+            gap: 0.4rem;
+
+            .acc-info__balance-amount,
+            .acc-info__balance-currency {
+                font-size: 1.05rem;
+            }
+        }
     }
 
     &:focus {
@@ -68,7 +107,7 @@
     &--interactive {
         transition: background-color 0.2s ease;
 
-        &:hover {
+        &:hover:not(.acc-info--balance-pill) {
             background-color: #f8fafc;
             border-color: #cbd5e1;
         }
@@ -176,13 +215,19 @@
         display: flex;
         flex-direction: row;
         height: 100%;
-        justify-content: center;
+        justify-content: flex-end;
         position: relative;
         margin-right: 0.8rem;
         gap: 0.65rem;
+        flex-shrink: 0;
         user-select: none;
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
+
+        @include mobile-or-tablet-screen {
+            margin-right: 0.4rem;
+            gap: 0.45rem;
+        }
 
         &:focus-within {
             outline: none;
@@ -202,6 +247,7 @@
         background: #f3f5f8;
         box-shadow: inset 0 1px 0 rgb(255 255 255 / 85%);
         cursor: pointer;
+        flex-shrink: 0;
         transition:
             background-color 0.2s ease,
             border-color 0.2s ease;
@@ -215,6 +261,19 @@
             outline: 2px solid #36b3b9;
             outline-offset: 2px;
         }
+
+        @include mobile-or-tablet-screen {
+            min-height: 3.2rem;
+            height: 3.2rem;
+            padding: 0 0.85rem;
+            gap: 0.4rem;
+        }
+
+        @media (max-width: 480px) {
+            min-height: 3rem;
+            height: 3rem;
+            padding: 0 0.7rem;
+        }
     }
 
     &__currency-pill-label {
@@ -223,6 +282,14 @@
         line-height: 1;
         color: #0f172a;
         letter-spacing: 0.01em;
+
+        @include mobile-or-tablet-screen {
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 1rem;
+        }
     }
 
     &__currency-pill-arrow {
@@ -435,58 +502,15 @@
     }
 
     @include desktop-screen {
-        &--desktop-pill:hover:not(.show, &--is-disabled) {
+        &--balance-pill:hover:not(.show, &--is-disabled) {
             background: #eef1f5;
         }
-
-        &:not(&--desktop-pill):hover:not(.show, &--is-disabled) {
-            background: rgb(255 255 255 / 4%);
-
-            .symbols {
-                background: transparent;
-            }
-        }
     }
 
-    @include mobile-screen {
-        padding: 0 1rem;
-        margin-right: -0.8rem;
-
-        &__balance-section {
-            min-width: auto;
-            margin-right: 0.8rem;
-        }
-
-        &__balance {
-            font-size: 1.12rem;
-            line-height: 1.35;
-
-            &--no-currency {
-                white-space: nowrap;
-            }
-        }
-
-        &__balance-amount {
-            font-size: 1.2rem;
-        }
-
-        &__balance-currency {
-            font-size: 1.05rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        &__balance {
-            font-size: 1rem;
-            line-height: 1.3;
-        }
-
-        &__balance-amount {
-            font-size: 1.08rem;
-        }
-
-        &__balance-currency {
-            font-size: 0.95rem;
+    @include mobile-or-tablet-screen {
+        &--balance-pill.acc-info--interactive:active {
+            background: #eef1f5;
+            border-color: #d7dee8;
         }
     }
 
@@ -968,7 +992,7 @@
     background: #0f172a;
     border-color: #334155;
 
-    &--desktop-pill {
+    &--balance-pill {
         background: #1e293b;
         border-color: #475569;
         box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
@@ -979,7 +1003,7 @@
         }
     }
 
-    &:hover.acc-info--interactive:not(.acc-info--desktop-pill) {
+    &:hover.acc-info--interactive:not(.acc-info--balance-pill) {
         background: #1e293b;
         border-color: #475569;
     }
