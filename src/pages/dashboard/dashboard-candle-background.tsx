@@ -47,7 +47,7 @@ export const DashboardCandleBackground = () => {
         let animationId = 0;
         let frameCount = 0;
         let candles: TCandle[] = [];
-        const overlayFill = isDark ? 'rgba(8, 12, 24, 0.35)' : 'rgba(238, 242, 255, 0.45)';
+        const overlayFill = isDark ? 'rgba(8, 12, 24, 0.35)' : 'rgba(241, 245, 249, 0.55)';
         const greenBody = isDark ? 'rgba(45, 212, 191, 0.11)' : 'rgba(16, 185, 129, 0.14)';
         const redBody = isDark ? 'rgba(248, 113, 113, 0.1)' : 'rgba(239, 68, 68, 0.12)';
         const greenWick = isDark ? 'rgba(45, 212, 191, 0.08)' : 'rgba(16, 185, 129, 0.1)';

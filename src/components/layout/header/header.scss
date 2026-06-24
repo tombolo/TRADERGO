@@ -147,10 +147,10 @@
     }
 
     .dc-btn--primary {
-        background: linear-gradient(135deg, #6d2fe0 0%, #7e3ff2 55%, #9b6dff 100%) !important;
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%) !important;
         color: #ffffff !important;
-        border: 1px solid #7e3ff2 !important;
-        box-shadow: 0 1px 4px rgb(126 63 242 / 32%) !important;
+        border: 1px solid #1e40af !important;
+        box-shadow: 0 1px 4px rgb(30 58 138 / 28%) !important;
 
         .dc-btn__text,
         .dc-btn__icon,
@@ -159,8 +159,8 @@
         }
 
         &:hover:not(:disabled) {
-            background: linear-gradient(135deg, #5b24c4 0%, #6d2fe0 55%, #7e3ff2 100%) !important;
-            box-shadow: 0 2px 8px rgb(126 63 242 / 38%) !important;
+            background: linear-gradient(135deg, #0f172a 0%, #1e40af 55%, #3b82f6 100%) !important;
+            box-shadow: 0 2px 8px rgb(30 58 138 / 32%) !important;
         }
     }
 }
@@ -168,22 +168,22 @@
 .deposit-button,
 .manage-funds-button {
     margin-inline-end: 1.2rem;
-    background: linear-gradient(135deg, #6d2fe0 0%, #7e3ff2 55%, #9b6dff 100%) !important;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%) !important;
     color: #ffffff !important;
-    border: 1px solid #7e3ff2 !important;
+    border: 1px solid #1e40af !important;
     font-weight: 700;
     padding: 0.5rem 1.4rem !important;
     border-radius: 0.6rem !important;
     min-height: 2.4rem !important;
-    box-shadow: 0 1px 4px rgb(126 63 242 / 32%) !important;
+    box-shadow: 0 1px 4px rgb(30 58 138 / 28%) !important;
     transition:
         background 0.2s ease,
         transform 0.15s ease,
         box-shadow 0.2s ease !important;
 
     &:hover:not(:disabled) {
-        background: linear-gradient(135deg, #5b24c4 0%, #6d2fe0 55%, #7e3ff2 100%) !important;
-        box-shadow: 0 2px 8px rgb(126 63 242 / 38%) !important;
+        background: linear-gradient(135deg, #0f172a 0%, #1e40af 55%, #3b82f6 100%) !important;
+        box-shadow: 0 2px 8px rgb(30 58 138 / 32%) !important;
         transform: translateY(-1px);
     }
 

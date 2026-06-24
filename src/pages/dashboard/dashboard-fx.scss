@@ -29,7 +29,7 @@
     border-top: none;
     background: var(
         --market-ticker-bg,
-        linear-gradient(90deg, rgb(248 250 255 / 96%) 0%, rgb(241 245 255 / 92%) 50%, rgb(248 250 255 / 96%) 100%)
+        linear-gradient(90deg, rgb(255 255 255 / 98%) 0%, rgb(248 250 252 / 96%) 50%, rgb(255 255 255 / 98%) 100%)
     );
     backdrop-filter: blur(8px);
 
@@ -47,12 +47,12 @@
 
         &--left {
             inset-inline-start: 0;
-            background: linear-gradient(90deg, var(--market-ticker-fade, rgb(248 250 255 / 95%)), transparent);
+            background: linear-gradient(90deg, var(--market-ticker-fade, rgb(255 255 255 / 96%)), transparent);
         }
 
         &--right {
             inset-inline-end: 0;
-            background: linear-gradient(270deg, var(--market-ticker-fade, rgb(248 250 255 / 95%)), transparent);
+            background: linear-gradient(270deg, var(--market-ticker-fade, rgb(255 255 255 / 96%)), transparent);
         }
     }
 

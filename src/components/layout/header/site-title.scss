@@ -3,9 +3,9 @@ $header-bg: #ffffff;
 $header-border: #e2e8f0;
 $header-text: #0f172a;
 $header-text-muted: #64748b;
-$header-accent-light: #2bbad9;
-$header-accent-mid: #1a9cb8;
-$header-accent-warm: #7e3ff2;
+$header-accent-light: #3b82f6;
+$header-accent-mid: #2563eb;
+$header-accent-warm: #1e3a8a;
 
 .site-title {
     display: flex;
@@ -25,7 +25,7 @@ $header-accent-warm: #7e3ff2;
         inset: -0.4rem -0.6rem;
         background: radial-gradient(
             ellipse 120% 80% at 20% 50%,
-            rgb(43 186 217 / 8%) 0%,
+            rgb(30 58 138 / 8%) 0%,
             transparent 70%
         );
         pointer-events: none;
@@ -66,12 +66,12 @@ $header-accent-warm: #7e3ff2;
         font-weight: 800;
         letter-spacing: 0.06em;
         color: #ffffff;
-        background: linear-gradient(135deg, $header-accent-warm, $header-accent-light);
-        border: 1px solid rgb(167 139 250 / 55%);
+        background: linear-gradient(135deg, $header-accent-warm, $header-accent-mid);
+        border: 1px solid rgb(30 64 175 / 45%);
         border-radius: 0.44rem;
         box-shadow:
             0 0 0 1px rgb(255 255 255 / 40%) inset,
-            0 4px 12px rgb(126 63 242 / 24%);
+            0 4px 12px rgb(30 58 138 / 22%);
         transform: translateY(-0.08rem);
         transition:
             transform 0.2s ease,
@@ -93,12 +93,12 @@ $header-accent-warm: #7e3ff2;
     }
 
     &:hover &__hunter {
-        background: linear-gradient(135deg, #6d2fe0, #9b6dff);
-        border-color: #c4b5fd;
+        background: linear-gradient(135deg, #0f172a, #2563eb);
+        border-color: #3b82f6;
         transform: translateY(-0.18rem) scale(1.03);
         box-shadow:
             0 0 0 1px rgb(255 255 255 / 45%) inset,
-            0 6px 14px rgb(126 63 242 / 32%);
+            0 6px 14px rgb(30 58 138 / 28%);
     }
 
     &:hover &__market {

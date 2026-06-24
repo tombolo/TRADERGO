@@ -6,7 +6,7 @@
 /* Welcome / info panel: desktop sidebar + mobile modal (portal) */
 .db-info-panel-context {
     --db-info-red: #f87171;
-    --db-info-green: #2bbad9;
+    --db-info-green: #1e40af;
     --db-info-blue: #4da3ff;
     --db-info-font-ui: 'DM Sans', 'IBM Plex Sans', system-ui, sans-serif;
     --db-info-font-display: 'Source Serif 4', 'Georgia', serif;
@@ -152,14 +152,14 @@
         overflow: hidden;
         color: var(--text-prominent);
         --dash-content-bg:
-            radial-gradient(circle at 18% 8%, rgb(126 63 242 / 8%), transparent 30%),
-            radial-gradient(circle at 82% 92%, rgb(43 186 217 / 7%), transparent 32%),
+            radial-gradient(circle at 18% 8%, rgb(30 58 138 / 6%), transparent 30%),
+            radial-gradient(circle at 82% 92%, rgb(15 23 42 / 4%), transparent 32%),
             linear-gradient(180deg, var(--general-main-2) 0%, var(--general-main-1) 100%);
         --dash-card-bg: linear-gradient(160deg, var(--general-section-1) 0%, var(--general-main-2) 100%);
         --dash-card-border: rgb(148 163 184 / 22%);
         --dash-card-shadow: 0 4px 18px rgb(15 23 42 / 8%);
-        --dash-card-hover-border: rgb(126 63 242 / 32%);
-        --dash-card-hover-shadow: 0 8px 24px rgb(126 63 242 / 14%);
+        --dash-card-hover-border: rgb(30 64 175 / 32%);
+        --dash-card-hover-shadow: 0 8px 24px rgb(30 58 138 / 12%);
         --dash-icon-surface: rgb(248 250 252 / 92%);
         --dash-icon-border: rgb(148 163 184 / 18%);
         --dash-subtitle: var(--text-general);
@@ -898,12 +898,12 @@
 
                 &:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 14px rgb(43 186 217 / 18%);
-                    border-color: rgb(43 186 217 / 35%);
+                    box-shadow: 0 4px 14px rgb(30 58 138 / 16%);
+                    border-color: rgb(30 64 175 / 32%);
                 }
 
                 &:focus-visible {
-                    outline: 2px solid #2bbad9;
+                    outline: 2px solid #2563eb;
                     outline-offset: 3px;
                 }
 
@@ -979,7 +979,7 @@
     font-family: var(--db-info-font-ui);
 
     scrollbar-width: thin;
-    scrollbar-color: rgba(126, 63, 242, 0.35) transparent;
+    scrollbar-color: rgba(30, 58, 138, 0.35) transparent;
 }
 
 .db-info-panel-context .db-info-panel::-webkit-scrollbar {
@@ -1001,8 +1001,8 @@
     text-align: center;
     margin-bottom: 0;
     padding: 0.85rem 1.5rem 1rem;
-    background: var(--db-info-header-bg, linear-gradient(145deg, #f8fafc 0%, #eef2ff 100%));
-    border: 1px solid var(--db-info-header-border, rgba(126, 63, 242, 0.16));
+    background: var(--db-info-header-bg, linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%));
+    border: 1px solid var(--db-info-header-border, rgba(30, 58, 138, 0.14));
     border-radius: 12px;
     overflow: hidden;
 }
@@ -1077,7 +1077,7 @@
 
 .db-info-panel-context .db-info-panel__card {
     padding: 0.65rem 0.75rem;
-    border: 1px solid var(--db-info-card-border, rgba(126, 63, 242, 0.14));
+    border: 1px solid var(--db-info-card-border, rgba(30, 58, 138, 0.12));
     border-radius: 10px;
     background: var(--db-info-card-bg, rgba(255, 255, 255, 0.88));
     transition:
@@ -1103,8 +1103,8 @@
     }
 
     &:hover {
-        border-color: rgba(126, 63, 242, 0.35);
-        box-shadow: 0 6px 20px rgba(126, 63, 242, 0.12);
+        border-color: rgba(30, 58, 138, 0.28);
+        box-shadow: 0 6px 20px rgba(30, 58, 138, 0.1);
         transform: translateY(-1px);
 
         .db-info-panel__card-title {
@@ -1120,41 +1120,41 @@
     }
 
     &--guide {
-        --card-accent: #2bbad9;
+        --card-accent: #1e40af;
 
-        background: linear-gradient(135deg, rgba(43, 186, 217, 0.1), rgba(255, 255, 255, 0.92));
+        background: linear-gradient(135deg, rgba(30, 64, 175, 0.08), rgba(255, 255, 255, 0.94));
 
         &:hover {
-            border-color: rgba(43, 186, 217, 0.45);
-            background: linear-gradient(135deg, rgba(43, 186, 217, 0.16), rgba(255, 255, 255, 0.96));
+            border-color: rgba(30, 64, 175, 0.35);
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.12), rgba(255, 255, 255, 0.98));
 
             .db-info-panel__card-icon {
-                background: rgba(43, 186, 217, 0.15);
-                border-color: rgba(43, 186, 217, 0.35);
+                background: rgba(30, 64, 175, 0.1);
+                border-color: rgba(30, 64, 175, 0.28);
             }
 
             .db-info-panel__card-arrow {
-                color: #2bbad9;
+                color: #1e40af;
             }
         }
     }
 
     &--faq {
-        --card-accent: #7e3ff2;
+        --card-accent: #0f172a;
 
-        background: linear-gradient(135deg, rgba(126, 63, 242, 0.1), rgba(255, 255, 255, 0.92));
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.06), rgba(255, 255, 255, 0.94));
 
         &:hover {
-            border-color: rgba(126, 63, 242, 0.45);
-            background: linear-gradient(135deg, rgba(126, 63, 242, 0.16), rgba(255, 255, 255, 0.96));
+            border-color: rgba(15, 23, 42, 0.22);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.98));
 
             .db-info-panel__card-icon {
-                background: rgba(126, 63, 242, 0.15);
-                border-color: rgba(126, 63, 242, 0.35);
+                background: rgba(15, 23, 42, 0.06);
+                border-color: rgba(15, 23, 42, 0.16);
             }
 
             .db-info-panel__card-arrow {
-                color: #9b6dff;
+                color: #1e3a8a;
             }
         }
     }
@@ -1168,7 +1168,7 @@
     width: 2rem;
     height: 2rem;
     background: var(--db-info-icon-bg, rgba(248, 250, 252, 0.96));
-    border: 1px solid var(--db-info-icon-border, rgba(126, 63, 242, 0.14));
+    border: 1px solid var(--db-info-icon-border, rgba(30, 58, 138, 0.14));
     border-radius: 8px;
     transition:
         background 0.2s ease,
@@ -1204,11 +1204,11 @@
 }
 
 .db-info-panel-context .db-info-panel__card--guide .db-info-panel__card-item--clickable:hover {
-    color: #0891b2;
+    color: #1e40af;
 }
 
 .db-info-panel-context .db-info-panel__card--faq .db-info-panel__card-item--clickable:hover {
-    color: #7e3ff2;
+    color: #1e3a8a;
 }
 
 .db-info-panel-context .db-info-panel__card-arrow {
@@ -1291,13 +1291,13 @@
 
 .theme--dark .tab__dashboard {
     --dash-content-bg:
-        radial-gradient(circle at 18% 8%, rgb(43 186 217 / 7%), transparent 30%),
-        radial-gradient(circle at 82% 92%, rgb(126 63 242 / 8%), transparent 32%),
+        radial-gradient(circle at 18% 8%, rgb(37 99 235 / 6%), transparent 30%),
+        radial-gradient(circle at 82% 92%, rgb(15 23 42 / 8%), transparent 32%),
         linear-gradient(180deg, rgb(6 13 23 / 98%) 0%, rgb(10 16 28 / 96%) 100%);
     --dash-card-bg: linear-gradient(160deg, rgb(16 28 44 / 96%) 0%, rgb(10 20 34 / 98%) 100%);
-    --dash-card-border: rgb(148 163 184 / 12%);
+    --dash-card-border: rgb(51 65 85 / 35%);
     --dash-card-shadow: 0 4px 18px rgb(0 0 0 / 28%);
-    --dash-card-hover-border: rgb(43 186 217 / 28%);
+    --dash-card-hover-border: rgb(37 99 235 / 32%);
     --dash-card-hover-shadow: 0 8px 24px rgb(0 0 0 / 35%);
     --dash-icon-surface: rgb(8 16 28 / 88%);
     --dash-icon-border: rgb(148 163 184 / 14%);
@@ -1313,11 +1313,11 @@
     --db-info-title: #efe8d4;
     --db-info-subtitle: #e8d5b8;
     --db-info-header-bg: linear-gradient(145deg, rgba(16, 28, 44, 0.95) 0%, rgba(10, 20, 34, 0.98) 100%);
-    --db-info-header-border: rgba(43, 186, 217, 0.22);
+    --db-info-header-border: rgba(37, 99, 235, 0.22);
     --db-info-card-bg: rgba(12, 22, 36, 0.82);
-    --db-info-card-border: rgba(43, 186, 217, 0.18);
+    --db-info-card-border: rgba(30, 58, 138, 0.28);
     --db-info-icon-bg: rgba(12, 22, 36, 0.9);
-    --db-info-icon-border: rgba(43, 186, 217, 0.2);
+    --db-info-icon-border: rgba(37, 99, 235, 0.2);
 }
 
 .theme--dark .db-info-panel-context .db-info-panel__title {
@@ -1328,7 +1328,7 @@
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
 
     &:hover {
-        border-color: rgba(43, 186, 217, 0.42);
+        border-color: rgba(37, 99, 235, 0.38);
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 
         .db-info-panel__card-title {
@@ -1337,18 +1337,18 @@
     }
 
     &--guide {
-        background: linear-gradient(135deg, rgba(43, 186, 217, 0.12), rgba(10, 20, 34, 0.88));
+        background: linear-gradient(135deg, rgba(30, 64, 175, 0.14), rgba(10, 20, 34, 0.88));
 
         &:hover {
-            background: linear-gradient(135deg, rgba(43, 186, 217, 0.18), rgba(10, 20, 34, 0.92));
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.2), rgba(10, 20, 34, 0.92));
         }
     }
 
     &--faq {
-        background: linear-gradient(135deg, rgba(126, 63, 242, 0.12), rgba(10, 20, 34, 0.88));
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.35), rgba(10, 20, 34, 0.88));
 
         &:hover {
-            background: linear-gradient(135deg, rgba(126, 63, 242, 0.18), rgba(10, 20, 34, 0.92));
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.45), rgba(10, 20, 34, 0.92));
         }
     }
 }
@@ -1358,9 +1358,9 @@
 }
 
 .theme--dark .db-info-panel-context .db-info-panel__card--guide .db-info-panel__card-item--clickable:hover {
-    color: #06b6d4;
+    color: #60a5fa;
 }
 
 .theme--dark .db-info-panel-context .db-info-panel__card--faq .db-info-panel__card-item--clickable:hover {
-    color: #c9a84c;
+    color: #93c5fd;
 }
