@@ -43,8 +43,8 @@
         }
 
         .acc-info__balance {
-            gap: 0.4rem;
-            margin-inline-end: 2px;
+            gap: 0.5rem;
+            margin-inline-end: 5px;
         }
 
         .acc-info__balance-amount,
@@ -59,10 +59,12 @@
             margin-inline-start: 0;
             color: #334155;
             font-weight: 700;
+            width: 1.75rem;
+            height: 1.75rem;
 
             svg {
-                width: 1.4rem;
-                height: 1.4rem;
+                width: 1.55rem;
+                height: 1.55rem;
             }
         }
 
@@ -89,9 +91,14 @@
                 font-weight: 700;
             }
 
-            .acc-info__select-arrow svg {
-                width: 1.48rem;
-                height: 1.48rem;
+            .acc-info__select-arrow {
+                width: 1.8rem;
+                height: 1.8rem;
+
+                svg {
+                    width: 1.62rem;
+                    height: 1.62rem;
+                }
             }
         }
 
@@ -104,9 +111,14 @@
                 font-weight: 700;
             }
 
-            .acc-info__select-arrow svg {
-                width: 1.4rem;
-                height: 1.4rem;
+            .acc-info__select-arrow {
+                width: 1.75rem;
+                height: 1.75rem;
+
+                svg {
+                    width: 1.55rem;
+                    height: 1.55rem;
+                }
             }
         }
     }

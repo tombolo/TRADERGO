@@ -20,7 +20,7 @@ import AccountInfoWrapper from './account-info-wrapper';
 import './account-switcher.scss';
 
 const ChevronDown = ({ className }: { className?: string }) => (
-    <svg className={className} width='12' height='12' viewBox='0 0 12 12' fill='none' aria-hidden='true'>
+    <svg className={className} width='14' height='14' viewBox='0 0 12 12' fill='none' aria-hidden='true'>
         <path
             d='M2 4L6 8L10 4'
             stroke='currentColor'

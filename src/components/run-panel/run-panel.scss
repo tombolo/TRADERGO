@@ -114,40 +114,33 @@
             }
         }
 
-        @include desktop-screen {
-            &.dc-drawer--right {
+        @media (min-width: 601px) {
+            &.dc-drawer--right,
+            &.run-panel__container {
                 position: fixed !important;
                 top: 10.4rem !important;
+                right: 0 !important;
+                left: auto !important;
+                bottom: auto !important;
                 width: 36.6rem !important;
                 height: var(--bot-content-height) !important;
                 max-height: none !important;
                 z-index: 100 !important;
-                left: calc(100vw - 16px) !important;
-                right: auto !important;
-                bottom: auto !important;
                 display: flex !important;
                 flex-direction: row !important;
                 box-shadow: 0 4px 20px rgb(0 0 0 / 12%);
                 overflow: visible;
+                transform: translateX(calc(100% - 1.6rem)) !important;
+                transition: transform 0.3s ease;
+
+                &.dc-drawer--open {
+                    transform: translateX(0) !important;
+                }
             }
         }
     }
 
     &__container {
-        @include desktop-screen {
-            position: fixed !important;
-            height: var(--bot-content-height) !important;
-            top: 10.4rem !important;
-            width: 36.6rem !important;
-            z-index: 100;
-            transform: translateX(367px);
-            transition: transform 0.3s ease;
-
-            &.dc-drawer--open {
-                transform: translateX(0) !important;
-            }
-        }
-
         &--mobile {
             position: absolute;
             top: 0;

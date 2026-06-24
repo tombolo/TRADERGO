@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { LabelPairedChevronsRightCaptionRegularIcon, LegacyHandleLessIcon } from '@deriv/quill-icons';
 import { useDevice } from '@deriv-com/ui';
+import { isMobile } from '@/components/shared/utils/screen';
 
 type TDrawer = {
     anchor?: string;
@@ -44,7 +45,7 @@ const Drawer = ({
         <div
             data-testid='drawer'
             className={classNames('dc-drawer', className, {
-                [`dc-drawer--${anchor}`]: isDesktop,
+                [`dc-drawer--${anchor}`]: !isMobile(),
                 'dc-drawer--open': is_open,
             })}
             style={{
@@ -64,14 +65,14 @@ const Drawer = ({
                 {isDesktop ? (
                     <LabelPairedChevronsRightCaptionRegularIcon
                         className={classNames('dc-drawer__toggle-icon', {
-                            [`dc-drawer__toggle-icon--${anchor}`]: isDesktop,
+                            [`dc-drawer__toggle-icon--${anchor}`]: !isMobile(),
                         })}
                     />
                 ) : (
                     <LegacyHandleLessIcon iconSize='sm' className='dc-drawer__toggle-icon' />
                 )}
             </div>
-            <div className={classNames('dc-drawer__container', { [`dc-drawer__container--${anchor}`]: isDesktop })}>
+            <div className={classNames('dc-drawer__container', { [`dc-drawer__container--${anchor}`]: !isMobile() })}>
                 {header && <div className='dc-drawer__header'>{header}</div>}
                 <div className={classNames('dc-drawer__content', contentClassName)}>{children}</div>
                 {footer && <div className='dc-drawer__footer'>{footer}</div>}
