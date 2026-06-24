@@ -53,7 +53,7 @@
         }
 
         .acc-info__wrapper {
-            margin-inline-end: 0.2rem;
+            margin-inline-end: 0.9rem;
             max-width: 100%;
         }
 
@@ -92,11 +92,11 @@
         margin-inline-end: 0.4rem;
 
         @include mobile-or-tablet-screen {
-            margin-inline-end: 0.75rem;
+            margin-inline-end: 1rem;
         }
 
         @media (max-width: 480px) {
-            margin-inline-end: 0.65rem;
+            margin-inline-end: 0.9rem;
         }
     }
 

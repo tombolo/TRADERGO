@@ -114,52 +114,39 @@
             }
         }
 
-        @media (min-width: 1024px) {
+        @include desktop-screen {
             &.dc-drawer--right {
                 position: fixed !important;
                 top: 10.4rem !important;
-                right: 0 !important;
-                left: auto !important;
-                bottom: auto !important;
                 width: 36.6rem !important;
                 height: var(--bot-content-height) !important;
                 max-height: none !important;
                 z-index: 100 !important;
+                left: calc(100vw - 16px) !important;
+                right: auto !important;
+                bottom: auto !important;
                 display: flex !important;
                 flex-direction: row !important;
-                transform: translateX(calc(100% - 1.6rem)) !important;
                 box-shadow: 0 4px 20px rgb(0 0 0 / 12%);
                 overflow: visible;
-
-                &.dc-drawer--open {
-                    transform: translateX(calc(-36.6rem + 1.6rem)) !important;
-                }
-
-                .dc-drawer__toggle {
-                    position: absolute;
-                    inset-inline-start: 0;
-                    width: 1.6rem;
-                    height: 100%;
-                    flex-shrink: 0;
-                    z-index: 1;
-                }
-
-                .dc-drawer__container {
-                    display: flex;
-                    flex-direction: column;
-                    flex: 1 1 auto;
-                    min-width: 0;
-                    height: 100%;
-                }
             }
         }
     }
 
     &__container {
-        height: var(--bot-content-height) !important;
-        top: 10.4rem !important;
-        width: 36.6rem !important;
-        right: 0;
+        @include desktop-screen {
+            position: fixed !important;
+            height: var(--bot-content-height) !important;
+            top: 10.4rem !important;
+            width: 36.6rem !important;
+            z-index: 100;
+            transform: translateX(367px);
+            transition: transform 0.3s ease;
+
+            &.dc-drawer--open {
+                transform: translateX(0) !important;
+            }
+        }
 
         &--mobile {
             position: absolute;

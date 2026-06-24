@@ -50,10 +50,8 @@ const Drawer = ({
             style={{
                 zIndex,
                 transform:
-                    is_open && isDesktop
-                        ? anchor === 'left'
-                            ? `translateX(calc(${width}px - 16px))`
-                            : `translateX(calc(-${width}px + 16px))`
+                    is_open && isDesktop && anchor === 'left'
+                        ? `translateX(calc(${width}px - 16px))`
                         : undefined,
             }}
         >
