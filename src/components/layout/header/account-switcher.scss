@@ -18,6 +18,49 @@
     background: #ffffff;
     box-shadow: 0 1px 4px rgb(15 23 42 / 7%);
 
+    &--desktop-pill {
+        width: auto;
+        flex: 0 0 auto;
+        min-height: 3.6rem;
+        height: 3.6rem;
+        padding: 0.35rem 1rem 0.35rem 0.45rem;
+        gap: 0.7rem;
+        border-radius: 999px;
+        border: 1px solid #e3e8ef;
+        background: #f3f5f8;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 85%);
+
+        .acc-info__id-icon {
+            width: 2.4rem;
+            height: 2.4rem;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .acc-info__balance {
+            gap: 0.45rem;
+        }
+
+        .acc-info__balance-amount,
+        .acc-info__balance-currency {
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #36b3b9;
+        }
+
+        .acc-info__select-arrow {
+            margin-left: 0.15rem;
+            color: #334155;
+        }
+
+        &.acc-info--interactive:hover {
+            background: #eef1f5;
+            border-color: #d7dee8;
+        }
+    }
+
     &:focus {
         outline: none;
     }
@@ -136,12 +179,66 @@
         justify-content: center;
         position: relative;
         margin-right: 0.8rem;
+        gap: 0.65rem;
         user-select: none;
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
 
         &:focus-within {
             outline: none;
+        }
+    }
+
+    &__currency-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        min-height: 3.6rem;
+        height: 3.6rem;
+        padding: 0 1.1rem;
+        border-radius: 999px;
+        border: 1px solid #e3e8ef;
+        background: #f3f5f8;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 85%);
+        cursor: pointer;
+        transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease;
+
+        &:hover {
+            background: #eef1f5;
+            border-color: #d7dee8;
+        }
+
+        &:focus-visible {
+            outline: 2px solid #36b3b9;
+            outline-offset: 2px;
+        }
+    }
+
+    &__currency-pill-label {
+        font-size: 1.35rem;
+        font-weight: 500;
+        line-height: 1;
+        color: #0f172a;
+        letter-spacing: 0.01em;
+    }
+
+    &__currency-pill-arrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #334155;
+        transition: transform 0.25s ease;
+
+        svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+
+        &--invert {
+            transform: rotate(180deg);
         }
     }
 
@@ -280,15 +377,15 @@
         font-size: 1.45rem;
         font-weight: 700;
         line-height: 1.2;
-        color: #2bbad9;
+        color: #36b3b9;
         letter-spacing: -0.01em;
     }
 
     &__balance-currency {
         font-size: 1.25rem;
-        font-weight: 500;
+        font-weight: 600;
         line-height: 1.2;
-        color: #64748b;
+        color: #36b3b9;
     }
 
     &__account-type-and-balance {
@@ -338,7 +435,11 @@
     }
 
     @include desktop-screen {
-        &:hover:not(.show, &--is-disabled) {
+        &--desktop-pill:hover:not(.show, &--is-disabled) {
+            background: #eef1f5;
+        }
+
+        &:not(&--desktop-pill):hover:not(.show, &--is-disabled) {
             background: rgb(255 255 255 / 4%);
 
             .symbols {
@@ -390,12 +491,9 @@
     }
 
     &--is-virtual {
-        .acc-info__balance-amount {
-            color: #2bbad9;
-        }
-
+        .acc-info__balance-amount,
         .acc-info__balance-currency {
-            color: #64748b;
+            color: #36b3b9;
         }
     }
 
@@ -870,26 +968,53 @@
     background: #0f172a;
     border-color: #334155;
 
-    &:hover.acc-info--interactive {
+    &--desktop-pill {
+        background: #1e293b;
+        border-color: #475569;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+
+        &.acc-info--interactive:hover {
+            background: #273449;
+            border-color: #64748b;
+        }
+    }
+
+    &:hover.acc-info--interactive:not(.acc-info--desktop-pill) {
         background: #1e293b;
         border-color: #475569;
     }
 
-    .acc-info__balance-amount {
+    .acc-info__balance-amount,
+    .acc-info__balance-currency {
         color: #5eead4;
     }
 
-    .acc-info__balance-currency {
-        color: #94a3b8;
-    }
-
     .acc-info__select-arrow {
-        color: #94a3b8;
+        color: #cbd5e1;
     }
 
     .acc-info__id-icon {
-        background: #1e293b;
-        border-color: #475569;
+        background: transparent;
+        border-color: transparent;
+    }
+}
+
+.theme--dark .acc-info__currency-pill {
+    background: #1e293b;
+    border-color: #475569;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+
+    &:hover {
+        background: #273449;
+        border-color: #64748b;
+    }
+
+    .acc-info__currency-pill-label {
+        color: #f8fafc;
+    }
+
+    .acc-info__currency-pill-arrow {
+        color: #cbd5e1;
     }
 }
 

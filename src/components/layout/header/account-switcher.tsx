@@ -19,6 +19,18 @@ import { TAccountSwitcher } from './common/types';
 import AccountInfoWrapper from './account-info-wrapper';
 import './account-switcher.scss';
 
+const ChevronDown = ({ className }: { className?: string }) => (
+    <svg className={className} width='12' height='12' viewBox='0 0 12 12' fill='none' aria-hidden='true'>
+        <path
+            d='M2 4L6 8L10 4'
+            stroke='currentColor'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+        />
+    </svg>
+);
+
 const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const { isDesktop } = useDevice();
     const [isOpen, setIsOpen] = useState(false);
@@ -371,10 +383,43 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const formattedDisplayedAccounts = formattedAccounts(displayedAccounts);
 
     const tradersHubUrl = 'https://deriv.com/traders-hub/';
+    const currencyCode = currency ? getCurrencyDisplayCode(currency) : '';
+
+    const renderBalanceText = () => {
+        if (!currency) {
+            return <Localize i18n_default_text='No currency assigned' />;
+        }
+
+        return (
+            <>
+                <span className='acc-info__balance-amount'>{balance}</span>
+                <span className='acc-info__balance-currency'>{currencyCode}</span>
+            </>
+        );
+    };
 
     return (
         <div className='acc-info__wrapper' ref={wrapperRef}>
-            {isDesktop && <div className='acc-info__separator' />}
+            {isDesktop && currency && (
+                <button
+                    type='button'
+                    className={classNames('acc-info__currency-pill', {
+                        'acc-info__currency-pill--open': isOpen,
+                    })}
+                    aria-expanded={isOpen}
+                    aria-haspopup='listbox'
+                    onClick={toggleDropdown}
+                >
+                    <span className='acc-info__currency-pill-label'>{currencyCode}</span>
+                    <span
+                        className={classNames('acc-info__currency-pill-arrow', {
+                            'acc-info__currency-pill-arrow--invert': isOpen,
+                        })}
+                    >
+                        <ChevronDown />
+                    </span>
+                </button>
+            )}
             <AccountInfoWrapper>
                 <div
                     data-testid='dt_acc_info'
@@ -387,6 +432,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                         'acc-info--is-virtual': isVirtual,
                         'acc-info--interactive': hasAccounts,
                         'acc-info--switch-disabled': !hasAccounts,
+                        'acc-info--desktop-pill': isDesktop,
                     })}
                     onClick={toggleDropdown}
                     onKeyDown={e => {
@@ -396,59 +442,71 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                         }
                     }}
                 >
-                    <span className='acc-info__id' aria-hidden='true'>
-                        <span className='acc-info__id-icon'>
-                            <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
-                        </span>
-                    </span>
-                    <div className='acc-info__content'>
-                        <div className='acc-info__account-type-header acc-info__account-type-header--dropdown'>
-                            <p className='acc-info__account-type'>
-                                <Localize i18n_default_text={isVirtual ? 'Demo' : 'Real'} />
-                            </p>
-                            {loginid ? <p className='acc-info__loginid'>{loginid}</p> : null}
-                        </div>
-                        {(typeof balance !== 'undefined' || !currency) && (
-                            <div className='acc-info__balance-section'>
+                    {isDesktop ? (
+                        <>
+                            <span className='acc-info__id' aria-hidden='true'>
+                                <span className='acc-info__id-icon'>
+                                    <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
+                                </span>
+                            </span>
+                            {(typeof balance !== 'undefined' || !currency) && (
                                 <p
                                     data-testid='dt_balance'
                                     className={classNames('acc-info__balance', {
                                         'acc-info__balance--no-currency': !currency && !isVirtual,
                                     })}
                                 >
-                                    {!currency ? (
-                                        <Localize i18n_default_text='No currency assigned' />
-                                    ) : (
-                                        <>
-                                            <span className='acc-info__balance-amount'>{balance}</span>
-                                            <span className='acc-info__balance-currency'>
-                                                {getCurrencyDisplayCode(currency)}
-                                            </span>
-                                        </>
-                                    )}
+                                    {renderBalanceText()}
                                 </p>
+                            )}
+                            <span
+                                className={classNames('acc-info__select-arrow', {
+                                    'acc-info__select-arrow--invert': isOpen,
+                                    'acc-info__select-arrow--disabled': !canSwitchAccounts,
+                                })}
+                            >
+                                <ChevronDown />
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <span className='acc-info__id' aria-hidden='true'>
+                                <span className='acc-info__id-icon'>
+                                    <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
+                                </span>
+                            </span>
+                            <div className='acc-info__content'>
+                                <div className='acc-info__account-type-header acc-info__account-type-header--dropdown'>
+                                    <p className='acc-info__account-type'>
+                                        <Localize i18n_default_text={isVirtual ? 'Demo' : 'Real'} />
+                                    </p>
+                                    {loginid ? <p className='acc-info__loginid'>{loginid}</p> : null}
+                                </div>
+                                {(typeof balance !== 'undefined' || !currency) && (
+                                    <div className='acc-info__balance-section'>
+                                        <p
+                                            data-testid='dt_balance'
+                                            className={classNames('acc-info__balance', {
+                                                'acc-info__balance--no-currency': !currency && !isVirtual,
+                                            })}
+                                        >
+                                            {renderBalanceText()}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
-                    <span
-                        className={classNames('acc-info__select-arrow', {
-                            'acc-info__select-arrow--invert': isOpen,
-                            'acc-info__select-arrow--disabled': !canSwitchAccounts,
-                        })}
-                    >
-                        <svg width='12' height='12' viewBox='0 0 12 12' fill='none'>
-                            <path
-                                d='M2 4L6 8L10 4'
-                                stroke='currentColor'
-                                strokeWidth='1.5'
-                                strokeLinecap='round'
-                                strokeLinejoin='round'
-                            />
-                        </svg>
-                    </span>
+                            <span
+                                className={classNames('acc-info__select-arrow', {
+                                    'acc-info__select-arrow--invert': isOpen,
+                                    'acc-info__select-arrow--disabled': !canSwitchAccounts,
+                                })}
+                            >
+                                <ChevronDown />
+                            </span>
+                        </>
+                    )}
                 </div>
             </AccountInfoWrapper>
-            {isDesktop && <div className='acc-info__separator' />}
             {isOpen &&
                 hasAccounts &&
                 createPortal(

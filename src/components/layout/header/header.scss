@@ -77,16 +77,18 @@
         }
     }
 
-    .acc-info__balance-amount {
-        color: #2bbad9;
+    .acc-info__wrapper {
+        margin-inline-end: 0.4rem;
     }
 
+    .acc-info__balance-amount,
     .acc-info__balance-currency {
-        color: #64748b;
+        color: #36b3b9;
     }
 
-    .acc-info__select-arrow {
-        color: #64748b;
+    .acc-info__select-arrow,
+    .acc-info__currency-pill-arrow {
+        color: #334155;
     }
 
     .acc-info__loginid {
