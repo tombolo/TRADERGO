@@ -419,7 +419,12 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                                     {!currency ? (
                                         <Localize i18n_default_text='No currency assigned' />
                                     ) : (
-                                        `${balance} ${getCurrencyDisplayCode(currency)}`
+                                        <>
+                                            <span className='acc-info__balance-amount'>{balance}</span>
+                                            <span className='acc-info__balance-currency'>
+                                                {getCurrencyDisplayCode(currency)}
+                                            </span>
+                                        </>
                                     )}
                                 </p>
                             </div>

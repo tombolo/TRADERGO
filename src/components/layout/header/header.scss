@@ -77,12 +77,16 @@
         }
     }
 
-    .acc-info__balance {
-        color: #0f172a;
+    .acc-info__balance-amount {
+        color: #2bbad9;
     }
 
-    .acc-info--is-virtual .acc-info__balance {
-        color: #0f172a;
+    .acc-info__balance-currency {
+        color: #64748b;
+    }
+
+    .acc-info__select-arrow {
+        color: #64748b;
     }
 
     .acc-info__loginid {
