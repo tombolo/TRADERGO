@@ -7,6 +7,7 @@ import {
     HiOutlineComputerDesktop,
     HiOutlineHome,
     HiOutlineMagnifyingGlass,
+    HiOutlineSquares2X2,
 } from 'react-icons/hi2';
 import { RiRobot2Line } from 'react-icons/ri';
 
@@ -16,6 +17,7 @@ export type MainTabIconVariant =
     | 'dashboard'
     | 'bot-builder'
     | 'free-bots'
+    | 'bulk-trader'
     | 'trader'
     | 'copy-trading'
     | 'charts'
@@ -25,6 +27,7 @@ const ICONS: Record<MainTabIconVariant, IconType> = {
     dashboard: HiOutlineHome,
     'bot-builder': HiOutlineCog6Tooth,
     'free-bots': RiRobot2Line,
+    'bulk-trader': HiOutlineSquares2X2,
     trader: HiOutlineComputerDesktop,
     'copy-trading': HiOutlineBriefcase,
     charts: HiOutlineChartBarSquare,

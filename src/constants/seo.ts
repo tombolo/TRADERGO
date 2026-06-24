@@ -55,6 +55,11 @@ export const TAB_SEO: Record<string, { title: string; description: string }> = {
         description:
             'Download free trading bots including Dollar Printer strategies. DERIV ANALYSING HUB free bots for Deriv and binary tools.',
     },
+    bulk_trader: {
+        title: 'DERIV ANALYSING HUB Bulk Trader | Even/Odd & Binary Tools',
+        description:
+            'Bulk trade Even/Odd contracts on DERIV ANALYSING HUB — live tick analysis, digit distribution, and fast bulk execution.',
+    },
     trader: {
         title: 'DERIV ANALYSING HUB Trader | Deriv Trading Platform',
         description:

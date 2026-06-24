@@ -31,6 +31,7 @@ import './main.scss';
 const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
 const Trader = lazy(() => import('../trader/trader'));
 const FreeBots = lazy(() => import('../free-bots'));
+const BulkTrader = lazy(() => import('../bulk-trader'));
 const CopyTrading = lazy(() => import('../copy/copy'));
 const AnalysisTools = lazy(() => import('../analysis-tools'));
 
@@ -63,10 +64,11 @@ const AppWrapper = observer(() => {
         [key: string]: string;
     };
     const { clear } = summary_card;
-    const { DASHBOARD, BOT_BUILDER, FREE_BOTS } = DBOT_TABS;
+    const { DASHBOARD, BOT_BUILDER, FREE_BOTS, BULK_TRADER } = DBOT_TABS;
     const init_render = React.useRef(true);
-    const hash = ['dashboard', 'bot_builder', 'free_bots', 'trader', 'copy_trading', 'chart', 'analysis_tools'];
+    const hash = ['dashboard', 'bot_builder', 'free_bots', 'bulk_trader', 'trader', 'copy_trading', 'chart', 'analysis_tools'];
     const is_trader_tab = hash[active_tab] === 'trader';
+    const is_bulk_trader_tab = hash[active_tab] === 'bulk_trader';
     const { isDesktop } = useDevice();
     const location = useLocation();
     const navigate = useNavigate();
@@ -371,6 +373,19 @@ const AppWrapper = observer(() => {
                             <div
                                 label={
                                     <>
+                                        <MainTabIcon variant='bulk-trader' />
+                                        <Localize i18n_default_text='Bulk Trader' />
+                                    </>
+                                }
+                                id='id-bulk-trader'
+                            >
+                                <Suspense fallback={<TabLoader message={localize('Loading bulk trader...')} />}>
+                                    <BulkTrader />
+                                </Suspense>
+                            </div>
+                            <div
+                                label={
+                                    <>
                                         <MainTabIcon variant='trader' />
                                         <Localize i18n_default_text='Manual Trader' />
                                     </>
@@ -430,7 +445,7 @@ const AppWrapper = observer(() => {
                 </div>
             </div>
             <DesktopWrapper>
-                {!is_trader_tab && (
+                {!is_trader_tab && !is_bulk_trader_tab && (
                     <>
                         <div className='main__run-strategy-wrapper'>
                             <RunStrategy />
@@ -442,7 +457,7 @@ const AppWrapper = observer(() => {
                 <TradingViewModal />
             </DesktopWrapper>
             <MobileWrapper>
-                {!is_open && active_tab !== FREE_BOTS && !is_trader_tab && <RunPanel />}
+                {!is_open && active_tab !== FREE_BOTS && active_tab !== BULK_TRADER && !is_trader_tab && <RunPanel />}
             </MobileWrapper>
             <Dialog
                 cancel_button_text={cancel_button_text || localize('Cancel')}
