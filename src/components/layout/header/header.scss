@@ -90,6 +90,14 @@
 
     .acc-info__wrapper {
         margin-inline-end: 0.4rem;
+
+        @include mobile-or-tablet-screen {
+            margin-inline-end: 0.75rem;
+        }
+
+        @media (max-width: 480px) {
+            margin-inline-end: 0.65rem;
+        }
     }
 
     .acc-info__balance-amount,

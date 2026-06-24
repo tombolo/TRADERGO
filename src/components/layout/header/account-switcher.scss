@@ -45,7 +45,7 @@
         .acc-info__balance-amount,
         .acc-info__balance-currency {
             font-size: 1.4rem;
-            font-weight: 600;
+            font-weight: 700;
             line-height: 1.2;
             color: #36b3b9;
         }
@@ -53,6 +53,12 @@
         .acc-info__select-arrow {
             margin-left: 0.1rem;
             color: #334155;
+            font-weight: 700;
+
+            svg {
+                width: 1.25rem;
+                height: 1.25rem;
+            }
         }
 
         &.acc-info--interactive:hover {
@@ -61,30 +67,39 @@
         }
 
         @include mobile-or-tablet-screen {
-            gap: 0.5rem;
+            gap: 0.55rem;
+            margin-inline-end: 0.75rem;
 
             .acc-info__id-icon {
-                width: 2.1rem;
-                height: 2.1rem;
+                width: 2.2rem;
+                height: 2.2rem;
             }
 
             .acc-info__balance-amount,
             .acc-info__balance-currency {
-                font-size: 1.15rem;
+                font-size: 1.28rem;
+                font-weight: 700;
             }
 
             .acc-info__select-arrow svg {
-                width: 1rem;
-                height: 1rem;
+                width: 1.15rem;
+                height: 1.15rem;
             }
         }
 
         @media (max-width: 480px) {
-            gap: 0.4rem;
+            gap: 0.45rem;
+            margin-inline-end: 0.65rem;
 
             .acc-info__balance-amount,
             .acc-info__balance-currency {
-                font-size: 1.05rem;
+                font-size: 1.18rem;
+                font-weight: 700;
+            }
+
+            .acc-info__select-arrow svg {
+                width: 1.1rem;
+                height: 1.1rem;
             }
         }
     }
@@ -296,8 +311,12 @@
         -webkit-tap-highlight-color: transparent;
 
         @include mobile-or-tablet-screen {
-            margin-right: 0.4rem;
+            margin-inline-end: 0.75rem;
             gap: 0.45rem;
+        }
+
+        @media (max-width: 480px) {
+            margin-inline-end: 0.65rem;
         }
 
         &:focus-within {
@@ -521,7 +540,7 @@
 
     &__balance-currency {
         font-size: 1.25rem;
-        font-weight: 600;
+        font-weight: 700;
         line-height: 1.2;
         color: #36b3b9;
     }

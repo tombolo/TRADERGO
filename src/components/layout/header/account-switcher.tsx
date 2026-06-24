@@ -24,7 +24,7 @@ const ChevronDown = ({ className }: { className?: string }) => (
         <path
             d='M2 4L6 8L10 4'
             stroke='currentColor'
-            strokeWidth='1.5'
+            strokeWidth='2.25'
             strokeLinecap='round'
             strokeLinejoin='round'
         />

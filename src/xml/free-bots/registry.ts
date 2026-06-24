@@ -1,5 +1,3 @@
-import wizardDollarminer from './WIZARD/Dollarminer.xml';
-
 export type TFreeBotFile = {
     folder: string;
     /** Display title derived from filename */
@@ -7,13 +5,42 @@ export type TFreeBotFile = {
     xml: string;
 };
 
-const MASTER_BOT_NAME = 'DERIV ANALYSING HUB MASTER BOT';
+const xmlModules = import.meta.glob<string>('./*/**/*.xml', {
+    eager: true,
+    import: 'default',
+});
 
-const entries: TFreeBotFile[] = [
-    { folder: 'WIZARD', name: MASTER_BOT_NAME, xml: wizardDollarminer },
-];
+const formatBotName = (filename: string): string => {
+    const base = filename.replace(/\.xml$/i, '');
+    const spaced = base
+        .replace(/_/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/([A-Za-z])(\d)/g, '$1 $2')
+        .replace(/(\d)([A-Za-z])/g, '$1 $2')
+        .replace(/\s+/g, ' ')
+        .trim();
 
-export const FREE_BOT_FOLDER_ORDER = ['WIZARD'] as const;
+    return spaced
+        .split(' ')
+        .map(word => (word.length <= 3 && word === word.toUpperCase() ? word : word.charAt(0).toUpperCase() + word.slice(1)))
+        .join(' ');
+};
+
+const entries: TFreeBotFile[] = Object.entries(xmlModules)
+    .map(([path, xml]) => {
+        const match = path.match(/\.\/([^/]+)\/([^/]+)\.xml$/i);
+        if (!match) return null;
+
+        const [, folder, file] = match;
+        return {
+            folder,
+            name: formatBotName(file),
+            xml,
+        };
+    })
+    .filter((bot): bot is TFreeBotFile => bot !== null);
+
+export const FREE_BOT_FOLDER_ORDER = ['WIZARD', 'ARENA', 'HENRY', 'HUNTER'] as const;
 
 export const getFreeBotsByFolder = (): Record<string, TFreeBotFile[]> => {
     const map: Record<string, TFreeBotFile[]> = {};
@@ -34,6 +61,12 @@ export const folderBadgeLabel = (folder: string): string => {
     switch (folder) {
         case 'WIZARD':
             return 'Wizard';
+        case 'ARENA':
+            return 'Arena';
+        case 'HENRY':
+            return 'Henry';
+        case 'HUNTER':
+            return 'Hunter';
         default:
             return folder;
     }
@@ -51,7 +84,10 @@ const djb2 = (str: string): number => {
 export const getBotUsingCount = (bot: TFreeBotFile): number => 24 + (djb2(`${bot.folder}:${bot.name}`) % 2847);
 
 const folderDescriptionLine: Record<string, string> = {
-    WIZARD: 'Flagship strategy — switches contracts and stakes in one workspace.',
+    WIZARD: 'Wizard strategies — contract switching and stake automation.',
+    ARENA: 'Arena bots — speed and auto-switch trading setups.',
+    HENRY: 'Henry collection — signal and speed-based strategies.',
+    HUNTER: 'Hunter bots — differ, martingale, and market-killer styles.',
 };
 
 export const getBotDescription = (bot: TFreeBotFile): string =>
