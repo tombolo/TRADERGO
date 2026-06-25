@@ -125,7 +125,7 @@ const LandingPage = () => {
                             onClick={handleSignup}
                             disabled={isLoginLoading}
                         >
-                            <Localize i18n_default_text='Get Started' />
+                            <Localize i18n_default_text='Sign up' />
                         </button>
                     </div>
                 </div>
@@ -230,8 +230,8 @@ const LandingPage = () => {
                         <Localize i18n_default_text='SYNTHETIC MARKET FOCUS' />
                     </span>
                 </article>
-                <article className='landing-page__feature landing-page__feature--branded'>
-                    <span className='landing-page__feature-kicker landing-page__feature-kicker--domain'>{domain}</span>
+                <article className='landing-page__feature'>
+                    <span className='landing-page__feature-kicker'>DERIV HU</span>
                     <span className='landing-page__feature-title'>
                         <Localize i18n_default_text='BRANDED WORKSPACE' />
                     </span>
