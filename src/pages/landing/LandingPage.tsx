@@ -64,10 +64,19 @@ const LandingPage = observer(() => {
     const { isAuthorized, activeLoginid } = useApiBase();
     const { handleLogin, handleSignup, isLoginLoading } = useDerivAuthActions();
     const [isRedirecting, setIsRedirecting] = React.useState(false);
+    const testimonialsRef = React.useRef<HTMLDivElement>(null);
+
+    const scrollToTestimonials = () => {
+        testimonialsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
 
     React.useEffect(() => {
         const previousOverflow = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
+        const isMobile = window.matchMedia('(max-width: 600px)').matches;
+
+        if (!isMobile) {
+            document.body.style.overflow = 'hidden';
+        }
 
         return () => {
             document.body.style.overflow = previousOverflow;
@@ -141,12 +150,7 @@ const LandingPage = observer(() => {
                         onClick={handleSignup}
                         disabled={isLoginLoading}
                     >
-                        <span className='landing-page__btn-label landing-page__btn-label--full'>
-                            <Localize i18n_default_text='Get Started' />
-                        </span>
-                        <span className='landing-page__btn-label landing-page__btn-label--short'>
-                            <Localize i18n_default_text='Start' />
-                        </span>
+                        <Localize i18n_default_text='Get Started' />
                     </button>
                 </div>
             </header>
@@ -158,16 +162,13 @@ const LandingPage = observer(() => {
             <div className='landing-page__body'>
                 <section className='landing-page__hero'>
                 <span className='landing-page__badge'>
-                    <span className='landing-page__badge-text landing-page__badge-text--full'>
-                        <Localize i18n_default_text='Free Deriv bots, automation, and trading tools in one workspace' />
-                    </span>
-                    <span className='landing-page__badge-text landing-page__badge-text--short'>
-                        <Localize i18n_default_text='Free Deriv bots & tools in one workspace' />
-                    </span>
+                    <Localize i18n_default_text='Free Deriv bots, automation, and trading tools in one workspace' />
                 </span>
 
                 <h1 className='landing-page__title landing-page__title--mobile'>
-                    <Localize i18n_default_text='Trade with' />{' '}
+                    <span className='landing-page__title-glow'>
+                        <Localize i18n_default_text='Trade with' />
+                    </span>{' '}
                     <span className='landing-page__title-highlight'>
                         <Localize i18n_default_text='better' />
                     </span>{' '}
@@ -197,12 +198,7 @@ const LandingPage = observer(() => {
                         disabled={isLoginLoading}
                     >
                         <PulseIcon />
-                        <span className='landing-page__cta-label landing-page__cta-label--full'>
-                            {isLoginLoading ? localize('Signing in...') : localize('Log in and Trade')}
-                        </span>
-                        <span className='landing-page__cta-label landing-page__cta-label--short'>
-                            {isLoginLoading ? localize('Signing in...') : localize('Log In & Trade')}
-                        </span>
+                        {isLoginLoading ? localize('Signing in...') : localize('Log in and Trade')}
                         <ChevronRight />
                     </button>
                     <button
@@ -212,20 +208,25 @@ const LandingPage = observer(() => {
                         disabled={isLoginLoading}
                     >
                         <BoltIcon />
-                        <span className='landing-page__cta-label landing-page__cta-label--full'>
-                            <Localize i18n_default_text='Create Free Account' />
-                        </span>
-                        <span className='landing-page__cta-label landing-page__cta-label--short'>
-                            <Localize i18n_default_text='Free Account' />
-                        </span>
+                        <Localize i18n_default_text='Create Free Account' />
                     </button>
                 </div>
+
+                <button type='button' className='landing-page__explore' onClick={scrollToTestimonials}>
+                    <Localize i18n_default_text='Explore the course' /> ↓
+                </button>
                 </section>
 
-                <section className='landing-page__testimonials' aria-label={localize('Testimonials')}>
+                <section className='landing-page__testimonials' ref={testimonialsRef} aria-label={localize('Testimonials')}>
                 <h2 className='landing-page__testimonials-title'>
                     <Localize i18n_default_text='What people say' />
                 </h2>
+
+                <div className='landing-page__scroll-track'>
+                    {LANDING_TESTIMONIALS.map(item => (
+                        <TestimonialCard key={item.name} item={item} />
+                    ))}
+                </div>
 
                 <div className='landing-page__marquee'>
                     <div className='landing-page__marquee-track'>
@@ -272,12 +273,15 @@ const LandingPage = observer(() => {
             </div>
 
             <footer className='landing-page__footer'>
+                <p className='landing-page__risk'>
+                    <strong>
+                        <Localize i18n_default_text='Risk Disclaimer.' />
+                    </strong>{' '}
+                    <Localize i18n_default_text='Deriv offers complex derivatives, such as options and contracts for difference ("CFDs"). These products may not be suitable for all clients, and trading them puts you at risk. Please ensure you understand these risks before trading.' />
+                </p>
                 <p className='landing-page__footer-copy'>
                     © {new Date().getFullYear()} {SITE_NAME}.{' '}
                     <Localize i18n_default_text='All rights reserved.' />
-                </p>
-                <p className='landing-page__footer-risk'>
-                    <Localize i18n_default_text='Trading involves risk. Please trade responsibly.' />
                 </p>
             </footer>
         </div>

@@ -18,10 +18,13 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
     const location = useLocation();
     const { isAuthorized, isAuthorizing, activeLoginid } = useApiBase();
     const hasSession = hasStoredSession();
+    const isOAuthPending = sessionStorage.getItem('oauth_pending') === 'true';
     const isAuthenticated = isAuthorized || Boolean(activeLoginid) || hasSession;
 
     if (!isAuthenticated) {
-        if (isAuthorizing) {
+        const shouldWaitForAuth = (isAuthorizing || isOAuthPending) && (hasSession || isOAuthPending);
+
+        if (shouldWaitForAuth) {
             return (
                 <NetworkBootLoader
                     message={localize('Please wait while we connect to the server...')}

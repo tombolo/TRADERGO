@@ -139,35 +139,13 @@ const router = createBrowserRouter(
                 path='/callback'
                 element={
                     <AppProviders>
-                        <Suspense
-                            fallback={
-                                <NetworkBootLoader
-                                    message={localize('Please wait while we connect to the server...')}
-                                    hint={localize('Completing sign in…')}
-                                />
-                            }
-                        >
-                            <AppChrome />
-                        </Suspense>
+                        <NetworkBootLoader
+                            message={localize('Please wait while we connect to the server...')}
+                            hint={localize('Completing sign in…')}
+                        />
                     </AppProviders>
                 }
-            >
-                <Route
-                    index
-                    element={
-                        <Suspense
-                            fallback={
-                                <NetworkBootLoader
-                                    message={localize('Loading...')}
-                                    hint={localize('Initializing secure API connection…')}
-                                />
-                            }
-                        >
-                            <AppRoot />
-                        </Suspense>
-                    }
-                />
-            </Route>
+            />
         </>
     )
 );
@@ -200,18 +178,22 @@ function App() {
                         console.log('%c✅ Token exchange successful', 'color: green; font-weight: bold;', {
                             is_elite_flow: isEliteFlow,
                         });
+                        sessionStorage.removeItem('oauth_pending');
                         cleanupURL();
                     } else if (response.error) {
                         console.error('❌ Token exchange failed:', response.error);
+                        sessionStorage.removeItem('oauth_pending');
                         cleanupURL();
                     }
                 })
                 .catch(exchangeError => {
                     console.error('❌ Token exchange request failed:', exchangeError);
+                    sessionStorage.removeItem('oauth_pending');
                     cleanupURL();
                 });
         } else if (!isProcessing && error) {
             console.error('OAuth callback error:', error);
+            sessionStorage.removeItem('oauth_pending');
             cleanupURL();
         }
     }, [isProcessing, isValid, params.code, error, cleanupURL, isEliteCallback]);

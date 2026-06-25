@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { clearCSRFToken, validateCSRFToken } from '@/components/shared/utils/config/config';
+import { getPostLoginRedirectUrl } from '@/constants/oauth';
 import { clearAuthData } from '@/utils/auth-utils';
 
 /**
@@ -137,6 +138,7 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
 
         // After OAuth, send users into the trading app on the dashboard tab.
         if (url.pathname === '/callback') {
+            sessionStorage.removeItem('oauth_pending');
             const postLogin = sessionStorage.getItem('post_login_redirect');
             sessionStorage.removeItem('post_login_redirect');
             if (postLogin?.startsWith('/app')) {
@@ -144,8 +146,10 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
                 url.pathname = pathPart || '/app';
                 url.hash = hashPart ? `#${hashPart}` : '#dashboard';
             } else {
-                url.pathname = '/app';
-                url.hash = 'dashboard';
+                const fallback = getPostLoginRedirectUrl('dashboard');
+                const [pathPart, hashPart] = fallback.split('#');
+                url.pathname = pathPart || '/app';
+                url.hash = hashPart ? `#${hashPart}` : '#dashboard';
             }
         }
         // Avoid manually dispatching POP navigation events: React Router blockers
@@ -188,7 +192,7 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
             // If user lands on `/callback` without OAuth params (e.g. refresh or direct visit),
             // return them to the main app route.
             if (window.location.pathname === '/callback') {
-                window.location.replace('/');
+                window.location.replace(`${window.location.origin}${getPostLoginRedirectUrl('dashboard')}`);
             }
 
             // Clear stale oauth_pending flag on normal page load (not during OAuth flow)

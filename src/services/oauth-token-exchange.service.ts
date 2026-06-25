@@ -1,4 +1,4 @@
-import { clearCodeVerifier, getCodeVerifier, isProduction } from '@/components/shared';
+import { OAUTH_CALLBACK_URL } from '@/constants/oauth';
 import { ErrorLogger } from '@/utils/error-logger';
 import { isDemoAccount } from '@/utils/account-helpers';
 import { AccountTypeDetectorService } from './account-type-detector.service';
@@ -281,10 +281,7 @@ export class OAuthTokenExchangeService {
                 };
             }
 
-            const protocol = window.location.protocol;
-            const host = window.location.host;
-            // Must exactly match the redirect_uri used in the authorization request.
-            const redirectUrl = `${protocol}//${host}/callback`;
+            const redirectUrl = OAUTH_CALLBACK_URL;
 
             const requestBody = new URLSearchParams({
                 grant_type: 'authorization_code',
@@ -506,21 +503,23 @@ export class OAuthTokenExchangeService {
                             loginid: firstAccount.account_id,
                         });
 
-                        // Trigger WebSocket initialization by reloading or reinitializing api_base
-                        // The api_base will pick up the active_loginid and authorize
-                        const { api_base } = await import('@/external/bot-skeleton');
-                        await api_base.init(true); // Force new connection with the account
-
-                        // Explicitly authorize: onsocketopen calls handleTokenExchangeIfNeeded() without await.
-                        // Add a small delay to allow socket to fully open and event listeners to attach.
-                        await new Promise(resolve => setTimeout(resolve, 100));
-
-                        // Check if we're not already authorized before calling authorize
-                        if (!api_base.is_authorized) {
-                            await api_base.authorizeAndSubscribe();
+                        try {
+                            const { default: Cookies } = await import('js-cookie');
+                            const domain = window.location.hostname.split('.').slice(-2).join('.');
+                            Cookies.set('logged_state', 'true', {
+                                domain,
+                                expires: 30,
+                                path: '/',
+                                secure: window.location.protocol === 'https:',
+                            });
+                        } catch {
+                            // Non-blocking: session is already in localStorage.
                         }
 
-                        // Return success response after accounts are set up
+                        sessionStorage.removeItem('oauth_pending');
+
+                        // Defer WebSocket init to the post-login /app route to avoid racing
+                        // with the callback redirect and double-authorize flows.
                         return {
                             access_token: data.access_token,
                             token_type: data.token_type || 'bearer',

@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { DEFAULT_POST_LOGIN_PATH, OAUTH_CALLBACK_URL } from '@/constants/oauth';
 import { useApiBase } from '@/hooks/useApiBase';
 
 const SIGNUP_URL = 'https://partner-tracking.deriv.com/click?a=21435&o=1&c=3&link_id=1';
@@ -26,7 +27,7 @@ export function useDerivAuthActions() {
 
             sessionStorage.setItem('oauth_pending', 'true');
             if (!sessionStorage.getItem('post_login_redirect')) {
-                sessionStorage.setItem('post_login_redirect', '/app#dashboard');
+                sessionStorage.setItem('post_login_redirect', DEFAULT_POST_LOGIN_PATH);
             }
 
             const csrfArray = new Uint8Array(32);
@@ -58,7 +59,7 @@ export function useDerivAuthActions() {
 
             const clientId = '338ua9bwF5Y4uHPT4xyDs';
             const appId = '134081';
-            const redirectUri = 'https://www.derivanalysinghub.com/callback';
+            const redirectUri = OAUTH_CALLBACK_URL;
             const scope = 'trade';
 
             const oauthUrl = `https://auth.deriv.com/oauth2/auth?scope=${scope}&response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256&app_id=${appId}`;
