@@ -122,30 +122,44 @@ class APIBase {
             return 'ELITE' as const;
         }
 
-        // Signal 4: account id patterns (CR/VRTC) from active loginid.
-        const activeLoginId = localStorage.getItem('active_loginid') || '';
-        if (activeLoginId.startsWith('CR') || activeLoginId.startsWith('VRTC')) {
-            setAuthSystem('ELITE');
-            localStorage.setItem('auth_system', 'ELITE');
-            return 'ELITE' as const;
-        }
+        // Signal 4: account id patterns (CR/VRTC) — legacy ELITE only (not OAuth2 PKCE).
+        const hasZoomOAuthBearer = (() => {
+            try {
+                const authInfoStr = sessionStorage.getItem('auth_info');
+                if (!authInfoStr) return false;
+                const authInfo = JSON.parse(authInfoStr) as { access_token?: string; expires_at?: number };
+                return (
+                    Boolean(authInfo?.access_token) &&
+                    (!authInfo.expires_at || Date.now() < authInfo.expires_at)
+                );
+            } catch {
+                return false;
+            }
+        })();
 
-        // Signal 5: account map keys in accountsList.
-        try {
-            const accountsList = JSON.parse(localStorage.getItem('accountsList') || '{}') as Record<string, string>;
-            const hasElitePattern = Object.keys(accountsList).some(
-                loginid => loginid.startsWith('CR') || loginid.startsWith('VRTC')
-            );
-            if (hasElitePattern) {
+        if (!hasZoomOAuthBearer) {
+            const activeLoginId = localStorage.getItem('active_loginid') || '';
+            if (activeLoginId.startsWith('CR') || activeLoginId.startsWith('VRTC')) {
                 setAuthSystem('ELITE');
                 localStorage.setItem('auth_system', 'ELITE');
                 return 'ELITE' as const;
             }
-        } catch (error) {
-            console.warn('[APIBase] identifyAccountTypeBeforeAuth: could not parse accountsList', error);
+
+            try {
+                const accountsList = JSON.parse(localStorage.getItem('accountsList') || '{}') as Record<string, string>;
+                const hasElitePattern = Object.keys(accountsList).some(
+                    loginid => loginid.startsWith('CR') || loginid.startsWith('VRTC')
+                );
+                if (hasElitePattern) {
+                    setAuthSystem('ELITE');
+                    localStorage.setItem('auth_system', 'ELITE');
+                    return 'ELITE' as const;
+                }
+            } catch (error) {
+                console.warn('[APIBase] identifyAccountTypeBeforeAuth: could not parse accountsList', error);
+            }
         }
 
-        // Do not force ZOOM here; preserve current/default routing decision.
         return 'ZOOM' as const;
     }
 
@@ -566,11 +580,19 @@ class APIBase {
             });
 
             let auth_or_balance;
-            /** OTP-scoped WS is pre-authenticated; `authorize` only accepts short session tokens, not OAuth bearer. */
+            /** OTP-scoped WS is pre-authenticated; `authorize` rejects OAuth bearer tokens. */
             let auth_via_balance = false;
             const is_special_rot_dot = isSpecialCaseLoginId(active_loginid);
             const ws_has_otp = typeof ws_url === 'string' && ws_url.includes('otp=');
-            const use_otp_balance_auth = is_special_rot_dot && ws_has_otp;
+            const authSystem = getAuthSystem();
+
+            if (OAuthTokenExchangeService.getAuthInfo()?.access_token && authSystem === 'ELITE') {
+                setAuthSystem('ZOOM');
+                localStorage.setItem('auth_system', 'ZOOM');
+            }
+
+            // Any OTP WebSocket URL is already scoped to the account session.
+            const use_otp_balance_auth = ws_has_otp;
 
             if (hasToken && use_otp_balance_auth) {
                 logSpecialAccountDebug('authorize_use_balance', {
@@ -579,18 +601,18 @@ class APIBase {
                     websocket_url: ws_url,
                     token_account_id: token_payload?.account_id,
                 });
-                console.log('[AuthTrace] authorize_skip_use_balance', {
+                console.log('[AuthTrace] authorize_use_balance', {
                     auth_system: 'ZOOM',
-                    reason: 'special_rot_dot_otp_session',
+                    reason: ws_has_otp ? 'otp_scoped_websocket' : 'special_rot_dot_otp_session',
                 });
                 auth_or_balance = await this.api.balance();
                 auth_via_balance = true;
             } else if (hasToken) {
-                const authSystem = getAuthSystem();
+                const zoomAuthSystem = getAuthSystem();
 
                 // ELITE uses the built-in authorize() method (like in ELITE app)
                 // ZOOM constructs a manual request with client_id
-                if (authSystem === 'ELITE') {
+                if (zoomAuthSystem === 'ELITE') {
                     try {
                         const eliteClientId = token_payload?.account_id || active_loginid;
                         const buildEliteAuthorizeRequest = (includeClientId: boolean) => ({
@@ -772,7 +794,6 @@ class APIBase {
                     token_account_id: token_payload?.account_id,
                 });
 
-                // Authorization error
                 console.error('%c❌ Authorization error:', 'color: red; font-weight: bold;', {
                     errorMessage,
                     error,

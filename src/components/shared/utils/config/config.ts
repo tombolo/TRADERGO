@@ -127,6 +127,10 @@ export const getSocketURL = async (): Promise<string> => {
         return wsUrl;
     } catch (error) {
         console.error('[DerivWS] Error in getSocketURL:', error);
+        const authInfo = OAuthTokenExchangeService.getAuthInfo();
+        if (authInfo?.access_token) {
+            throw error;
+        }
         return getDefaultServerURL();
     }
 };

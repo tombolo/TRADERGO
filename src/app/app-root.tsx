@@ -46,19 +46,34 @@ const AppRoot = () => {
 
         const initializeApi = async () => {
             if (!api_base_initialized.current) {
-                try {
-                    const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
-                    if (oauthJustCompleted) {
-                        const { clearDerivApiInstance } = await import(
-                            '@/external/bot-skeleton/services/api/appId'
-                        );
-                        clearDerivApiInstance();
+                const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
+                const maxAttempts = oauthJustCompleted ? 3 : 1;
+
+                for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                    try {
+                        if (attempt > 0) {
+                            const { clearDerivApiInstance } = await import(
+                                '@/external/bot-skeleton/services/api/appId'
+                            );
+                            clearDerivApiInstance();
+                            await new Promise(resolve => setTimeout(resolve, 800));
+                        } else if (oauthJustCompleted) {
+                            const { clearDerivApiInstance } = await import(
+                                '@/external/bot-skeleton/services/api/appId'
+                            );
+                            clearDerivApiInstance();
+                        }
+
+                        await api_base.init(attempt > 0);
+                        api_base_initialized.current = true;
+                        break;
+                    } catch (error) {
+                        console.error(`API initialization failed (attempt ${attempt + 1}/${maxAttempts}):`, error);
+                        api_base_initialized.current = false;
+                        if (attempt === maxAttempts - 1) {
+                            break;
+                        }
                     }
-                    await api_base.init();
-                    api_base_initialized.current = true;
-                } catch (error) {
-                    console.error('API initialization failed:', error);
-                    api_base_initialized.current = false;
                 }
             }
             if (!cancelled) setIsApiInitialized(true);
