@@ -88,44 +88,46 @@ const LandingPage = () => {
             <div className='landing-page__bg' aria-hidden='true' />
 
             <header className='landing-page__header'>
-                <div className='landing-page__brand'>
-                    <BrandLogo width={96} height={30} className='landing-page__logo' />
-                    <div className='landing-page__brand-text'>
-                        <div className='landing-page__wordmark'>
-                            <span className='landing-page__wordmark-short'>
-                                <span className='landing-page__wordmark-deriv'>DERIV</span>{' '}
-                                <span className='landing-page__wordmark-analysis'>ANALYSIS</span>{' '}
-                                <span className='landing-page__wordmark-accent'>HUB</span>
-                            </span>
-                            <span className='landing-page__wordmark-full'>
-                                DERIV ANALYSING <span className='landing-page__wordmark-accent'>HUB</span>
+                <div className='landing-page__header-main'>
+                    <div className='landing-page__brand'>
+                        <BrandLogo width={96} height={30} className='landing-page__logo' />
+                        <div className='landing-page__brand-text'>
+                            <div className='landing-page__wordmark'>
+                                <span className='landing-page__wordmark-short'>
+                                    <span className='landing-page__wordmark-deriv'>DERIV</span>{' '}
+                                    <span className='landing-page__wordmark-analysis'>ANALYSING</span>{' '}
+                                    <span className='landing-page__wordmark-accent'>HUB</span>
+                                </span>
+                                <span className='landing-page__wordmark-full'>
+                                    DERIV ANALYSING <span className='landing-page__wordmark-accent'>HUB</span>
+                                </span>
+                            </div>
+                            <span className='landing-page__powered'>
+                                <Localize i18n_default_text='Powered by Deriv tools' />
                             </span>
                         </div>
-                        <span className='landing-page__powered'>
-                            <Localize i18n_default_text='Powered by Deriv tools' />
-                        </span>
                     </div>
-                </div>
 
-                <span className='landing-page__domain'>{domain}</span>
+                    <span className='landing-page__domain'>{domain}</span>
 
-                <div className='landing-page__auth'>
-                    <button
-                        type='button'
-                        className='landing-page__btn landing-page__btn--ghost'
-                        onClick={handleLogin}
-                        disabled={isLoginLoading}
-                    >
-                        {isLoginLoading ? localize('Signing in...') : localize('Log in')}
-                    </button>
-                    <button
-                        type='button'
-                        className='landing-page__btn landing-page__btn--primary'
-                        onClick={handleSignup}
-                        disabled={isLoginLoading}
-                    >
-                        <Localize i18n_default_text='Get Started' />
-                    </button>
+                    <div className='landing-page__auth landing-page__auth--header'>
+                        <button
+                            type='button'
+                            className='landing-page__btn landing-page__btn--ghost'
+                            onClick={handleLogin}
+                            disabled={isLoginLoading}
+                        >
+                            {isLoginLoading ? localize('Signing in...') : localize('Log in')}
+                        </button>
+                        <button
+                            type='button'
+                            className='landing-page__btn landing-page__btn--primary'
+                            onClick={handleSignup}
+                            disabled={isLoginLoading}
+                        >
+                            <Localize i18n_default_text='Get Started' />
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -192,7 +194,10 @@ const LandingPage = () => {
                 </section>
 
                 <section className='landing-page__testimonials' ref={testimonialsRef} aria-label={localize('Testimonials')}>
-                <h2 className='landing-page__testimonials-title'>
+                <h2 className='landing-page__testimonials-title landing-page__testimonials-title--mobile'>
+                    <Localize i18n_default_text='What people say' />
+                </h2>
+                <h2 className='landing-page__testimonials-title landing-page__testimonials-title--desktop'>
                     <Localize i18n_default_text='What people say' />
                 </h2>
 
