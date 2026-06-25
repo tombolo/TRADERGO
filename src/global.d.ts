@@ -155,4 +155,9 @@ declare module '*.xml' {
     export default content;
 }
 
+declare module '*.png' {
+    const src: string;
+    export default src;
+}
+
 export {};

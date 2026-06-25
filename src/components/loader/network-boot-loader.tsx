@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { SITE_NAME } from '@/constants/seo';
+import loaderBg from './loader-bg.png';
 import './network-boot-loader.scss';
 
 let hasNetworkBootLoaderEntered = false;
@@ -40,7 +41,15 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
             aria-label={message || 'Loading trading platform'}
             data-testid='dt_network_boot_loader'
         >
-            <div className='network-boot__bg' aria-hidden />
+            <div
+                className='network-boot__bg'
+                style={
+                    {
+                        '--nbl-bg-image': `url(${loaderBg})`,
+                    } as CSSProperties
+                }
+                aria-hidden
+            />
 
             <div className='network-boot__panel'>
                 <h1 className='network-boot__brand'>{SITE_NAME}</h1>
