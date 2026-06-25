@@ -1,6 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import scopeLandscapeBg from '@/components/backgrounds/scope-landscape.png';
+import scopePortraitBg from '@/components/backgrounds/scope-potrait.png';
 import { SITE_NAME } from '@/constants/seo';
-import loaderBg from './loader-bg.png';
 import './network-boot-loader.scss';
 
 let hasNetworkBootLoaderEntered = false;
@@ -45,7 +46,8 @@ export default function NetworkBootLoader({ message, hint }: NetworkBootLoaderPr
                 className='network-boot__bg'
                 style={
                     {
-                        '--nbl-bg-image': `url(${loaderBg})`,
+                        '--nbl-bg-portrait': `url(${scopePortraitBg})`,
+                        '--nbl-bg-landscape': `url(${scopeLandscapeBg})`,
                     } as CSSProperties
                 }
                 aria-hidden

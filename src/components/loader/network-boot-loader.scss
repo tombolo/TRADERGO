@@ -18,7 +18,13 @@
         inset: 0;
         background:
             linear-gradient(180deg, rgb(3 6 13 / 42%) 0%, rgb(3 6 13 / 72%) 55%, rgb(3 6 13 / 88%) 100%),
-            var(--nbl-bg-image) center / cover no-repeat;
+            var(--nbl-bg-portrait) center / cover no-repeat;
+
+        @media (min-width: 768px) {
+            background:
+                linear-gradient(180deg, rgb(3 6 13 / 42%) 0%, rgb(3 6 13 / 72%) 55%, rgb(3 6 13 / 88%) 100%),
+                var(--nbl-bg-landscape) center / cover no-repeat;
+        }
 
         &::after {
             content: '';

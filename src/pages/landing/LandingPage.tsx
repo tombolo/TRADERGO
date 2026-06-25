@@ -141,7 +141,12 @@ const LandingPage = observer(() => {
                         onClick={handleSignup}
                         disabled={isLoginLoading}
                     >
-                        <Localize i18n_default_text='Get Started' />
+                        <span className='landing-page__btn-label landing-page__btn-label--full'>
+                            <Localize i18n_default_text='Get Started' />
+                        </span>
+                        <span className='landing-page__btn-label landing-page__btn-label--short'>
+                            <Localize i18n_default_text='Start' />
+                        </span>
                     </button>
                 </div>
             </header>
@@ -151,9 +156,14 @@ const LandingPage = observer(() => {
             </div>
 
             <div className='landing-page__body'>
-            <section className='landing-page__hero'>
+                <section className='landing-page__hero'>
                 <span className='landing-page__badge'>
-                    <Localize i18n_default_text='Free Deriv bots, automation, and trading tools in one workspace' />
+                    <span className='landing-page__badge-text landing-page__badge-text--full'>
+                        <Localize i18n_default_text='Free Deriv bots, automation, and trading tools in one workspace' />
+                    </span>
+                    <span className='landing-page__badge-text landing-page__badge-text--short'>
+                        <Localize i18n_default_text='Free Deriv bots & tools in one workspace' />
+                    </span>
                 </span>
 
                 <h1 className='landing-page__title landing-page__title--mobile'>
@@ -187,7 +197,12 @@ const LandingPage = observer(() => {
                         disabled={isLoginLoading}
                     >
                         <PulseIcon />
-                        {isLoginLoading ? localize('Signing in...') : localize('Log in and Trade')}
+                        <span className='landing-page__cta-label landing-page__cta-label--full'>
+                            {isLoginLoading ? localize('Signing in...') : localize('Log in and Trade')}
+                        </span>
+                        <span className='landing-page__cta-label landing-page__cta-label--short'>
+                            {isLoginLoading ? localize('Signing in...') : localize('Log In & Trade')}
+                        </span>
                         <ChevronRight />
                     </button>
                     <button
@@ -197,12 +212,17 @@ const LandingPage = observer(() => {
                         disabled={isLoginLoading}
                     >
                         <BoltIcon />
-                        <Localize i18n_default_text='Create Free Account' />
+                        <span className='landing-page__cta-label landing-page__cta-label--full'>
+                            <Localize i18n_default_text='Create Free Account' />
+                        </span>
+                        <span className='landing-page__cta-label landing-page__cta-label--short'>
+                            <Localize i18n_default_text='Free Account' />
+                        </span>
                     </button>
                 </div>
-            </section>
+                </section>
 
-            <section className='landing-page__testimonials' aria-label={localize('Testimonials')}>
+                <section className='landing-page__testimonials' aria-label={localize('Testimonials')}>
                 <h2 className='landing-page__testimonials-title'>
                     <Localize i18n_default_text='What people say' />
                 </h2>
@@ -217,9 +237,9 @@ const LandingPage = observer(() => {
                         ))}
                     </div>
                 </div>
-            </section>
+                </section>
 
-            <section className='landing-page__features' aria-label={localize('Platform highlights')}>
+                <section className='landing-page__features' aria-label={localize('Platform highlights')}>
                 <article className='landing-page__feature'>
                     <span className='landing-page__feature-kicker'>
                         <Localize i18n_default_text='Free' />
@@ -248,8 +268,7 @@ const LandingPage = observer(() => {
                         <Localize i18n_default_text='Live' /> <Localize i18n_default_text='MARKET STATUS' />
                     </span>
                 </article>
-            </section>
-
+                </section>
             </div>
 
             <footer className='landing-page__footer'>
