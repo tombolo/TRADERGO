@@ -1,10 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import RiskDisclaimer from '@/components/layout/footer/RiskDisclaimer';
 import { BrandLogo } from '@/components/layout/app-logo/BrandLogo';
 import { TAB_HASH_SEGMENTS } from '@/constants/bot-contents';
-import { SITE_URL } from '@/constants/seo';
+import { SITE_NAME, SITE_URL } from '@/constants/seo';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useDerivAuthActions } from '@/hooks/useDerivAuthActions';
 import { hasStoredSession } from '@/utils/auth-utils';
@@ -65,7 +64,15 @@ const LandingPage = observer(() => {
     const { isAuthorized, activeLoginid } = useApiBase();
     const { handleLogin, handleSignup, isLoginLoading } = useDerivAuthActions();
     const [isRedirecting, setIsRedirecting] = React.useState(false);
-    const testimonialsRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+        };
+    }, []);
 
     React.useEffect(() => {
         const hash = window.location.hash.replace(/^#\/?/, '').split(/[?/]/)[0];
@@ -86,10 +93,6 @@ const LandingPage = observer(() => {
             navigate('/app#dashboard', { replace: true });
         }
     }, [isAuthorized, activeLoginid, navigate]);
-
-    const scrollToTestimonials = () => {
-        testimonialsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
 
     if (isRedirecting) {
         return <div className='landing-page__redirecting'>{localize('Opening your dashboard...')}</div>;
@@ -147,6 +150,7 @@ const LandingPage = observer(() => {
                 <MarketTicker />
             </div>
 
+            <div className='landing-page__body'>
             <section className='landing-page__hero'>
                 <span className='landing-page__badge'>
                     <Localize i18n_default_text='Free Deriv bots, automation, and trading tools in one workspace' />
@@ -196,27 +200,12 @@ const LandingPage = observer(() => {
                         <Localize i18n_default_text='Create Free Account' />
                     </button>
                 </div>
-
-                <button type='button' className='landing-page__explore' onClick={scrollToTestimonials}>
-                    <span className='landing-page__explore--mobile'>
-                        <Localize i18n_default_text='Explore the course' /> ↓
-                    </span>
-                    <span className='landing-page__explore--desktop'>
-                        <Localize i18n_default_text='Explore trader stories' /> ↓
-                    </span>
-                </button>
             </section>
 
-            <section className='landing-page__testimonials' ref={testimonialsRef} aria-label={localize('Testimonials')}>
+            <section className='landing-page__testimonials' aria-label={localize('Testimonials')}>
                 <h2 className='landing-page__testimonials-title'>
                     <Localize i18n_default_text='What people say' />
                 </h2>
-
-                <div className='landing-page__scroll-track'>
-                    {LANDING_TESTIMONIALS.map(item => (
-                        <TestimonialCard key={item.name} item={item} />
-                    ))}
-                </div>
 
                 <div className='landing-page__marquee'>
                     <div className='landing-page__marquee-track'>
@@ -261,16 +250,17 @@ const LandingPage = observer(() => {
                 </article>
             </section>
 
-            <p className='landing-page__risk-inline'>
-                <strong>
-                    <Localize i18n_default_text='Risk Disclaimer.' />
-                </strong>{' '}
-                <Localize i18n_default_text='Deriv offers complex derivatives, such as options and contracts for difference ("CFDs"). These products may not be suitable for all clients, and trading them puts you at risk. Please ensure you understand these risks before trading.' />
-            </p>
-
-            <div className='landing-page__risk-widget'>
-                <RiskDisclaimer />
             </div>
+
+            <footer className='landing-page__footer'>
+                <p className='landing-page__footer-copy'>
+                    © {new Date().getFullYear()} {SITE_NAME}.{' '}
+                    <Localize i18n_default_text='All rights reserved.' />
+                </p>
+                <p className='landing-page__footer-risk'>
+                    <Localize i18n_default_text='Trading involves risk. Please trade responsibly.' />
+                </p>
+            </footer>
         </div>
     );
 });
