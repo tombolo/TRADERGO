@@ -1,7 +1,7 @@
 {
-    "name": "DERIV ANALYSING HUB (derivanalysinghub.com)",
-    "short_name": "DERIV ANALYSING HUB",
-    "description": "DERIV ANALYSING HUB (derivanalysinghub.com) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
+    "name": "SMART TRADERS (smarttraderstool.com)",
+    "short_name": "SMART TRADERS",
+    "description": "SMART TRADERS (smarttraderstool.com) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#000000",

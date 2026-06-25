@@ -1,7 +1,7 @@
 /** Canonical site URL — keep in sync with index.html, robots.txt, and sitemap.xml */
-export const SITE_URL = 'https://derivanalysinghub.com';
+export const SITE_URL = 'https://smarttraderstool.com';
 
-export const SITE_NAME = 'DERIV ANALYSING HUB';
+export const SITE_NAME = 'SMART TRADERS';
 
 export const SITE_LOGO_PATH = '/assets/images/MERRICK.png';
 
@@ -15,9 +15,10 @@ export const OG_IMAGE_HEIGHT = 408;
 export const THEME_COLOR = '#22c55e';
 
 export const SEO_KEYWORDS = [
-    'DERIV ANALYSING HUB',
-    'derivanalysinghub.com',
-    'DERIV ANALYSING HUB home',
+    'SMART TRADERS',
+    'smarttraderstool.com',
+    'SMART TRADERS home',
+    'smart traders tool',
     'binary tools',
     'trade scheme',
     'dollar printer',
@@ -30,14 +31,14 @@ export const SEO_KEYWORDS = [
     'binary options bot',
     'Deriv trading platform',
     'market analysis',
-    'deriv analysing hub',
+    'smart trading tools',
 ].join(', ');
 
 export const DEFAULT_TITLE =
-    'DERIV ANALYSING HUB (derivanalysinghub.com) | Home — Binary Tools, Trade Scheme, Dollar Printer & Deriv Tools';
+    'SMART TRADERS (smarttraderstool.com) | Home — Binary Tools, Trade Scheme, Dollar Printer & Deriv Tools';
 
 export const DEFAULT_DESCRIPTION =
-    'DERIV ANALYSING HUB (derivanalysinghub.com) is your home for market analysis, binary tools, trade schemes, and Dollar Printer strategies. Build automated bots with Deriv tools, Deriv academy guides, and no-code bot builder.';
+    'SMART TRADERS (smarttraderstool.com) is your home for market analysis, binary tools, trade schemes, and Dollar Printer strategies. Build automated bots with Deriv tools, Deriv academy guides, and no-code bot builder.';
 
 export const TAB_SEO: Record<string, { title: string; description: string }> = {
     home: {
@@ -45,48 +46,48 @@ export const TAB_SEO: Record<string, { title: string; description: string }> = {
         description: DEFAULT_DESCRIPTION,
     },
     dashboard: {
-        title: 'DERIV ANALYSING HUB Dashboard | Binary Tools & Trade Scheme Home',
+        title: 'SMART TRADERS Dashboard | Binary Tools & Trade Scheme Home',
         description:
-            'DERIV ANALYSING HUB dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
+            'SMART TRADERS dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
     },
     bot_builder: {
-        title: 'DERIV ANALYSING HUB Bot Builder | Deriv Tools & Automated Trading',
+        title: 'SMART TRADERS Bot Builder | Deriv Tools & Automated Trading',
         description:
-            'Build automated trading bots with DERIV ANALYSING HUB bot builder. Visual blocks, Deriv tools, and binary tools — no coding required.',
+            'Build automated trading bots with SMART TRADERS bot builder. Visual blocks, Deriv tools, and binary tools — no coding required.',
     },
     free_bots: {
-        title: 'DERIV ANALYSING HUB Free Bots | Dollar Printer & Binary Tools',
+        title: 'SMART TRADERS Free Bots | Dollar Printer & Binary Tools',
         description:
-            'Download free trading bots including Dollar Printer strategies. DERIV ANALYSING HUB free bots for Deriv and binary tools.',
+            'Download free trading bots including Dollar Printer strategies. SMART TRADERS free bots for Deriv and binary tools.',
     },
     bulk_trader: {
-        title: 'DERIV ANALYSING HUB Bulk Trader | Even/Odd & Binary Tools',
+        title: 'SMART TRADERS Bulk Trader | Even/Odd & Binary Tools',
         description:
-            'Bulk trade Even/Odd contracts on DERIV ANALYSING HUB — live tick analysis, digit distribution, and fast bulk execution.',
+            'Bulk trade Even/Odd contracts on SMART TRADERS — live tick analysis, digit distribution, and fast bulk execution.',
     },
     trader: {
-        title: 'DERIV ANALYSING HUB Trader | Deriv Trading Platform',
+        title: 'SMART TRADERS Trader | Deriv Trading Platform',
         description:
-            'Trade on Deriv with DERIV ANALYSING HUB — integrated trader, binary tools, and Deriv tools in one platform.',
+            'Trade on Deriv with SMART TRADERS — integrated trader, binary tools, and Deriv tools in one platform.',
     },
     copy_trading: {
-        title: 'DERIV ANALYSING HUB Copy Trading | Trade Scheme & Deriv Tools',
+        title: 'SMART TRADERS Copy Trading | Trade Scheme & Deriv Tools',
         description:
-            'Copy trading on DERIV ANALYSING HUB — follow trade schemes and strategies with Deriv tools support.',
+            'Copy trading on SMART TRADERS — follow trade schemes and strategies with Deriv tools support.',
     },
     chart: {
-        title: 'DERIV ANALYSING HUB Charts | Binary Tools & Market Analysis',
-        description: 'Live charts and market analysis on DERIV ANALYSING HUB — binary tools for Deriv traders.',
+        title: 'SMART TRADERS Charts | Binary Tools & Market Analysis',
+        description: 'Live charts and market analysis on SMART TRADERS — binary tools for Deriv traders.',
     },
     analysis_tools: {
-        title: 'DERIV ANALYSING HUB Analysis Tools | Deriv Academy & Binary Tools',
+        title: 'SMART TRADERS Analysis Tools | Deriv Academy & Binary Tools',
         description:
-            'Technical analysis on DERIV ANALYSING HUB — Deriv academy style insights and binary tools.',
+            'Technical analysis on SMART TRADERS — Deriv academy style insights and binary tools.',
     },
     app: {
-        title: 'DERIV ANALYSING HUB Dashboard | Binary Tools & Trade Scheme Home',
+        title: 'SMART TRADERS Dashboard | Binary Tools & Trade Scheme Home',
         description:
-            'DERIV ANALYSING HUB dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
+            'SMART TRADERS dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
     },
 };
 

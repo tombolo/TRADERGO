@@ -1,3 +1,4 @@
+import { SITE_NAME } from '@/constants/seo';
 import { localize } from '@deriv-com/translations';
 
 export type TSidebarItem = {
@@ -8,7 +9,7 @@ export type TSidebarItem = {
 
 export const SIDEBAR_INTRO = (): TSidebarItem[] => [
     {
-        label: localize('Welcome to DERIV ANALYSING HUB'),
+        label: localize(`Welcome to ${SITE_NAME}`),
         content: [
             {
                 data: localize('Build and deploy automated trades without coding'),

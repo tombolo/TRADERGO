@@ -1,3 +1,5 @@
+import { SITE_NAME } from '@/constants/seo';
+
 type TBrandLogoProps = {
     width?: number;
     height?: number;
@@ -8,7 +10,7 @@ export const BrandLogo = ({ width = 120, height = 32, className = '' }: TBrandLo
     return (
         <img
             src='/assets/images/MERRICK.png'
-            alt='DERIV ANALYSING HUB'
+            alt={SITE_NAME}
             width={width}
             height={height}
             className={className}

@@ -94,12 +94,11 @@ const LandingPage = () => {
                         <div className='landing-page__brand-text'>
                             <div className='landing-page__wordmark'>
                                 <span className='landing-page__wordmark-short'>
-                                    <span className='landing-page__wordmark-deriv'>DERIV</span>{' '}
-                                    <span className='landing-page__wordmark-analysis'>ANALYSING</span>{' '}
-                                    <span className='landing-page__wordmark-accent'>HUB</span>
+                                    <span className='landing-page__wordmark-deriv'>SMART</span>{' '}
+                                    <span className='landing-page__wordmark-accent'>TRADERS</span>
                                 </span>
                                 <span className='landing-page__wordmark-full'>
-                                    DERIV ANALYSING <span className='landing-page__wordmark-accent'>HUB</span>
+                                    SMART <span className='landing-page__wordmark-accent'>TRADERS</span>
                                 </span>
                             </div>
                             <span className='landing-page__powered'>
@@ -154,7 +153,7 @@ const LandingPage = () => {
                 <h1 className='landing-page__title landing-page__title--desktop'>
                     <Localize i18n_default_text='Welcome to' />{' '}
                     <span className='landing-page__title-accent'>
-                        <Localize i18n_default_text='Deriv Analysing Hub' />
+                        <Localize i18n_default_text='Smart Traders' />
                     </span>
                 </h1>
 
@@ -231,7 +230,7 @@ const LandingPage = () => {
                     </span>
                 </article>
                 <article className='landing-page__feature'>
-                    <span className='landing-page__feature-kicker'>DERIV HU</span>
+                    <span className='landing-page__feature-kicker'>SMART ST</span>
                     <span className='landing-page__feature-title'>
                         <Localize i18n_default_text='BRANDED WORKSPACE' />
                     </span>

@@ -1,11 +1,11 @@
 {
-    "brand_name": "YourBrand",
-    "brand_domain": "yourbrand.com",
+    "brand_name": "SmartTraders",
+    "brand_domain": "smarttraderstool.com",
     "brand_hostname": {
-        "staging": "staging.yourbrand.com/dashboard",
-        "production": "yourbrand.com/dashboard"
+        "staging": "staging.smarttraderstool.com/dashboard",
+        "production": "smarttraderstool.com/dashboard"
     },
-    "domain_name": "YourBrand.com",
+    "domain_name": "SmartTradersTool.com",
     "colors": {
         "primary": "#7C3AED",
         "secondary": "#A78BFA",
@@ -58,14 +58,14 @@
         "css_variable_prefix": "--brand"
     },
     "platform": {
-        "name": "DERIV ANALYSING HUB",
+        "name": "SMART TRADERS",
         "logo": {
             "type": "component",
             "component_name": "BrandLogo",
-            "alt_text": "DERIV ANALYSING HUB",
+            "alt_text": "SMART TRADERS",
             "link_url": "/",
             "show_text": false,
-            "text": "DERIV ANALYSING HUB"
+            "text": "SMART TRADERS"
         },
         "footer": {
             "enable_language_settings": false,
@@ -73,10 +73,10 @@
         },
         "hostname": {
             "production": {
-                "com": "bot.yourbrand.com"
+                "com": "www.smarttraderstool.com"
             },
             "staging": {
-                "com": "staging-bot.yourbrand.com"
+                "com": "staging-bot.smarttraderstool.com"
             }
         },
         "auth2_url": {

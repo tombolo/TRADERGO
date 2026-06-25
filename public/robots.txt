@@ -1,4 +1,4 @@
-# DERIV ANALYSING HUB — allow all search engines
+# SMART TRADERS — allow all search engines
 User-agent: *
 Allow: /
 
@@ -10,4 +10,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://derivanalysinghub.com/sitemap.xml
+Sitemap: https://smarttraderstool.com/sitemap.xml

@@ -244,7 +244,7 @@ function mergePollBalanceIntoClient(client: ClientStore, raw: { balance?: unknow
 const DTraderAutoLogin: React.FC<DTraderAutoLoginProps> = ({
     dtraderUrl = 'https://off-hazel.vercel.app/dtrader',
     eliteDtraderUrl = 'https://iframe-umber.vercel.app/dtrader',
-    appId = 134081,
+    appId = 89928,
     defaultSymbol = '1HZ100V',
 }) => {
     const { connectionStatus, isAuthorized } = useApiBase();

@@ -258,7 +258,7 @@ export class DerivWSAccountsService {
         const optionsDir = brandConfig.platform.derivws.directories.options;
         const endpoint = `${baseURL}${optionsDir}accounts/${accountId}/reset-demo-balance`;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const appId = ((globalThis as any).process?.env?.APP_ID as string | undefined) || '134081';
+        const appId = ((globalThis as any).process?.env?.APP_ID as string | undefined) || '89928';
 
         const response = await fetch(endpoint, {
             method: 'POST',

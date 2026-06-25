@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { SITE_NAME } from '@/constants/seo';
 import classNames from 'classnames';
 import Text from '../text/text';
 
@@ -127,7 +128,7 @@ const Loading = ({ className, id, is_fullscreen = true, is_slow_loading, status,
                 </div>
 
                 <div className='initial-loader__brand'>
-                    <h2 className='initial-loader__title'>DERIV ANALYSING HUB</h2>
+                    <h2 className='initial-loader__title'>{SITE_NAME}</h2>
                     <p className='initial-loader__subtitle'>Loading your trading workspace...</p>
                 </div>
 

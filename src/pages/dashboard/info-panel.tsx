@@ -1,4 +1,4 @@
-import React from 'react';
+import { SITE_NAME } from '@/constants/seo';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import Modal from '@/components/shared_ui/modal';
@@ -78,7 +78,7 @@ const InfoPanel = observer(() => {
                     as='h1'
                     className='db-info-panel__title'
                 >
-                    Welcome to DERIV ANALYSING HUB
+                    Welcome to {SITE_NAME}
                 </Text>
                 <Text
                     color='general'

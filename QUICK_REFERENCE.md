@@ -99,7 +99,7 @@ JSON.parse(localStorage.getItem('accountsList')).length > 0
 ✅ Parsed tokens from callback
 ✅ Stored accounts and selected active account
 ✅ ELITE callback processed - auth_system set to ELITE
-[DerivAPI] Creating new WebSocket connection to: wss://...?app_id=134081
+[DerivAPI] Creating new WebSocket connection to: wss://...?app_id=89928
 🔐 [APIBase] ELITE account detected - calling authorize
 🔐 [APIBase] ELITE Account - Using authorize() method
 📞 [APIBase] Calling authorize...
@@ -120,7 +120,7 @@ JSON.parse(localStorage.getItem('accountsList')).length > 0
 
 ```
 ┌─────────────────┐
-│  ELITE OAuth    │ (app_id=134081)
+│  ELITE OAuth    │ (app_id=89928)
 └────────┬────────┘
          │
          ↓
@@ -152,7 +152,7 @@ JSON.parse(localStorage.getItem('accountsList')).length > 0
          │
          ↓
 ┌────────────────────────────────────────┐
-│  Create WebSocket with app_id=134081    │
+│  Create WebSocket with app_id=89928    │
 └────────┬───────────────────────────────┘
          │
          ↓ (WebSocket OPEN event fires)

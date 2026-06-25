@@ -255,7 +255,7 @@ export class OAuthTokenExchangeService {
                 // const protocol = window.location.protocol;
                 // const host = window.location.host;
                 // const redirectUrl = `${protocol}//${host}/callback`;
-                // const eliteOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=134081&l=${encodeURIComponent(language)}&brand=deriv&redirect_uri=${encodeURIComponent(redirectUrl)}`;
+                // const eliteOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=89928&l=${encodeURIComponent(language)}&brand=deriv&redirect_uri=${encodeURIComponent(redirectUrl)}`;
                 // sessionStorage.setItem('elite_oauth_flow_in_progress', 'true');
                 // localStorage.setItem('elite_oauth_flow_in_progress', 'true');
                 // window.location.replace(eliteOAuthUrl);
@@ -324,7 +324,7 @@ export class OAuthTokenExchangeService {
 
                 // DISABLED ELITE FALLBACK - return error so we can see what's wrong
                 // const language = new URLSearchParams(window.location.search).get('language') || 'en';
-                // const eliteOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=134081&l=${encodeURIComponent(language)}&brand=deriv&redirect_uri=${encodeURIComponent(redirectUrl)}`;
+                // const eliteOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=89928&l=${encodeURIComponent(language)}&brand=deriv&redirect_uri=${encodeURIComponent(redirectUrl)}`;
                 // sessionStorage.setItem('elite_oauth_flow_in_progress', 'true');
                 // localStorage.setItem('elite_oauth_flow_in_progress', 'true');
                 // window.location.replace(eliteOAuthUrl);

@@ -1,10 +1,10 @@
 /** Must match the redirect URI registered with Deriv OAuth and used in the login request. */
-export const OAUTH_CALLBACK_URL = 'https://www.derivanalysinghub.com/callback';
+export const OAUTH_CALLBACK_URL = 'https://www.smarttraderstool.com/callback';
 
 /** Production OAuth client — must match token exchange and login redirect. */
-export const OAUTH_CLIENT_ID = '338ua9bwF5Y4uHPT4xyDs';
+export const OAUTH_CLIENT_ID = '33o0n2szOMQmZUKlDdaNZ';
 
-export const OAUTH_APP_ID = '134081';
+export const OAUTH_APP_ID = '89928';
 
 /** Default in-app destination after OAuth completes. */
 export const DEFAULT_POST_LOGIN_PATH = '/app#dashboard';
