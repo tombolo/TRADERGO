@@ -494,32 +494,14 @@
     }
 
     &__scroll-track {
-        display: flex;
-        gap: 0.75rem;
-        overflow-x: auto;
-        padding: 0.35rem 1rem 0.65rem;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-
-        &::-webkit-scrollbar {
-            display: none;
-        }
-
-        @include tablet-or-desktop-screen {
-            display: none;
-        }
+        display: none;
     }
 
     &__marquee {
-        display: none;
-
-        @include tablet-or-desktop-screen {
-            position: relative;
-            display: block;
-            overflow: hidden;
-            width: 100%;
-        }
+        position: relative;
+        display: block;
+        overflow: hidden;
+        width: 100%;
 
         &::before,
         &::after {
@@ -685,17 +667,23 @@
         justify-content: center;
         gap: 0.35rem;
         min-height: 5.25rem;
+        min-width: 0;
         padding: 0.75rem 0.65rem;
         border-radius: 0.65rem;
         border: 1px solid rgb(148 163 184 / 18%);
         background: rgb(15 23 42 / 55%);
         text-align: center;
+        overflow: hidden;
 
         &--live {
             flex-direction: row;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+        }
+
+        &--branded {
+            grid-column: span 2;
         }
     }
 
@@ -706,6 +694,16 @@
         text-transform: uppercase;
         color: var(--landing-teal-bright);
         line-height: 1.2;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        max-width: 100%;
+
+        &--domain {
+            font-size: clamp(0.58rem, 2.6vw, 0.72rem);
+            letter-spacing: 0.03em;
+            text-transform: none;
+            line-height: 1.35;
+        }
     }
 
     &__feature-title {
@@ -715,6 +713,8 @@
         text-transform: uppercase;
         color: var(--landing-text);
         line-height: 1.25;
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
     &__feature-live-dot {
@@ -799,14 +799,36 @@
         }
 
         &__header-main {
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
-            padding: 1rem 1.15rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto;
+            gap: 0.75rem;
+            padding: 0.9rem 1.15rem 1rem;
         }
 
         &__auth--header {
-            display: none;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            width: 100%;
+
+            .landing-page__btn {
+                width: 100%;
+                min-height: 2.8rem;
+                padding: 0.55rem 0.65rem;
+                font-size: 0.88rem;
+                font-weight: 700;
+                border-radius: 0.65rem;
+            }
+
+            .landing-page__btn--ghost {
+                border: 1px solid rgb(248 250 252 / 28%);
+                background: rgb(15 23 42 / 45%);
+            }
+
+            .landing-page__btn--primary {
+                box-shadow: 0 6px 20px rgb(43 186 217 / 22%);
+            }
         }
 
         &__brand {
@@ -928,8 +950,18 @@
         }
 
         &__scroll-track {
-            gap: 0.85rem;
-            padding: 0.25rem 1.15rem 0.85rem;
+            display: none;
+        }
+
+        &__marquee {
+            &::before,
+            &::after {
+                width: 1.75rem;
+            }
+        }
+
+        &__marquee-track {
+            animation-duration: 38s;
         }
 
         &__card {
@@ -939,37 +971,26 @@
         }
 
         &__features {
-            display: flex;
-            gap: 0.7rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.65rem;
             padding: 0.25rem 1.15rem 1.15rem;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-
-            &::-webkit-scrollbar {
-                display: none;
-            }
+            overflow: visible;
         }
 
         &__feature {
-            flex: 0 0 auto;
-            width: min(10.5rem, 44vw);
-            min-height: 6.5rem;
-            padding: 0.9rem 0.75rem;
-            scroll-snap-align: start;
+            min-height: 5.75rem;
+            padding: 0.85rem 0.7rem;
             border-radius: 0.85rem;
             background: linear-gradient(160deg, rgb(20 32 52 / 75%) 0%, rgb(12 20 36 / 85%) 100%);
             border-color: rgb(43 186 217 / 18%);
         }
 
-        &__feature-kicker {
-            font-size: 0.75rem;
+        &__feature--branded {
+            grid-column: 1 / -1;
         }
 
-        &__feature-title {
-            font-size: 0.8rem;
-            line-height: 1.3;
+        &__feature-kicker--domain {
+            font-size: clamp(0.7rem, 3.2vw, 0.82rem);
         }
 
         &__footer {

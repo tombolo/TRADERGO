@@ -201,12 +201,6 @@ const LandingPage = () => {
                     <Localize i18n_default_text='What people say' />
                 </h2>
 
-                <div className='landing-page__scroll-track'>
-                    {LANDING_TESTIMONIALS.map(item => (
-                        <TestimonialCard key={item.name} item={item} />
-                    ))}
-                </div>
-
                 <div className='landing-page__marquee'>
                     <div className='landing-page__marquee-track'>
                         {LANDING_TESTIMONIALS.map(item => (
@@ -236,8 +230,8 @@ const LandingPage = () => {
                         <Localize i18n_default_text='SYNTHETIC MARKET FOCUS' />
                     </span>
                 </article>
-                <article className='landing-page__feature'>
-                    <span className='landing-page__feature-kicker'>{domain}</span>
+                <article className='landing-page__feature landing-page__feature--branded'>
+                    <span className='landing-page__feature-kicker landing-page__feature-kicker--domain'>{domain}</span>
                     <span className='landing-page__feature-title'>
                         <Localize i18n_default_text='BRANDED WORKSPACE' />
                     </span>
