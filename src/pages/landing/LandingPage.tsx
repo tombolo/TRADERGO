@@ -1,12 +1,8 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
 import { BrandLogo } from '@/components/layout/app-logo/BrandLogo';
 import { TAB_HASH_SEGMENTS } from '@/constants/bot-contents';
 import { SITE_NAME, SITE_URL } from '@/constants/seo';
-import { useApiBase } from '@/hooks/useApiBase';
 import { useDerivAuthActions } from '@/hooks/useDerivAuthActions';
-import { hasStoredSession } from '@/utils/auth-utils';
 import { MarketTicker } from '@/pages/dashboard/market-ticker';
 import { LANDING_TESTIMONIALS, type TTestimonial } from '@/pages/landing/landing-testimonials';
 import { Localize, localize } from '@deriv-com/translations';
@@ -59,11 +55,8 @@ const TestimonialCard = ({ item }: { item: TTestimonial }) => (
     </article>
 );
 
-const LandingPage = observer(() => {
-    const navigate = useNavigate();
-    const { isAuthorized, activeLoginid } = useApiBase();
+const LandingPage = () => {
     const { handleLogin, handleSignup, isLoginLoading } = useDerivAuthActions();
-    const [isRedirecting, setIsRedirecting] = React.useState(false);
     const testimonialsRef = React.useRef<HTMLDivElement>(null);
 
     const scrollToTestimonials = () => {
@@ -78,34 +71,15 @@ const LandingPage = observer(() => {
             document.body.style.overflow = 'hidden';
         }
 
+        const hash = window.location.hash.replace(/^#\/?/, '').split(/[?/]/)[0];
+        if (hash && (TAB_HASH_SEGMENTS as readonly string[]).includes(hash)) {
+            sessionStorage.setItem('post_login_redirect', `/app#${hash}`);
+        }
+
         return () => {
             document.body.style.overflow = previousOverflow;
         };
     }, []);
-
-    React.useEffect(() => {
-        const hash = window.location.hash.replace(/^#\/?/, '').split(/[?/]/)[0];
-        const isLoggedIn = isAuthorized || activeLoginid || hasStoredSession();
-
-        if (hash && (TAB_HASH_SEGMENTS as readonly string[]).includes(hash)) {
-            if (isLoggedIn) {
-                setIsRedirecting(true);
-                navigate(`/app#${hash}`, { replace: true });
-            } else {
-                sessionStorage.setItem('post_login_redirect', `/app#${hash}`);
-            }
-            return;
-        }
-
-        if (isLoggedIn) {
-            setIsRedirecting(true);
-            navigate('/app#dashboard', { replace: true });
-        }
-    }, [isAuthorized, activeLoginid, navigate]);
-
-    if (isRedirecting) {
-        return <div className='landing-page__redirecting'>{localize('Opening your dashboard...')}</div>;
-    }
 
     const domain = SITE_URL.replace(/^https?:\/\//, '');
 
@@ -286,6 +260,6 @@ const LandingPage = observer(() => {
             </footer>
         </div>
     );
-});
+};
 
 export default LandingPage;

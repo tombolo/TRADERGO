@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import ErrorBoundary from '@/components/error-component/error-boundary';
 import ErrorComponent from '@/components/error-component/error-component';
@@ -10,11 +10,9 @@ import './app-root.scss';
 
 const AppContent = lazy(() => import('./app-content'));
 
-const AppRootLoader = () => {
-    return (
-        <NetworkBootLoader message={localize('Loading...')} hint={localize('Initializing secure API connection…')} />
-    );
-};
+const AppRootLoader = () => (
+    <NetworkBootLoader message={localize('Loading...')} hint={localize('Initializing secure API connection…')} />
+);
 
 const ErrorComponentWrapper = observer(() => {
     const { common } = useStore();
@@ -37,55 +35,42 @@ const ErrorComponentWrapper = observer(() => {
 
 const AppRoot = () => {
     const store = useStore();
-    const api_base_initialized = useRef(false);
-    const [is_api_initialized, setIsApiInitialized] = useState(false);
+    const initStarted = useRef(false);
 
-    // Initialize API
     useEffect(() => {
-        let cancelled = false;
+        if (initStarted.current) return;
+        initStarted.current = true;
+
+        const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
+        const maxAttempts = oauthJustCompleted ? 3 : 1;
 
         const initializeApi = async () => {
-            if (!api_base_initialized.current) {
-                const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
-                const maxAttempts = oauthJustCompleted ? 3 : 1;
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                try {
+                    if (attempt > 0) {
+                        const { clearDerivApiInstance } = await import('@/external/bot-skeleton/services/api/appId');
+                        clearDerivApiInstance();
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    } else if (oauthJustCompleted) {
+                        const { clearDerivApiInstance } = await import('@/external/bot-skeleton/services/api/appId');
+                        clearDerivApiInstance();
+                    }
 
-                for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                    try {
-                        if (attempt > 0) {
-                            const { clearDerivApiInstance } = await import(
-                                '@/external/bot-skeleton/services/api/appId'
-                            );
-                            clearDerivApiInstance();
-                            await new Promise(resolve => setTimeout(resolve, 800));
-                        } else if (oauthJustCompleted) {
-                            const { clearDerivApiInstance } = await import(
-                                '@/external/bot-skeleton/services/api/appId'
-                            );
-                            clearDerivApiInstance();
-                        }
-
-                        await api_base.init(attempt > 0);
-                        api_base_initialized.current = true;
+                    await api_base.init(attempt > 0);
+                    break;
+                } catch (error) {
+                    console.error(`API initialization failed (attempt ${attempt + 1}/${maxAttempts}):`, error);
+                    if (attempt === maxAttempts - 1) {
                         break;
-                    } catch (error) {
-                        console.error(`API initialization failed (attempt ${attempt + 1}/${maxAttempts}):`, error);
-                        api_base_initialized.current = false;
-                        if (attempt === maxAttempts - 1) {
-                            break;
-                        }
                     }
                 }
             }
-            if (!cancelled) setIsApiInitialized(true);
         };
 
-        initializeApi();
-        return () => {
-            cancelled = true;
-        };
+        void initializeApi();
     }, []);
 
-    if (!store || !is_api_initialized) return <AppRootLoader />;
+    if (!store) return <AppRootLoader />;
 
     return (
         <Suspense fallback={<AppRootLoader />}>

@@ -24,6 +24,11 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
         oauthJustCompleted !== null && Date.now() - Number(oauthJustCompleted) < 30_000;
     const isAuthenticated = isAuthorized || Boolean(activeLoginid) || hasSession;
 
+    if (hasSession && !isOAuthPending && !isRecentOAuth) {
+        sessionStorage.removeItem('oauth_just_completed');
+        return <>{children}</>;
+    }
+
     if (!isAuthenticated) {
         const shouldWaitForAuth =
             (isAuthorizing || isOAuthPending || isRecentOAuth) && (hasSession || isOAuthPending || isRecentOAuth);

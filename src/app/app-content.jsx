@@ -4,7 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import AuthLoadingWrapper from '@/components/auth-loading-wrapper';
 import useLiveChat from '@/components/chat/useLiveChat';
 import NetworkBootLoader from '@/components/loader/network-boot-loader';
-import { NETWORK_BOOT_MIN_DISPLAY_MS } from '@/constants/boot-loader';
+import { getBootLoaderMinDisplayMs } from '@/constants/boot-loader';
 import { getUrlBase } from '@/components/shared';
 import TransactionDetailsModal from '@/components/transaction-details';
 import { api_base, ApiHelpers, ServerTime } from '@/external/bot-skeleton';
@@ -27,7 +27,7 @@ import '../components/bot-notification/bot-notification.scss';
 
 const AppContent = observer(() => {
     const [is_api_initialized, setIsApiInitialized] = React.useState(false);
-    const [is_loading, setIsLoading] = React.useState(true);
+    const [is_loading, setIsLoading] = React.useState(() => getBootLoaderMinDisplayMs() > 0);
 
     const store = useStore();
     const { app, transactions, common, client } = store;
@@ -120,35 +120,41 @@ const AppContent = observer(() => {
 
     const changeActiveSymbolLoadingState = () => {
         init();
+        const blockUI = getBootLoaderMinDisplayMs() > 0;
         const load_started_at = Date.now();
 
         const retrieveActiveSymbols = () => {
             const { active_symbols } = ApiHelpers.instance;
 
             active_symbols.retrieveActiveSymbols(true).then(() => {
+                if (!blockUI) return;
                 const elapsed = Date.now() - load_started_at;
-                setTimeout(() => setIsLoading(false), Math.max(0, NETWORK_BOOT_MIN_DISPLAY_MS - elapsed));
+                const minDisplay = getBootLoaderMinDisplayMs();
+                setTimeout(() => setIsLoading(false), Math.max(0, minDisplay - elapsed));
             });
         };
 
         if (ApiHelpers?.instance?.active_symbols) {
             retrieveActiveSymbols();
         } else {
-            // This is a workaround to fix the issue where the active symbols are not loaded immediately
-            // when the API is initialized. Should be replaced with RxJS pubsub
             const intervalId = setInterval(() => {
                 if (ApiHelpers?.instance?.active_symbols) {
                     clearInterval(intervalId);
                     retrieveActiveSymbols();
                 }
-            }, 1000);
+            }, 200);
         }
     };
 
     React.useEffect(() => {
         if (is_api_initialized) {
-            init();
-            setIsLoading(true);
+            const blockUI = getBootLoaderMinDisplayMs() > 0;
+            if (blockUI) {
+                setIsLoading(true);
+            } else {
+                setIsLoading(false);
+            }
+
             if (!client.is_logged_in) {
                 changeActiveSymbolLoadingState();
             }
@@ -158,6 +164,9 @@ const AppContent = observer(() => {
 
     React.useEffect(() => {
         if (client.is_logged_in && is_api_initialized) {
+            if (getBootLoaderMinDisplayMs() === 0) {
+                setIsLoading(false);
+            }
             changeActiveSymbolLoadingState();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

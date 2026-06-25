@@ -83,7 +83,7 @@ const AppHeader = observer(() => {
             sessionStorage.removeItem('oauth_pending');
             sessionStorage.removeItem('oauth_just_completed');
             setIsOAuthPending(false);
-        }, 15_000);
+        }, 8_000);
         return () => clearTimeout(timer);
     }, [isOAuthPending, resolvedLoginId]);
 
@@ -106,7 +106,7 @@ const AppHeader = observer(() => {
             if (isAuthorizing && !resolvedLoginId) {
                 setAuthTimeout(true);
             }
-        }, isOAuthPending ? 15_000 : 4_000);
+        }, isOAuthPending ? 8_000 : 4_000);
 
         if (resolvedLoginId || !isAuthorizing) {
             if (authTimeout) setAuthTimeout(false);

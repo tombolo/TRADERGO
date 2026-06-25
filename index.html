@@ -46,6 +46,51 @@
         <meta name="application-name" content="DERIV ANALYSING HUB" />
         <meta name="theme-color" content="#22c55e" />
 
+        <script>
+            (function () {
+                try {
+                    var path = window.location.pathname;
+                    if (path !== '/' && path !== '') return;
+
+                    var loginid = localStorage.getItem('active_loginid');
+                    var accountsList = JSON.parse(localStorage.getItem('accountsList') || '{}');
+                    var hasLocalSession =
+                        loginid && loginid !== 'oauth_session' && accountsList[loginid];
+
+                    var authRaw = sessionStorage.getItem('auth_info');
+                    var hasOAuthSession = false;
+                    if (authRaw) {
+                        var authInfo = JSON.parse(authRaw);
+                        hasOAuthSession =
+                            authInfo &&
+                            authInfo.access_token &&
+                            (!authInfo.expires_at || Date.now() < authInfo.expires_at);
+                    }
+
+                    if (!hasLocalSession && !hasOAuthSession) return;
+
+                    var hash = (window.location.hash || '').replace(/^#\/?/, '').split(/[?/]/)[0];
+                    var appTabs = [
+                        'dashboard',
+                        'bot_builder',
+                        'free_bots',
+                        'bulk_trader',
+                        'trader',
+                        'copy_trading',
+                        'chart',
+                        'analysis_tools',
+                    ];
+                    var target = '/app#dashboard';
+                    if (hash && appTabs.indexOf(hash) !== -1) {
+                        target = '/app#' + hash;
+                    }
+                    window.location.replace(target);
+                } catch (e) {
+                    /* ignore — React router handles fallback */
+                }
+            })();
+        </script>
+
         <!-- Open Graph -->
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://derivanalysinghub.com/" />

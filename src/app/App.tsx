@@ -2,8 +2,8 @@ import { lazy, Suspense } from 'react';
 import React from 'react';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import NetworkBootLoader from '@/components/loader/network-boot-loader';
+import SessionHomeGate from '@/components/auth/SessionHomeGate';
 import { useAccountSwitching } from '@/hooks/useAccountSwitching';
-import { useLanguageFromURL } from '@/hooks/useLanguageFromURL';
 import { useOAuthCallback } from '@/hooks/useOAuthCallback';
 import { AuthRoutingService } from '@/services/auth-routing.service';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
@@ -12,10 +12,10 @@ import { AppProviders } from './AppProviders';
 import { redirectToHomeAfterAuthFailure, redirectToPostLoginApp } from '@/constants/oauth';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { hasStoredSession } from '@/utils/auth-utils';
+import AppChrome from './AppChrome';
+import AppRoot from './app-root';
 import './app-root.scss';
 
-const AppRoot = lazy(() => import('./app-root'));
-const AppChrome = lazy(() => import('./AppChrome'));
 const LandingPage = lazy(() => import('../pages/landing/LandingPage'));
 
 async function processEliteCallback(accounts: any[]): Promise<void> {
@@ -89,16 +89,18 @@ const router = createBrowserRouter(
                 path='/'
                 element={
                     <AppProviders>
-                        <Suspense
-                            fallback={
-                                <NetworkBootLoader
-                                    message={localize('Loading...')}
-                                    hint={localize('Preparing your workspace…')}
-                                />
-                            }
-                        >
-                            <LandingPage />
-                        </Suspense>
+                        <SessionHomeGate>
+                            <Suspense
+                                fallback={
+                                    <NetworkBootLoader
+                                        message={localize('Loading...')}
+                                        hint={localize('Preparing your workspace…')}
+                                    />
+                                }
+                            >
+                                <LandingPage />
+                            </Suspense>
+                        </SessionHomeGate>
                     </AppProviders>
                 }
             />
@@ -107,35 +109,12 @@ const router = createBrowserRouter(
                 element={
                     <AppProviders>
                         <RequireAuth>
-                            <Suspense
-                                fallback={
-                                    <NetworkBootLoader
-                                        message={localize('Please wait while we connect to the server...')}
-                                        hint={localize('Negotiating WebSocket session…')}
-                                    />
-                                }
-                            >
-                                <AppChrome />
-                            </Suspense>
+                            <AppChrome />
                         </RequireAuth>
                     </AppProviders>
                 }
             >
-                <Route
-                    index
-                    element={
-                        <Suspense
-                            fallback={
-                                <NetworkBootLoader
-                                    message={localize('Loading...')}
-                                    hint={localize('Initializing secure API connection…')}
-                                />
-                            }
-                        >
-                            <AppRoot />
-                        </Suspense>
-                    }
-                />
+                <Route index element={<AppRoot />} />
             </Route>
             <Route
                 path='/callback'
