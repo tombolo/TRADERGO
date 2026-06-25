@@ -106,7 +106,11 @@ const LandingPage = observer(() => {
                     <BrandLogo width={96} height={30} className='landing-page__logo' />
                     <div className='landing-page__brand-text'>
                         <div className='landing-page__wordmark'>
-                            <span className='landing-page__wordmark-short'>Deriv Hub</span>
+                            <span className='landing-page__wordmark-short'>
+                                <span className='landing-page__wordmark-deriv'>DERIV</span>{' '}
+                                <span className='landing-page__wordmark-analysis'>ANALYSIS</span>{' '}
+                                <span className='landing-page__wordmark-accent'>HUB</span>
+                            </span>
                             <span className='landing-page__wordmark-full'>
                                 DERIV ANALYSING <span className='landing-page__wordmark-accent'>HUB</span>
                             </span>
@@ -148,14 +152,26 @@ const LandingPage = observer(() => {
                     <Localize i18n_default_text='Free Deriv bots, automation, and trading tools in one workspace' />
                 </span>
 
-                <h1 className='landing-page__title'>
+                <h1 className='landing-page__title landing-page__title--mobile'>
+                    <Localize i18n_default_text='Trade with' />{' '}
+                    <span className='landing-page__title-highlight'>
+                        <Localize i18n_default_text='better' />
+                    </span>{' '}
+                    <Localize i18n_default_text='structure' />
+                </h1>
+
+                <h1 className='landing-page__title landing-page__title--desktop'>
                     <Localize i18n_default_text='Welcome to' />{' '}
                     <span className='landing-page__title-accent'>
                         <Localize i18n_default_text='Deriv Analysing Hub' />
                     </span>
                 </h1>
 
-                <p className='landing-page__subtitle'>
+                <p className='landing-page__subtitle landing-page__subtitle--mobile'>
+                    <Localize i18n_default_text='Use manual trading, charts, copy tools, automation, and market analysis without jumping between separate apps.' />
+                </p>
+
+                <p className='landing-page__subtitle landing-page__subtitle--desktop'>
                     <Localize i18n_default_text='Structured trading, built for focus. Build, load, and run Deriv bot strategies from a focused workspace made for everyday traders.' />
                 </p>
 
@@ -182,7 +198,12 @@ const LandingPage = observer(() => {
                 </div>
 
                 <button type='button' className='landing-page__explore' onClick={scrollToTestimonials}>
-                    <Localize i18n_default_text='Explore trader stories' /> ↓
+                    <span className='landing-page__explore--mobile'>
+                        <Localize i18n_default_text='Explore the course' /> ↓
+                    </span>
+                    <span className='landing-page__explore--desktop'>
+                        <Localize i18n_default_text='Explore trader stories' /> ↓
+                    </span>
                 </button>
             </section>
 
@@ -190,6 +211,12 @@ const LandingPage = observer(() => {
                 <h2 className='landing-page__testimonials-title'>
                     <Localize i18n_default_text='What people say' />
                 </h2>
+
+                <div className='landing-page__scroll-track'>
+                    {LANDING_TESTIMONIALS.map(item => (
+                        <TestimonialCard key={item.name} item={item} />
+                    ))}
+                </div>
 
                 <div className='landing-page__marquee'>
                     <div className='landing-page__marquee-track'>
@@ -203,7 +230,47 @@ const LandingPage = observer(() => {
                 </div>
             </section>
 
-            <RiskDisclaimer />
+            <section className='landing-page__features' aria-label={localize('Platform highlights')}>
+                <article className='landing-page__feature'>
+                    <span className='landing-page__feature-kicker'>
+                        <Localize i18n_default_text='Free' />
+                    </span>
+                    <span className='landing-page__feature-title'>
+                        <Localize i18n_default_text='BOT TEMPLATES' />
+                    </span>
+                </article>
+                <article className='landing-page__feature'>
+                    <span className='landing-page__feature-kicker'>
+                        <Localize i18n_default_text='24/7' />
+                    </span>
+                    <span className='landing-page__feature-title'>
+                        <Localize i18n_default_text='SYNTHETIC MARKET FOCUS' />
+                    </span>
+                </article>
+                <article className='landing-page__feature'>
+                    <span className='landing-page__feature-kicker'>{domain}</span>
+                    <span className='landing-page__feature-title'>
+                        <Localize i18n_default_text='BRANDED WORKSPACE' />
+                    </span>
+                </article>
+                <article className='landing-page__feature landing-page__feature--live'>
+                    <span className='landing-page__feature-live-dot' aria-hidden='true' />
+                    <span className='landing-page__feature-title'>
+                        <Localize i18n_default_text='Live' /> <Localize i18n_default_text='MARKET STATUS' />
+                    </span>
+                </article>
+            </section>
+
+            <p className='landing-page__risk-inline'>
+                <strong>
+                    <Localize i18n_default_text='Risk Disclaimer.' />
+                </strong>{' '}
+                <Localize i18n_default_text='Deriv offers complex derivatives, such as options and contracts for difference ("CFDs"). These products may not be suitable for all clients, and trading them puts you at risk. Please ensure you understand these risks before trading.' />
+            </p>
+
+            <div className='landing-page__risk-widget'>
+                <RiskDisclaimer />
+            </div>
         </div>
     );
 });
