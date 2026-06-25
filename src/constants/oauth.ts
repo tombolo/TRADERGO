@@ -21,6 +21,7 @@ export function resolveOAuthClientId(): string {
 /** Full-page navigation into the trading app after a successful OAuth session is stored. */
 export function redirectToPostLoginApp(): void {
     sessionStorage.removeItem('oauth_pending');
+    sessionStorage.setItem('oauth_just_completed', Date.now().toString());
     const postLogin = sessionStorage.getItem('post_login_redirect') || DEFAULT_POST_LOGIN_PATH;
     sessionStorage.removeItem('post_login_redirect');
     const target = postLogin.startsWith('/') ? postLogin : `/${postLogin}`;

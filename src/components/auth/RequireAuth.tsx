@@ -19,10 +19,14 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
     const { isAuthorized, isAuthorizing, activeLoginid } = useApiBase();
     const hasSession = hasStoredSession();
     const isOAuthPending = sessionStorage.getItem('oauth_pending') === 'true';
+    const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
+    const isRecentOAuth =
+        oauthJustCompleted !== null && Date.now() - Number(oauthJustCompleted) < 30_000;
     const isAuthenticated = isAuthorized || Boolean(activeLoginid) || hasSession;
 
     if (!isAuthenticated) {
-        const shouldWaitForAuth = (isAuthorizing || isOAuthPending) && (hasSession || isOAuthPending);
+        const shouldWaitForAuth =
+            (isAuthorizing || isOAuthPending || isRecentOAuth) && (hasSession || isOAuthPending || isRecentOAuth);
 
         if (shouldWaitForAuth) {
             return (
@@ -38,6 +42,8 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
 
         return <Navigate to='/' replace />;
     }
+
+    sessionStorage.removeItem('oauth_just_completed');
 
     return <>{children}</>;
 });

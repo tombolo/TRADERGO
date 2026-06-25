@@ -1,6 +1,16 @@
+import { SITE_URL } from '@/constants/seo';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import brandConfig from '../../../../../brand.config.json';
+
+const SITE_HOSTNAME = new URL(SITE_URL).hostname;
+
+/** Hostnames that should use production Deriv OAuth / DerivWS (not staging). */
+const DEPLOYED_PRODUCTION_HOSTNAMES = new Set<string>([
+    ...Object.values(brandConfig.platform.hostname.production),
+    SITE_HOSTNAME,
+    `www.${SITE_HOSTNAME}`,
+]);
 
 // =============================================================================
 // Constants - Domain & Server Configuration (from brand.config.json)
@@ -28,12 +38,11 @@ export const WS_SERVERS = {
 
 // Helper to check if we're on production domains
 export const isProduction = () => {
-    // Allow explicit environment override (e.g. Vercel production deployments)
-    if (process.env.APP_ENV === 'production') return true;
+    if (getAuthEnvironment() === 'production') return true;
 
     const hostname = window.location.hostname;
     const productionDomains = Object.values(PRODUCTION_DOMAINS) as string[];
-    return productionDomains.includes(hostname);
+    return productionDomains.includes(hostname) || DEPLOYED_PRODUCTION_HOSTNAMES.has(hostname);
 };
 
 export const isLocal = () => /localhost(:\d+)?$/i.test(window.location.hostname);
@@ -120,20 +129,23 @@ export const getDebugServiceWorker = () => {
     return false;
 };
 
-const getAuthEnvironment = (): 'production' | 'staging' => {
-    // For this project, all Vercel deployments should use production OAuth.
-    if (process.env.VERCEL_ENV) return 'production';
-    if (/\.vercel\.app$/i.test(window.location.hostname)) return 'production';
-
+/** Resolves whether OAuth token exchange and DerivWS should target production or staging. */
+export const getAuthEnvironment = (): 'production' | 'staging' => {
     const normalized_app_env = (process.env.APP_ENV || '').toLowerCase();
     if (normalized_app_env === 'production') return 'production';
     if (normalized_app_env === 'staging') return 'staging';
 
     const normalized_vercel_env = (process.env.VERCEL_ENV || '').toLowerCase();
-    if (normalized_vercel_env === 'production') return 'production';
-    if (normalized_vercel_env === 'preview' || normalized_vercel_env === 'development') return 'production';
+    if (normalized_vercel_env === 'production' || normalized_vercel_env === 'preview') return 'production';
 
-    return isProduction() ? 'production' : 'staging';
+    if (/\.vercel\.app$/i.test(window.location.hostname)) return 'production';
+
+    if (DEPLOYED_PRODUCTION_HOSTNAMES.has(window.location.hostname)) return 'production';
+
+    const productionDomains = Object.values(PRODUCTION_DOMAINS) as string[];
+    if (productionDomains.includes(window.location.hostname)) return 'production';
+
+    return 'staging';
 };
 
 const getOAuthClientId = () => {
@@ -196,10 +208,17 @@ const generateCodeChallenge = async (verifier: string): Promise<string> => {
  * Stores PKCE code verifier in sessionStorage for token exchange
  * @param verifier The code verifier to store
  */
+const OAUTH_VERIFIER_KEY = 'oauth_code_verifier';
+const OAUTH_VERIFIER_TS_KEY = 'oauth_code_verifier_timestamp';
+const OAUTH_CSRF_KEY = 'oauth_csrf_token';
+const OAUTH_CSRF_TS_KEY = 'oauth_csrf_token_timestamp';
+
 const storeCodeVerifier = (verifier: string): void => {
-    sessionStorage.setItem('oauth_code_verifier', verifier);
-    // Also store timestamp for verifier expiration (e.g., 10 minutes)
-    sessionStorage.setItem('oauth_code_verifier_timestamp', Date.now().toString());
+    const timestamp = Date.now().toString();
+    sessionStorage.setItem(OAUTH_VERIFIER_KEY, verifier);
+    sessionStorage.setItem(OAUTH_VERIFIER_TS_KEY, timestamp);
+    localStorage.setItem(OAUTH_VERIFIER_KEY, verifier);
+    localStorage.setItem(OAUTH_VERIFIER_TS_KEY, timestamp);
 };
 
 /**
@@ -207,19 +226,21 @@ const storeCodeVerifier = (verifier: string): void => {
  * @returns The code verifier if valid and not expired, null otherwise
  */
 export const getCodeVerifier = (): string | null => {
-    const verifier = sessionStorage.getItem('oauth_code_verifier');
-    const timestamp = sessionStorage.getItem('oauth_code_verifier_timestamp');
+    const verifier =
+        sessionStorage.getItem(OAUTH_VERIFIER_KEY) || localStorage.getItem(OAUTH_VERIFIER_KEY);
+    const timestamp =
+        sessionStorage.getItem(OAUTH_VERIFIER_TS_KEY) || localStorage.getItem(OAUTH_VERIFIER_TS_KEY);
 
     if (!verifier || !timestamp) {
         return null;
     }
 
-    // Check if verifier is expired (10 minutes = 600000ms)
     const verifierAge = Date.now() - parseInt(timestamp, 10);
     if (verifierAge > 600000) {
-        // Clean up expired verifier
-        sessionStorage.removeItem('oauth_code_verifier');
-        sessionStorage.removeItem('oauth_code_verifier_timestamp');
+        sessionStorage.removeItem(OAUTH_VERIFIER_KEY);
+        sessionStorage.removeItem(OAUTH_VERIFIER_TS_KEY);
+        localStorage.removeItem(OAUTH_VERIFIER_KEY);
+        localStorage.removeItem(OAUTH_VERIFIER_TS_KEY);
         return null;
     }
 
@@ -230,8 +251,10 @@ export const getCodeVerifier = (): string | null => {
  * Clears PKCE code verifier from sessionStorage after successful token exchange
  */
 export const clearCodeVerifier = (): void => {
-    sessionStorage.removeItem('oauth_code_verifier');
-    sessionStorage.removeItem('oauth_code_verifier_timestamp');
+    sessionStorage.removeItem(OAUTH_VERIFIER_KEY);
+    sessionStorage.removeItem(OAUTH_VERIFIER_TS_KEY);
+    localStorage.removeItem(OAUTH_VERIFIER_KEY);
+    localStorage.removeItem(OAUTH_VERIFIER_TS_KEY);
 };
 
 /**
@@ -239,9 +262,11 @@ export const clearCodeVerifier = (): void => {
  * @param token The CSRF token to store
  */
 const storeCSRFToken = (token: string): void => {
-    sessionStorage.setItem('oauth_csrf_token', token);
-    // Also store timestamp for token expiration (e.g., 10 minutes)
-    sessionStorage.setItem('oauth_csrf_token_timestamp', Date.now().toString());
+    const timestamp = Date.now().toString();
+    sessionStorage.setItem(OAUTH_CSRF_KEY, token);
+    sessionStorage.setItem(OAUTH_CSRF_TS_KEY, timestamp);
+    localStorage.setItem(OAUTH_CSRF_KEY, token);
+    localStorage.setItem(OAUTH_CSRF_TS_KEY, timestamp);
 };
 
 /**
@@ -250,8 +275,9 @@ const storeCSRFToken = (token: string): void => {
  * @returns true if token is valid and not expired
  */
 export const validateCSRFToken = (token: string): boolean => {
-    const storedToken = sessionStorage.getItem('oauth_csrf_token');
-    const timestamp = sessionStorage.getItem('oauth_csrf_token_timestamp');
+    const storedToken = sessionStorage.getItem(OAUTH_CSRF_KEY) || localStorage.getItem(OAUTH_CSRF_KEY);
+    const timestamp =
+        sessionStorage.getItem(OAUTH_CSRF_TS_KEY) || localStorage.getItem(OAUTH_CSRF_TS_KEY);
 
     console.log('[validateCSRFToken] Validation Debug:', {
         storedToken: storedToken ? `${storedToken.substring(0, 20)}...` : null,
@@ -280,8 +306,10 @@ export const validateCSRFToken = (token: string): boolean => {
     if (tokenAge > 600000) {
         console.error('[validateCSRFToken] ❌ Token expired');
         // Clean up expired token
-        sessionStorage.removeItem('oauth_csrf_token');
-        sessionStorage.removeItem('oauth_csrf_token_timestamp');
+        sessionStorage.removeItem(OAUTH_CSRF_KEY);
+        sessionStorage.removeItem(OAUTH_CSRF_TS_KEY);
+        localStorage.removeItem(OAUTH_CSRF_KEY);
+        localStorage.removeItem(OAUTH_CSRF_TS_KEY);
         return false;
     }
 
@@ -293,8 +321,10 @@ export const validateCSRFToken = (token: string): boolean => {
  * Clears CSRF token from sessionStorage after successful validation
  */
 export const clearCSRFToken = (): void => {
-    sessionStorage.removeItem('oauth_csrf_token');
-    sessionStorage.removeItem('oauth_csrf_token_timestamp');
+    sessionStorage.removeItem(OAUTH_CSRF_KEY);
+    sessionStorage.removeItem(OAUTH_CSRF_TS_KEY);
+    localStorage.removeItem(OAUTH_CSRF_KEY);
+    localStorage.removeItem(OAUTH_CSRF_TS_KEY);
 };
 
 export const generateOAuthURL = async (prompt?: string) => {

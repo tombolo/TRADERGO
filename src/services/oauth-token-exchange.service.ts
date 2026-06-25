@@ -1,3 +1,4 @@
+import { clearCodeVerifier, getAuthEnvironment, getCodeVerifier } from '@/components/shared/utils/config/config';
 import { OAUTH_CALLBACK_URL, resolveOAuthClientId } from '@/constants/oauth';
 import { ErrorLogger } from '@/utils/error-logger';
 import { isDemoAccount } from '@/utils/account-helpers';
@@ -40,7 +41,7 @@ export class OAuthTokenExchangeService {
      * @returns OAuth2 base URL (staging or production)
      */
     private static getOAuth2BaseURL(): string {
-        const environment = isProduction() ? 'production' : 'staging';
+        const environment = getAuthEnvironment();
         return brandConfig.platform.auth2_url[environment];
     }
 
@@ -489,31 +490,33 @@ export class OAuthTokenExchangeService {
                             expires_in: data.expires_in || 3600,
                         };
                     } else {
-                        // No accounts returned - log error (no fallback)
-                        console.error(
-                            '%c❌ No accounts returned from DerivWS endpoint (NOT falling back to ELITE)',
-                            'color: red; font-weight: bold;',
-                            { endpoint: 'derivatives/accounts' }
+                        // No accounts returned - still persist token so /app can finish authorization
+                        console.warn(
+                            '%c⚠️ No accounts returned from DerivWS — persisting OAuth token for in-app auth',
+                            'color: orange; font-weight: bold;'
                         );
-                        ErrorLogger.error('OAuth', 'No accounts returned from DerivWS endpoint');
-
+                        this.persistOAuthTokenSession(data.access_token as string);
+                        sessionStorage.removeItem('oauth_pending');
                         return {
-                            error: 'no_accounts_found',
-                            error_description: 'No ZOOM accounts returned from API',
+                            access_token: data.access_token,
+                            token_type: data.token_type || 'bearer',
+                            expires_in: data.expires_in || 3600,
                         };
                     }
                 } catch (error) {
                     console.error(
-                        '%c❌ Error fetching accounts after token exchange (NOT falling back to ELITE)',
-                        'color: red; font-weight: bold;',
+                        '%c❌ Error fetching accounts after token exchange — persisting OAuth token',
+                        'color: orange; font-weight: bold;',
                         error
                     );
                     ErrorLogger.error('OAuth', 'Error fetching accounts after token exchange', error);
 
-                    // Return error status to caller for UI feedback
+                    this.persistOAuthTokenSession(data.access_token as string);
+                    sessionStorage.removeItem('oauth_pending');
                     return {
-                        error: 'account_fetch_failed',
-                        error_description: `Failed to fetch ZOOM accounts: ${error instanceof Error ? error.message : String(error)}`,
+                        access_token: data.access_token,
+                        token_type: data.token_type || 'bearer',
+                        expires_in: data.expires_in || 3600,
                     };
                 }
             }
@@ -543,6 +546,32 @@ export class OAuthTokenExchangeService {
     }
 
     /**
+     * Persist OAuth bearer token into localStorage when account list is unavailable.
+     * Allows RequireAuth and api-base to complete authorization inside /app.
+     */
+    private static persistOAuthTokenSession(accessToken: string, loginid = 'oauth_session'): void {
+        const accountsListMap: Record<string, string> = {
+            [loginid]: accessToken,
+        };
+        localStorage.setItem('accountsList', JSON.stringify(accountsListMap));
+        localStorage.setItem(
+            'clientAccounts',
+            JSON.stringify({
+                [loginid]: {
+                    currency: 'USD',
+                    is_virtual: 0,
+                    balance: 0,
+                    token: accessToken,
+                },
+            })
+        );
+        localStorage.setItem('active_loginid', loginid);
+        localStorage.setItem('authToken', accessToken);
+        localStorage.setItem('auth_system', 'ZOOM');
+        setAuthSystem('ZOOM');
+    }
+
+    /**
      * Detect if the token belongs to an ELITE account by trying to use it with legacy API
      * ELITE accounts can be identified by attempting a call to legacy endpoints
      *
@@ -556,7 +585,7 @@ export class OAuthTokenExchangeService {
             // This is a simple check - if WebSocket connection works with authorize,
             // it's an ELITE account
 
-            const environment = isProduction() ? 'production' : 'staging';
+            const environment = getAuthEnvironment();
             const derivws_url = brandConfig.platform.derivws.url[environment];
 
             // Try a quick check - if the token is recognized by ELITE system,

@@ -4,6 +4,18 @@ import { useApiBase } from '@/hooks/useApiBase';
 
 const SIGNUP_URL = 'https://partner-tracking.deriv.com/click?a=21435&o=1&c=3&link_id=1';
 
+const storeOAuthState = (csrfToken: string, codeVerifier: string) => {
+    const timestamp = Date.now().toString();
+    sessionStorage.setItem('oauth_csrf_token', csrfToken);
+    sessionStorage.setItem('oauth_csrf_token_timestamp', timestamp);
+    sessionStorage.setItem('oauth_code_verifier', codeVerifier);
+    sessionStorage.setItem('oauth_code_verifier_timestamp', timestamp);
+    localStorage.setItem('oauth_csrf_token', csrfToken);
+    localStorage.setItem('oauth_csrf_token_timestamp', timestamp);
+    localStorage.setItem('oauth_code_verifier', codeVerifier);
+    localStorage.setItem('oauth_code_verifier_timestamp', timestamp);
+};
+
 /**
  * Shared Deriv OAuth login + partner signup actions (header, landing page).
  */
@@ -36,8 +48,6 @@ export function useDerivAuthActions() {
                 .replace(/\+/g, '-')
                 .replace(/\//g, '_')
                 .replace(/=/g, '');
-            sessionStorage.setItem('oauth_csrf_token', csrfToken);
-            sessionStorage.setItem('oauth_csrf_token_timestamp', Date.now().toString());
 
             const verifierArray = new Uint8Array(32);
             crypto.getRandomValues(verifierArray);
@@ -45,8 +55,7 @@ export function useDerivAuthActions() {
                 .replace(/\+/g, '-')
                 .replace(/\//g, '_')
                 .replace(/=/g, '');
-            sessionStorage.setItem('oauth_code_verifier', codeVerifier);
-            sessionStorage.setItem('oauth_code_verifier_timestamp', Date.now().toString());
+            storeOAuthState(csrfToken, codeVerifier);
 
             const encoder = new TextEncoder();
             const data = encoder.encode(codeVerifier);

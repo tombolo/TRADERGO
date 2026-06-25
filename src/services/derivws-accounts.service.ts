@@ -1,4 +1,4 @@
-import { isProduction } from '@/components/shared';
+import { getAuthEnvironment } from '@/components/shared/utils/config/config';
 import { isEliteSpecialCaseLoginId, isSpecialCaseLoginId, logSpecialAccountDebug } from '@/utils/account-helpers';
 import brandConfig from '../../brand.config.json';
 
@@ -57,7 +57,7 @@ export class DerivWSAccountsService {
      * @returns DerivWS base URL (e.g., "https://api.derivws.com/trading/v1/")
      */
     private static getDerivWSBaseURL(): string {
-        const environment = isProduction() ? 'production' : 'staging';
+        const environment = getAuthEnvironment();
         return brandConfig.platform.derivws.url[environment];
     }
 

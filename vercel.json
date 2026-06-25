@@ -3,6 +3,14 @@
     "installCommand": "npm ci",
     "buildCommand": "npm run build",
     "outputDirectory": "dist",
+    "redirects": [
+        {
+            "source": "/:path*",
+            "has": [{ "type": "host", "value": "derivanalysinghub.com" }],
+            "destination": "https://www.derivanalysinghub.com/:path*",
+            "permanent": true
+        }
+    ],
     "rewrites": [
         {
             "source": "/(.*)",
