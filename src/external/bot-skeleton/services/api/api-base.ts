@@ -13,6 +13,8 @@ import {
 /* [/AI] */
 import CommonStore from '@/stores/common-store';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
+import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
+import { resolveOAuthClientId } from '@/constants/oauth';
 import { AccountTypeDetectorService } from '@/services/account-type-detector.service';
 import { getAuthSystem, setAccountTypeMetadata, setAuthSystem } from '@/utils/auth-system-helpers';
 import { TAuthData } from '@/types/api-types';
@@ -96,13 +98,31 @@ class APIBase {
             return 'ELITE' as const;
         }
 
-        // Signal 2: existing auth_system from storage/session.
+        // Signal 2: ZOOM OAuth2 bearer token in session — must not route to ELITE legacy WS.
+        try {
+            const authInfoStr = sessionStorage.getItem('auth_info');
+            if (authInfoStr) {
+                const authInfo = JSON.parse(authInfoStr) as { access_token?: string; expires_at?: number };
+                const tokenValid =
+                    Boolean(authInfo?.access_token) &&
+                    (!authInfo.expires_at || Date.now() < authInfo.expires_at);
+                if (tokenValid) {
+                    setAuthSystem('ZOOM');
+                    localStorage.setItem('auth_system', 'ZOOM');
+                    return 'ZOOM' as const;
+                }
+            }
+        } catch {
+            // fall through
+        }
+
+        // Signal 3: existing auth_system from storage/session.
         const storedAuthSystem = getAuthSystem();
         if (storedAuthSystem === 'ELITE') {
             return 'ELITE' as const;
         }
 
-        // Signal 3: account id patterns (CR/VRTC) from active loginid.
+        // Signal 4: account id patterns (CR/VRTC) from active loginid.
         const activeLoginId = localStorage.getItem('active_loginid') || '';
         if (activeLoginId.startsWith('CR') || activeLoginId.startsWith('VRTC')) {
             setAuthSystem('ELITE');
@@ -110,7 +130,7 @@ class APIBase {
             return 'ELITE' as const;
         }
 
-        // Signal 4: account map keys in accountsList.
+        // Signal 5: account map keys in accountsList.
         try {
             const accountsList = JSON.parse(localStorage.getItem('accountsList') || '{}') as Record<string, string>;
             const hasElitePattern = Object.keys(accountsList).some(
@@ -236,11 +256,50 @@ class APIBase {
         // Check if we have an account_id from URL or localStorage
         let activeAccountId: string | null = getAccountId();
 
+        // Hydrate placeholder OAuth session or recover accounts from bearer token.
+        const authInfo = OAuthTokenExchangeService.getAuthInfo();
+        if (authInfo?.access_token && (!activeAccountId || activeAccountId === 'oauth_session')) {
+            try {
+                const accounts = await DerivWSAccountsService.fetchAccountsList(authInfo.access_token);
+                if (accounts.length > 0) {
+                    const accountsListMap: Record<string, string> = {};
+                    const clientAccountsMap: Record<
+                        string,
+                        { currency: string; is_virtual: number; balance: number; token: string }
+                    > = {};
+                    accounts.forEach(account => {
+                        accountsListMap[account.account_id] = authInfo.access_token;
+                        clientAccountsMap[account.account_id] = {
+                            currency: account.currency || 'USD',
+                            is_virtual: account.account_type === 'demo' ? 1 : 0,
+                            balance: Number(account.balance || 0),
+                            token: authInfo.access_token,
+                        };
+                    });
+                    localStorage.setItem('accountsList', JSON.stringify(accountsListMap));
+                    localStorage.setItem('clientAccounts', JSON.stringify(clientAccountsMap));
+                    localStorage.setItem('active_loginid', accounts[0].account_id);
+                    localStorage.setItem('auth_system', 'ZOOM');
+                    setAuthSystem('ZOOM');
+                    DerivWSAccountsService.storeAccounts(accounts);
+                    activeAccountId = accounts[0].account_id;
+                }
+            } catch (hydrateError) {
+                console.warn('[APIBase] Could not hydrate OAuth account list:', hydrateError);
+            }
+        }
+
+        const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
+        const isPostOAuth =
+            sessionStorage.getItem('oauth_pending') === 'true' ||
+            (oauthJustCompleted !== null && Date.now() - Number(oauthJustCompleted) < 30_000);
+
         // During OAuth callback we can briefly race with App-level storage writes.
         // Wait a short, bounded time for account/token context before authorizing.
-        if (sessionStorage.getItem('oauth_pending') === 'true') {
+        if (isPostOAuth) {
+            const waitBudgetMs = oauthJustCompleted ? 8_000 : this.AUTH_CONTEXT_WAIT_TIMEOUT_MS;
             const startedAt = Date.now();
-            while (Date.now() - startedAt < this.AUTH_CONTEXT_WAIT_TIMEOUT_MS) {
+            while (Date.now() - startedAt < waitBudgetMs) {
                 const refreshedActiveAccountId = getAccountId();
                 const accountsList = JSON.parse(localStorage.getItem('accountsList') || '{}') as Record<string, string>;
                 const hasTokenForActive =
@@ -250,7 +309,9 @@ class APIBase {
                 const hasAnyAccountToken = Object.values(accountsList).some(
                     token => typeof token === 'string' && token.length > 0
                 );
-                const stillRouting = sessionStorage.getItem('oauth_pending') === 'true';
+                const stillRouting =
+                    sessionStorage.getItem('oauth_pending') === 'true' ||
+                    (oauthJustCompleted !== null && Date.now() - Number(oauthJustCompleted) < 30_000);
 
                 if (refreshedActiveAccountId || hasTokenForActive || hasAnyAccountToken) {
                     activeAccountId = refreshedActiveAccountId;
@@ -574,7 +635,7 @@ class APIBase {
                     // be registered under different OAuth clients on Deriv's backend; sending
                     // an app-level client_id causes Deriv to reject the authorize call for any
                     // DOT that wasn't registered under that specific client.
-                    const oauthClientId = process.env.CLIENT_ID || '';
+                    const oauthClientId = resolveOAuthClientId();
                     const request_body: Record<string, any> = {
                         authorize: token_payload?.token as string,
                     };
@@ -1089,10 +1150,14 @@ class APIBase {
             // must not destroy the identity that the user explicitly selected.
             const saved_loginid = localStorage.getItem('active_loginid');
             const saved_accounts_list = localStorage.getItem('accountsList');
+            const hasOAuthBearer = Boolean(OAuthTokenExchangeService.getAuthInfo()?.access_token);
             const is_special_login =
                 isSpecialCaseLoginId(saved_loginid) || isEliteSpecialCaseLoginId(saved_loginid);
-            clearAuthData();
-            if (is_special_login && saved_loginid) {
+
+            if (!hasOAuthBearer && !is_special_login) {
+                clearAuthData();
+            } else if (is_special_login && saved_loginid) {
+                clearAuthData();
                 localStorage.setItem('active_loginid', saved_loginid);
                 if (saved_accounts_list) {
                     localStorage.setItem('accountsList', saved_accounts_list);
@@ -1101,6 +1166,10 @@ class APIBase {
                     '%c[SPECIAL_CASE] authorizeAndSubscribe catch: restored active_loginid + accountsList after clearAuthData',
                     'background:#555;color:#fff;font-weight:bold;padding:2px 6px;border-radius:3px;',
                     { saved_loginid }
+                );
+            } else if (hasOAuthBearer && saved_loginid && saved_accounts_list) {
+                console.warn(
+                    '[APIBase] authorize failed but OAuth bearer session preserved — user can retry without re-login'
                 );
             }
             setIsAuthorized(false);

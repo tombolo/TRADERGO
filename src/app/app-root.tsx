@@ -47,6 +47,13 @@ const AppRoot = () => {
         const initializeApi = async () => {
             if (!api_base_initialized.current) {
                 try {
+                    const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
+                    if (oauthJustCompleted) {
+                        const { clearDerivApiInstance } = await import(
+                            '@/external/bot-skeleton/services/api/appId'
+                        );
+                        clearDerivApiInstance();
+                    }
                     await api_base.init();
                     api_base_initialized.current = true;
                 } catch (error) {

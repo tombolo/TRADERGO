@@ -368,46 +368,23 @@ export class OAuthTokenExchangeService {
                     });
 
                     if (accounts && accounts.length > 0) {
-                        const detectedRoute = AuthRoutingService.detectRouteFromAccounts(accounts);
-                        AuthRoutingService.applyDetectedRoute(detectedRoute);
+                        // OAuth2 PKCE code exchange always uses ZOOM (DerivWS + OTP WebSocket).
+                        // Legacy ELITE auth only applies to acct1/token1 callback URLs.
+                        console.log('[AuthTrace] route_detected', {
+                            route: 'ZOOM',
+                            first_loginid: accounts[0].account_id,
+                            account_ids: accounts.map(a => a.account_id),
+                        });
+                        setAuthSystem('ZOOM');
+                        localStorage.setItem('auth_system', 'ZOOM');
+                        setAccountTypeMetadata({
+                            accountType: 'ZOOM',
+                            loginid: accounts[0].account_id,
+                            currency: accounts[0].currency,
+                            isVirtual: accounts[0].account_type === 'demo',
+                            detected_via: 'oauth2_code_exchange',
+                        });
 
-                        // If account list indicates ELITE pattern, route to ELITE OAuth callback flow
-                        if (detectedRoute === 'ELITE') {
-                            const firstAccountId = accounts[0].account_id;
-                            console.log('[AuthTrace] route_detected', {
-                                route: 'ELITE',
-                                first_loginid: firstAccountId,
-                            });
-                            ErrorLogger.info('OAuth', 'ELITE account detected — storing session for app entry', {
-                                account_id: firstAccountId,
-                            });
-
-                            localStorage.setItem('auth_system', 'ELITE');
-                            setAuthSystem('ELITE');
-                            setAccountTypeMetadata({
-                                accountType: 'ELITE',
-                                loginid: firstAccountId,
-                                currency: accounts[0].currency || 'USD',
-                                isVirtual: accounts[0].account_type === 'demo',
-                                detected_via: 'login_id_pattern',
-                            });
-                        } else {
-                            console.log('[AuthTrace] route_detected', {
-                                route: 'ZOOM',
-                                first_loginid: accounts[0].account_id,
-                            });
-                            setAuthSystem('ZOOM');
-                            localStorage.setItem('auth_system', 'ZOOM');
-                            setAccountTypeMetadata({
-                                accountType: 'ZOOM',
-                                loginid: accounts[0].account_id,
-                                currency: accounts[0].currency,
-                                isVirtual: accounts[0].account_type === 'demo',
-                                detected_via: 'deriv_ws_endpoint',
-                            });
-                        }
-
-                        // Store accounts for both ELITE and ZOOM routes.
                         DerivWSAccountsService.storeAccounts(accounts);
 
                         // Keep backward-compatible local account maps populated.

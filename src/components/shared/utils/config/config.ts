@@ -75,9 +75,19 @@ export const getSocketURL = async (): Promise<string> => {
         // Import here to avoid circular dependencies
         const { getAuthSystem } = await import('@/utils/auth-system-helpers');
 
-        // Check if this is an ELITE account
-        const authSystem = getAuthSystem();
-        if (authSystem === 'ELITE') {
+        // Check if this is an ELITE account (legacy acct1/token1 callback only).
+        let authSystem = getAuthSystem();
+        const authInfo = OAuthTokenExchangeService.getAuthInfo();
+        const hasZoomOAuthBearer = Boolean(authInfo?.access_token);
+
+        if (hasZoomOAuthBearer && authSystem === 'ELITE') {
+            const { setAuthSystem } = await import('@/utils/auth-system-helpers');
+            setAuthSystem('ZOOM');
+            localStorage.setItem('auth_system', 'ZOOM');
+            authSystem = 'ZOOM';
+        }
+
+        if (authSystem === 'ELITE' && !hasZoomOAuthBearer) {
             // ELITE callback tokens (acctN/tokenN) are authorized via legacy websocket route.
             // Per Deriv docs, legacy websocket host is ws.derivws.com.
             const host = 'ws.derivws.com';
@@ -94,9 +104,8 @@ export const getSocketURL = async (): Promise<string> => {
         }
 
         // For ZOOM accounts, use standard OAuth flow
-        // Check if user is authenticated
-        const authInfo = OAuthTokenExchangeService.getAuthInfo();
-        if (!authInfo || !authInfo.access_token) {
+        const zoomAuthInfo = authInfo ?? OAuthTokenExchangeService.getAuthInfo();
+        if (!zoomAuthInfo || !zoomAuthInfo.access_token) {
             return getDefaultServerURL();
         }
 
@@ -111,7 +120,7 @@ export const getSocketURL = async (): Promise<string> => {
         }
 
         // Use the DerivWSAccountsService to get authenticated WebSocket URL
-        const wsUrl = await DerivWSAccountsService.getAuthenticatedWebSocketURL(authInfo.access_token);
+        const wsUrl = await DerivWSAccountsService.getAuthenticatedWebSocketURL(zoomAuthInfo.access_token);
         if (isSpecialCaseLoginId(activeLoginId)) {
             logSpecialAccountDebug('getSocketURL_done', { activeLoginId, websocketURL: wsUrl });
         }

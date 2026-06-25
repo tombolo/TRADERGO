@@ -8,6 +8,7 @@ import { useApiBase } from '@/hooks/useApiBase';
 import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { getAccountId } from '@/utils/account-helpers';
+import { hasStoredSession } from '@/utils/auth-utils';
 import { navigateToTransfer } from '@/utils/transfer-utils';
 import { StandaloneCircleUserRegularIcon } from '@deriv/quill-icons/Standalone';
 import { Localize, useTranslations } from '@deriv-com/translations';
@@ -38,7 +39,10 @@ const AppHeader = observer(() => {
         const params = new URLSearchParams(window.location.search);
         const fromUrl = Boolean(params.get('code') && params.get('state'));
         const fromStorage = sessionStorage.getItem('oauth_pending') === 'true';
-        return fromUrl || fromStorage;
+        const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
+        const fromRecentOAuth =
+            oauthJustCompleted !== null && Date.now() - Number(oauthJustCompleted) < 30_000;
+        return fromUrl || fromStorage || fromRecentOAuth;
     });
 
     const { data: activeAccount } = useActiveAccount({
@@ -52,11 +56,15 @@ const AppHeader = observer(() => {
     const resolvedLoginId = useMemo(() => {
         const fromStream = `${activeLoginid || authData?.loginid || ''}`.trim();
         if (fromStream) return fromStream;
-        if (!isAuthorized) return '';
+
         const stored = `${getAccountId() || ''}`.trim();
-        if (stored) return stored;
+        if (stored && stored !== 'oauth_session' && (isAuthorized || hasStoredSession() || isAuthorizing)) {
+            return stored;
+        }
+
+        if (!isAuthorized) return '';
         return `${accountList?.[0]?.loginid || ''}`.trim();
-    }, [activeLoginid, authData?.loginid, isAuthorized, accountList]);
+    }, [activeLoginid, authData?.loginid, isAuthorized, accountList, isAuthorizing]);
 
     // Clear OAuth-pending flag once the account is set (auth succeeded)
     // or after a generous timeout in case something goes wrong.
@@ -65,15 +73,17 @@ const AppHeader = observer(() => {
 
         if (resolvedLoginId) {
             sessionStorage.removeItem('oauth_pending');
+            sessionStorage.removeItem('oauth_just_completed');
             setIsOAuthPending(false);
             return;
         }
 
-        // Safety net: give up quickly and let normal flow decide.
+        // Safety net: give OAuth authorize enough time (token exchange + WS auth).
         const timer = setTimeout(() => {
             sessionStorage.removeItem('oauth_pending');
+            sessionStorage.removeItem('oauth_just_completed');
             setIsOAuthPending(false);
-        }, 4_000);
+        }, 15_000);
         return () => clearTimeout(timer);
     }, [isOAuthPending, resolvedLoginId]);
 
@@ -93,12 +103,10 @@ const AppHeader = observer(() => {
         if (isOAuthPending) return;
 
         const timer = setTimeout(() => {
-            // Do not call setIsAuthorizing here: it must stay in sync with api-base / isAuthorizing$.
-            // authTimeout alone switches the UI to login; resolvedLoginId still wins when auth completes.
             if (isAuthorizing && !resolvedLoginId) {
                 setAuthTimeout(true);
             }
-        }, 4_000);
+        }, isOAuthPending ? 15_000 : 4_000);
 
         if (resolvedLoginId || !isAuthorizing) {
             if (authTimeout) setAuthTimeout(false);
