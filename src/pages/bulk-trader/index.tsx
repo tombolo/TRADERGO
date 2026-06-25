@@ -21,8 +21,14 @@ import {
     KOM_MIN_TICKS,
 } from '@/pages/dashboard/king-of-matches-constants';
 import { Localize, localize } from '@deriv-com/translations';
-import { placeBulkEvenOddTrades, type TBulkEvenOddSide } from './bulk-trader-trade';
+import { placeBulkTrades, type TBulkTradeSide, type TBulkTradeType } from './bulk-trader-trade';
 import './bulk-trader.scss';
+
+const TRADE_TYPES: { value: TBulkTradeType; label: string }[] = [
+    { value: 'even_odd', label: 'Even/Odd' },
+    { value: 'match_diff', label: 'Matches/Differs' },
+    { value: 'over_under', label: 'Over/Under' },
+];
 
 const RECENT_CAP = 12;
 const DIGIT_RING_COLORS = ['ring-red', 'ring-cyan', 'ring-orange', 'ring-blue'] as const;
@@ -84,6 +90,8 @@ const BulkTrader = observer(() => {
     const [stakeInput, setStakeInput] = React.useState('0.5');
     const [bulkCount, setBulkCount] = React.useState(1);
     const [bulkInput, setBulkInput] = React.useState('1');
+    const [tradeType, setTradeType] = React.useState<TBulkTradeType>('even_odd');
+    const [selectedDigit, setSelectedDigit] = React.useState(5);
     const [autoTrader, setAutoTrader] = React.useState(false);
     const [tradeBusy, setTradeBusy] = React.useState(false);
     const [status, setStatus] = React.useState('');
@@ -163,6 +171,18 @@ const BulkTrader = observer(() => {
     const evenPct = formatPct(evenCount, total);
     const oddPct = formatPct(oddCount, total);
 
+    const matchCount = counts[selectedDigit] ?? 0;
+    const diffCount = total - matchCount;
+    const matchPct = formatPct(matchCount, total);
+    const diffPct = formatPct(diffCount, total);
+
+    const overCount = counts.reduce((sum, c, digit) => sum + (digit > selectedDigit ? c : 0), 0);
+    const underCount = counts.reduce((sum, c, digit) => sum + (digit < selectedDigit ? c : 0), 0);
+    const overPct = formatPct(overCount, total);
+    const underPct = formatPct(underCount, total);
+
+    const needsDigitPick = tradeType === 'match_diff' || tradeType === 'over_under';
+
     const rankedDigits = React.useMemo(() => {
         return Array.from({ length: 10 }, (_, digit) => ({ digit, count: counts[digit] })).sort(
             (a, b) => b.count - a.count || a.digit - b.digit
@@ -181,12 +201,21 @@ const BulkTrader = observer(() => {
         const slice = quotes.slice(-RECENT_CAP);
         return slice.map((q, i) => {
             const d = komLastDigitFromQuote(q, pipSize);
+            if (tradeType === 'match_diff') {
+                return { key: `${i}-${q}`, kind: 'digit' as const, label: String(d) };
+            }
+            if (tradeType === 'over_under') {
+                if (d > selectedDigit) return { key: `${i}-${q}`, kind: 'over' as const, label: 'O' };
+                if (d < selectedDigit) return { key: `${i}-${q}`, kind: 'under' as const, label: 'U' };
+                return { key: `${i}-${q}`, kind: 'digit' as const, label: String(d) };
+            }
             return {
                 key: `${i}-${q}`,
-                even: digitIsEven(d),
+                kind: digitIsEven(d) ? ('even' as const) : ('odd' as const),
+                label: digitIsEven(d) ? 'E' : 'O',
             };
         });
-    }, [quotes, pipSize]);
+    }, [quotes, pipSize, tradeType, selectedDigit]);
 
     const displayMarket = (sym: string) => marketOptions.find(m => m.symbol === sym)?.display_name || marketNames[sym] || sym;
 
@@ -196,7 +225,7 @@ const BulkTrader = observer(() => {
         setTickInput(String(n));
     };
 
-    const handleTrade = async (side: TBulkEvenOddSide) => {
+    const handleTrade = async (side: TBulkTradeSide) => {
         const currency = client?.currency;
         if (!currency) {
             toast.error(localize('Please log in to trade.'));
@@ -211,9 +240,11 @@ const BulkTrader = observer(() => {
         setStatus(localize('Placing trades...'));
 
         try {
-            const { placed, errors } = await placeBulkEvenOddTrades({
+            const { placed, errors } = await placeBulkTrades({
                 symbol,
+                trade_type: tradeType,
                 side,
+                barrier_digit: needsDigitPick ? selectedDigit : undefined,
                 stake: stakeVal,
                 duration_ticks: duration,
                 count,
@@ -265,10 +296,22 @@ const BulkTrader = observer(() => {
                         <span className='bulk-trader__label'>
                             <Localize i18n_default_text='Trade type' />
                         </span>
-                        <select className='bulk-trader__control' value='even_odd' disabled>
-                            <option value='even_odd'>
-                                <Localize i18n_default_text='Even/Odd' />
-                            </option>
+                        <select
+                            className='bulk-trader__control'
+                            value={tradeType}
+                            onChange={e => {
+                                const next = e.target.value as TBulkTradeType;
+                                setTradeType(next);
+                                if (next !== 'even_odd' && liveDigit != null) {
+                                    setSelectedDigit(liveDigit);
+                                }
+                            }}
+                        >
+                            {TRADE_TYPES.map(opt => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
                         </select>
                     </label>
                 </div>
@@ -307,17 +350,32 @@ const BulkTrader = observer(() => {
                     </button>
                 </div>
 
+                {needsDigitPick ? (
+                    <p className='bulk-trader__digit-hint'>
+                        <Localize
+                            i18n_default_text='Tap a digit below to set barrier: {{digit}}'
+                            values={{ digit: selectedDigit }}
+                        />
+                    </p>
+                ) : null}
+
                 <div className='bulk-trader__digits' aria-label={localize('Digit distribution')}>
                     {counts.map((count, digit) => (
                         <div key={digit} className='bulk-trader__digit'>
-                            <div
+                            <button
+                                type='button'
                                 className={classNames('bulk-trader__digit-circle', {
                                     [`bulk-trader__digit-circle--${ringByDigit.get(digit)}`]: ringByDigit.has(digit),
                                     'bulk-trader__digit-circle--live': liveDigit === digit,
+                                    'bulk-trader__digit-circle--selectable': needsDigitPick,
+                                    'bulk-trader__digit-circle--selected': needsDigitPick && selectedDigit === digit,
                                 })}
+                                onClick={() => needsDigitPick && setSelectedDigit(digit)}
+                                disabled={!needsDigitPick}
+                                aria-pressed={needsDigitPick ? selectedDigit === digit : undefined}
                             >
                                 {digit}
-                            </div>
+                            </button>
                             <span className='bulk-trader__digit-pct'>{formatPct(count, total)}</span>
                             {liveDigit === digit && <span className='bulk-trader__digit-marker' aria-hidden />}
                         </div>
@@ -329,11 +387,14 @@ const BulkTrader = observer(() => {
                         <span
                             key={r.key}
                             className={classNames('bulk-trader__recent-badge', {
-                                'bulk-trader__recent-badge--even': r.even,
-                                'bulk-trader__recent-badge--odd': !r.even,
+                                'bulk-trader__recent-badge--even': r.kind === 'even',
+                                'bulk-trader__recent-badge--odd': r.kind === 'odd',
+                                'bulk-trader__recent-badge--digit': r.kind === 'digit',
+                                'bulk-trader__recent-badge--over': r.kind === 'over',
+                                'bulk-trader__recent-badge--under': r.kind === 'under',
                             })}
                         >
-                            {r.even ? 'E' : 'O'}
+                            {r.label}
                         </span>
                     ))}
                 </div>
@@ -409,28 +470,87 @@ const BulkTrader = observer(() => {
                 </div>
 
                 <div className='bulk-trader__actions'>
-                    <button
-                        type='button'
-                        className='bulk-trader__trade-btn bulk-trader__trade-btn--even'
-                        disabled={tradeBusy}
-                        onClick={() => handleTrade('even')}
-                    >
-                        <span>
-                            <Localize i18n_default_text='Even' />
-                        </span>
-                        <span className='bulk-trader__trade-pct'>{evenPct}</span>
-                    </button>
-                    <button
-                        type='button'
-                        className='bulk-trader__trade-btn bulk-trader__trade-btn--odd'
-                        disabled={tradeBusy}
-                        onClick={() => handleTrade('odd')}
-                    >
-                        <span>
-                            <Localize i18n_default_text='Odd' />
-                        </span>
-                        <span className='bulk-trader__trade-pct'>{oddPct}</span>
-                    </button>
+                    {tradeType === 'even_odd' && (
+                        <>
+                            <button
+                                type='button'
+                                className='bulk-trader__trade-btn bulk-trader__trade-btn--even'
+                                disabled={tradeBusy}
+                                onClick={() => handleTrade('even')}
+                            >
+                                <span>
+                                    <Localize i18n_default_text='Even' />
+                                </span>
+                                <span className='bulk-trader__trade-pct'>{evenPct}</span>
+                            </button>
+                            <button
+                                type='button'
+                                className='bulk-trader__trade-btn bulk-trader__trade-btn--odd'
+                                disabled={tradeBusy}
+                                onClick={() => handleTrade('odd')}
+                            >
+                                <span>
+                                    <Localize i18n_default_text='Odd' />
+                                </span>
+                                <span className='bulk-trader__trade-pct'>{oddPct}</span>
+                            </button>
+                        </>
+                    )}
+                    {tradeType === 'match_diff' && (
+                        <>
+                            <button
+                                type='button'
+                                className='bulk-trader__trade-btn bulk-trader__trade-btn--match'
+                                disabled={tradeBusy}
+                                onClick={() => handleTrade('match')}
+                            >
+                                <span>
+                                    <Localize i18n_default_text='Match {{digit}}' values={{ digit: selectedDigit }} />
+                                </span>
+                                <span className='bulk-trader__trade-pct'>{matchPct}</span>
+                            </button>
+                            <button
+                                type='button'
+                                className='bulk-trader__trade-btn bulk-trader__trade-btn--diff'
+                                disabled={tradeBusy}
+                                onClick={() => handleTrade('diff')}
+                            >
+                                <span>
+                                    <Localize
+                                        i18n_default_text='Differs {{digit}}'
+                                        values={{ digit: selectedDigit }}
+                                    />
+                                </span>
+                                <span className='bulk-trader__trade-pct'>{diffPct}</span>
+                            </button>
+                        </>
+                    )}
+                    {tradeType === 'over_under' && (
+                        <>
+                            <button
+                                type='button'
+                                className='bulk-trader__trade-btn bulk-trader__trade-btn--over'
+                                disabled={tradeBusy}
+                                onClick={() => handleTrade('over')}
+                            >
+                                <span>
+                                    <Localize i18n_default_text='Over {{digit}}' values={{ digit: selectedDigit }} />
+                                </span>
+                                <span className='bulk-trader__trade-pct'>{overPct}</span>
+                            </button>
+                            <button
+                                type='button'
+                                className='bulk-trader__trade-btn bulk-trader__trade-btn--under'
+                                disabled={tradeBusy}
+                                onClick={() => handleTrade('under')}
+                            >
+                                <span>
+                                    <Localize i18n_default_text='Under {{digit}}' values={{ digit: selectedDigit }} />
+                                </span>
+                                <span className='bulk-trader__trade-pct'>{underPct}</span>
+                            </button>
+                        </>
+                    )}
                 </div>
 
                 {status ? (

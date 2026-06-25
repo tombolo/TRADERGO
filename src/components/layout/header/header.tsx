@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDerivAuthActions } from '@/hooks/useDerivAuthActions';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
 import Button from '@/components/shared_ui/button';
@@ -25,7 +26,7 @@ const AppHeader = observer(() => {
     const { isAuthorizing, activeLoginid, setIsAuthorizing, authData, isAuthorized, accountList, connectionStatus } = useApiBase();
     const { client } = useStore() ?? {};
     const [authTimeout, setAuthTimeout] = useState(false);
-    const [isLoginLoading, setIsLoginLoading] = useState(false);
+    const { handleLogin, handleSignup, isLoginLoading } = useDerivAuthActions();
     const is_account_regenerating = client?.is_account_regenerating || false;
 
     // Detect OAuth callback on mount (before App.tsx cleans up the URL).
@@ -174,80 +175,6 @@ const AppHeader = observer(() => {
         const intervalId = window.setInterval(pollBalance, 5000);
         return () => clearInterval(intervalId);
     }, [client, isAuthorized, connectionStatus]);
-
-    const handleSignup = useCallback(async () => {
-        window.location.href = 'https://partner-tracking.deriv.com/click?a=21435&o=1&c=3&link_id=1';
-    }, []);
-
-    const handleLogin = useCallback(async () => {
-        try {
-            setIsLoginLoading(true);
-            setIsAuthorizing(true);
-
-            // Clear any previous ELITE OAuth flags to prevent misidentification
-            sessionStorage.removeItem('elite_oauth_flow_in_progress');
-            localStorage.removeItem('elite_oauth_flow_in_progress');
-            sessionStorage.removeItem('elite_temp_token');
-            localStorage.removeItem('elite_temp_token');
-
-            sessionStorage.setItem('oauth_pending', 'true');
-            console.log('[AuthTrace] login_click', { flow: 'UNIFIED' });
-
-            // Generate CSRF token (state parameter) - 32 random bytes as base64url
-            const csrfArray = new Uint8Array(32);
-            crypto.getRandomValues(csrfArray);
-            const csrfToken = btoa(String.fromCharCode(...csrfArray))
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=/g, '');
-            sessionStorage.setItem('oauth_csrf_token', csrfToken);
-            sessionStorage.setItem('oauth_csrf_token_timestamp', Date.now().toString());
-
-            // Generate PKCE code verifier - 32 random bytes as base64url
-            const verifierArray = new Uint8Array(32);
-            crypto.getRandomValues(verifierArray);
-            const codeVerifier = btoa(String.fromCharCode(...verifierArray))
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=/g, '');
-            sessionStorage.setItem('oauth_code_verifier', codeVerifier);
-            sessionStorage.setItem('oauth_code_verifier_timestamp', Date.now().toString());
-
-            // Generate PKCE code challenge - SHA-256 hash of verifie
-            const encoder = new TextEncoder();
-            const data = encoder.encode(codeVerifier);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const codeChallenge = btoa(String.fromCharCode(...hashArray))
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=/g, '');
-
-            // Build exact OAuth URL
-            const clientId = '338ua9bwF5Y4uHPT4xyDs'; // ZOOM clien
-            const appId = '134081';
-            const redirectUri = 'https://www.derivanalysinghub.com/callback';
-            const scope = 'trade';
-
-            const oauthUrl = `https://auth.deriv.com/oauth2/auth?scope=${scope}&response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${csrfToken}&code_challenge=${codeChallenge}&code_challenge_method=S256&app_id=${appId}`;
-
-            console.log('[AuthTrace] Generated OAuth URL:', {
-                url: oauthUrl,
-                client_id: clientId,
-                app_id: appId,
-                redirect_uri: redirectUri,
-                state: csrfToken,
-                code_challenge: codeChallenge,
-            });
-
-            window.location.replace(oauthUrl);
-        } catch (error) {
-            console.error('Login redirection failed:', error);
-            sessionStorage.removeItem('oauth_pending');
-            setIsLoginLoading(false);
-            setIsAuthorizing(false);
-        }
-    }, [setIsAuthorizing]);
 
     const handleTransfer = useCallback(() => {
         const transferCurrency = authData?.currency;

@@ -6,42 +6,42 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://derivanalysinghub.com/#dashboard</loc>
+    <loc>https://derivanalysinghub.com/app#dashboard</loc>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://derivanalysinghub.com/#bot_builder</loc>
+    <loc>https://derivanalysinghub.com/app#bot_builder</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://derivanalysinghub.com/#free_bots</loc>
+    <loc>https://derivanalysinghub.com/app#free_bots</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://derivanalysinghub.com/#bulk_trader</loc>
+    <loc>https://derivanalysinghub.com/app#bulk_trader</loc>
     <changefreq>weekly</changefreq>
     <priority>0.88</priority>
   </url>
   <url>
-    <loc>https://derivanalysinghub.com/#trader</loc>
+    <loc>https://derivanalysinghub.com/app#trader</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://derivanalysinghub.com/#copy_trading</loc>
+    <loc>https://derivanalysinghub.com/app#copy_trading</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://derivanalysinghub.com/#chart</loc>
+    <loc>https://derivanalysinghub.com/app#chart</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://derivanalysinghub.com/#analysis_tools</loc>
+    <loc>https://derivanalysinghub.com/app#analysis_tools</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

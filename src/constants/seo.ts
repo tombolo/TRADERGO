@@ -40,6 +40,10 @@ export const DEFAULT_DESCRIPTION =
     'DERIV ANALYSING HUB (derivanalysinghub.com) is your home for market analysis, binary tools, trade schemes, and Dollar Printer strategies. Build automated bots with Deriv tools, Deriv academy guides, and no-code bot builder.';
 
 export const TAB_SEO: Record<string, { title: string; description: string }> = {
+    home: {
+        title: DEFAULT_TITLE,
+        description: DEFAULT_DESCRIPTION,
+    },
     dashboard: {
         title: 'DERIV ANALYSING HUB Dashboard | Binary Tools & Trade Scheme Home',
         description:
@@ -79,9 +83,14 @@ export const TAB_SEO: Record<string, { title: string; description: string }> = {
         description:
             'Technical analysis on DERIV ANALYSING HUB — Deriv academy style insights and binary tools.',
     },
+    app: {
+        title: 'DERIV ANALYSING HUB Dashboard | Binary Tools & Trade Scheme Home',
+        description:
+            'DERIV ANALYSING HUB dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
+    },
 };
 
 export function getTabFromHash(): string {
     const segment = window.location.hash.replace(/^#\/?/, '').split(/[?/]/)[0];
-    return segment || 'dashboard';
+    return segment || (window.location.pathname.startsWith('/app') ? 'dashboard' : 'home');
 }

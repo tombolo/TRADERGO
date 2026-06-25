@@ -22,10 +22,15 @@ function setMeta(name: string, content: string, attribute: 'name' | 'property' =
 
 function applySeo(tab?: string) {
     const hashTab = tab ?? getTabFromHash();
-    const tabMeta = TAB_SEO[hashTab];
+    const tabMeta = TAB_SEO[hashTab] ?? TAB_SEO.home;
     const title = tabMeta?.title ?? DEFAULT_TITLE;
     const description = tabMeta?.description ?? DEFAULT_DESCRIPTION;
-    const url = hashTab === 'dashboard' || !hashTab ? `${SITE_URL}/` : `${SITE_URL}/#${hashTab}`;
+    const isApp = window.location.pathname.startsWith('/app');
+    const url = !isApp
+        ? `${SITE_URL}/`
+        : hashTab === 'home' || hashTab === 'dashboard'
+          ? `${SITE_URL}/app#dashboard`
+          : `${SITE_URL}/app#${hashTab}`;
 
     document.title = title;
     setMeta('title', title);

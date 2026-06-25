@@ -135,10 +135,18 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
             index++;
         }
 
-        // The app hides header/footer on `/callback`; after processing OAuth,
-        // always return users to the root route for a normal app experience.
+        // After OAuth, send users into the trading app on the dashboard tab.
         if (url.pathname === '/callback') {
-            url.pathname = '/';
+            const postLogin = sessionStorage.getItem('post_login_redirect');
+            sessionStorage.removeItem('post_login_redirect');
+            if (postLogin?.startsWith('/app')) {
+                const [pathPart, hashPart] = postLogin.split('#');
+                url.pathname = pathPart || '/app';
+                url.hash = hashPart ? `#${hashPart}` : '#dashboard';
+            } else {
+                url.pathname = '/app';
+                url.hash = 'dashboard';
+            }
         }
         // Avoid manually dispatching POP navigation events: React Router blockers
         // can warn/fail when a POP occurs for a location not created by the router.

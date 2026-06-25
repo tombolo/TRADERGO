@@ -163,11 +163,15 @@ const AppWrapper = observer(() => {
         }
 
         if (init_render.current) {
-            setActiveTab(Number(active_hash_tab));
-            if (!isDesktop) handleTabChange(Number(active_hash_tab));
+            const tabIndex = Number(active_hash_tab);
+            setActiveTab(tabIndex);
+            if (!isDesktop) handleTabChange(tabIndex);
+            if (!window.location.hash && window.location.pathname.startsWith('/app')) {
+                navigate(`/app#${hash[tabIndex] || hash[0]}`, { replace: true });
+            }
             init_render.current = false;
         } else {
-            navigate(`#${hash[active_tab] || hash[0]}`);
+            navigate(`/app#${hash[active_tab] || hash[0]}`);
         }
         if (active_tour !== '') {
             setActiveTour('');

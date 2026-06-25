@@ -182,6 +182,8 @@
         font-size: 1.55rem;
         font-weight: 700;
         line-height: 1;
+        padding: 0;
+        font-family: inherit;
         transition:
             border-color 0.2s ease,
             background 0.2s ease;
@@ -190,6 +192,10 @@
             width: 3.2rem;
             height: 3.2rem;
             font-size: 1.2rem;
+        }
+
+        &:disabled {
+            cursor: default;
         }
 
         &--ring-red {
@@ -267,6 +273,19 @@
 
         &--even {
             background: #45a29e;
+        }
+
+        &--digit {
+            background: #6b7280;
+            font-size: 1rem;
+        }
+
+        &--over {
+            background: #45a29e;
+        }
+
+        &--under {
+            background: #e74c3c;
         }
     }
 
@@ -353,6 +372,38 @@
         &--odd {
             background: #e74c3c;
         }
+
+        &--match,
+        &--over {
+            background: #45a29e;
+        }
+
+        &--diff,
+        &--under {
+            background: #e74c3c;
+        }
+    }
+
+    &__digit-hint {
+        margin: -0.4rem 0 0.8rem;
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666666;
+    }
+
+    &__digit-circle--selectable {
+        cursor: pointer;
+
+        &:hover {
+            filter: brightness(1.05);
+        }
+    }
+
+    &__digit-circle--selected {
+        box-shadow:
+            0 0 0 3px #ffffff,
+            0 0 0 5px #45a29e;
     }
 
     &__trade-pct {
