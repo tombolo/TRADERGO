@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { DEFAULT_POST_LOGIN_PATH, OAUTH_CALLBACK_URL } from '@/constants/oauth';
+import { DEFAULT_POST_LOGIN_PATH, OAUTH_APP_ID, OAUTH_CALLBACK_URL, resolveOAuthClientId } from '@/constants/oauth';
 import { useApiBase } from '@/hooks/useApiBase';
 
 const SIGNUP_URL = 'https://partner-tracking.deriv.com/click?a=21435&o=1&c=3&link_id=1';
@@ -57,8 +57,8 @@ export function useDerivAuthActions() {
                 .replace(/\//g, '_')
                 .replace(/=/g, '');
 
-            const clientId = '338ua9bwF5Y4uHPT4xyDs';
-            const appId = '134081';
+            const clientId = resolveOAuthClientId();
+            const appId = OAUTH_APP_ID;
             const redirectUri = OAUTH_CALLBACK_URL;
             const scope = 'trade';
 

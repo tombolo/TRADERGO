@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { clearCSRFToken, validateCSRFToken } from '@/components/shared/utils/config/config';
-import { getPostLoginRedirectUrl } from '@/constants/oauth';
+import { getPostLoginRedirectUrl, redirectToHomeAfterAuthFailure, redirectToPostLoginApp } from '@/constants/oauth';
 import { clearAuthData } from '@/utils/auth-utils';
 
 /**
@@ -113,6 +113,11 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
 
     // Cleanup function that can be called by the consuming component
     const cleanupURL = useCallback(() => {
+        if (window.location.pathname === '/callback') {
+            redirectToPostLoginApp();
+            return;
+        }
+
         const url = new URL(window.location.href);
         url.searchParams.delete('code');
         url.searchParams.delete('state');
@@ -120,7 +125,6 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
         url.searchParams.delete('error');
         url.searchParams.delete('error_description');
 
-        // Also clean up ELITE callback parameters
         let index = 1;
         while (true) {
             const acctKey = `acct${index}`;
@@ -136,31 +140,7 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
             index++;
         }
 
-        // After OAuth, send users into the trading app on the dashboard tab.
-        if (url.pathname === '/callback') {
-            sessionStorage.removeItem('oauth_pending');
-            const postLogin = sessionStorage.getItem('post_login_redirect');
-            sessionStorage.removeItem('post_login_redirect');
-            if (postLogin?.startsWith('/app')) {
-                const [pathPart, hashPart] = postLogin.split('#');
-                url.pathname = pathPart || '/app';
-                url.hash = hashPart ? `#${hashPart}` : '#dashboard';
-            } else {
-                const fallback = getPostLoginRedirectUrl('dashboard');
-                const [pathPart, hashPart] = fallback.split('#');
-                url.pathname = pathPart || '/app';
-                url.hash = hashPart ? `#${hashPart}` : '#dashboard';
-            }
-        }
-        // Avoid manually dispatching POP navigation events: React Router blockers
-        // can warn/fail when a POP occurs for a location not created by the router.
-        // If we need to exit `/callback`, do a real navigation; otherwise just
-        // replace the URL (no navigation needed).
-        if (window.location.pathname === '/callback') {
-            window.location.replace(url.toString());
-        } else {
-            window.history.replaceState({}, '', url.toString());
-        }
+        window.history.replaceState({}, '', url.toString());
     }, []);
 
     useEffect(() => {
@@ -241,7 +221,11 @@ export const useOAuthCallback = (): OAuthCallbackResult => {
                 error: error_description || error,
             });
 
-            cleanupURL();
+            if (window.location.pathname === '/callback') {
+                redirectToHomeAfterAuthFailure();
+            } else {
+                cleanupURL();
+            }
             return;
         }
 

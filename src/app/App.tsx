@@ -9,7 +9,9 @@ import { AuthRoutingService } from '@/services/auth-routing.service';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import { localize } from '@deriv-com/translations';
 import { AppProviders } from './AppProviders';
+import { redirectToHomeAfterAuthFailure, redirectToPostLoginApp } from '@/constants/oauth';
 import RequireAuth from '@/components/auth/RequireAuth';
+import { hasStoredSession } from '@/utils/auth-utils';
 import './app-root.scss';
 
 const AppRoot = lazy(() => import('./app-root'));
@@ -151,7 +153,7 @@ const router = createBrowserRouter(
 );
 
 function App() {
-    const { isProcessing, isValid, params, eliteParams, isEliteCallback, error, cleanupURL } = useOAuthCallback();
+    const { isProcessing, isValid, params, eliteParams, isEliteCallback, error } = useOAuthCallback();
 
     useAccountSwitching();
 
@@ -159,14 +161,14 @@ function App() {
         if (!isProcessing && isValid && isEliteCallback && eliteParams?.accounts) {
             processEliteCallback(eliteParams.accounts)
                 .then(() => {
-                    cleanupURL();
+                    redirectToPostLoginApp();
                 })
                 .catch(err => {
                     console.error('Failed to process ELITE callback:', err);
-                    cleanupURL();
+                    redirectToHomeAfterAuthFailure();
                 });
         }
-    }, [isProcessing, isValid, isEliteCallback, eliteParams, cleanupURL]);
+    }, [isProcessing, isValid, isEliteCallback, eliteParams]);
 
     React.useEffect(() => {
         if (!isProcessing && isValid && params.code && !isEliteCallback) {
@@ -174,29 +176,30 @@ function App() {
 
             OAuthTokenExchangeService.exchangeCodeForToken(params.code)
                 .then(response => {
-                    if (response.access_token) {
+                    if (response.access_token && hasStoredSession()) {
                         console.log('%c✅ Token exchange successful', 'color: green; font-weight: bold;', {
                             is_elite_flow: isEliteFlow,
                         });
-                        sessionStorage.removeItem('oauth_pending');
-                        cleanupURL();
+                        redirectToPostLoginApp();
+                    } else if (response.access_token) {
+                        console.warn('OAuth token received but session storage is incomplete — entering app to finish auth');
+                        redirectToPostLoginApp();
                     } else if (response.error) {
                         console.error('❌ Token exchange failed:', response.error);
-                        sessionStorage.removeItem('oauth_pending');
-                        cleanupURL();
+                        redirectToHomeAfterAuthFailure();
+                    } else {
+                        redirectToHomeAfterAuthFailure();
                     }
                 })
                 .catch(exchangeError => {
                     console.error('❌ Token exchange request failed:', exchangeError);
-                    sessionStorage.removeItem('oauth_pending');
-                    cleanupURL();
+                    redirectToHomeAfterAuthFailure();
                 });
         } else if (!isProcessing && error) {
             console.error('OAuth callback error:', error);
-            sessionStorage.removeItem('oauth_pending');
-            cleanupURL();
+            redirectToHomeAfterAuthFailure();
         }
-    }, [isProcessing, isValid, params.code, error, cleanupURL, isEliteCallback]);
+    }, [isProcessing, isValid, params.code, error, isEliteCallback]);
 
     return <RouterProvider router={router} />;
 }

@@ -1,4 +1,4 @@
-import { OAUTH_CALLBACK_URL } from '@/constants/oauth';
+import { OAUTH_CALLBACK_URL, resolveOAuthClientId } from '@/constants/oauth';
 import { ErrorLogger } from '@/utils/error-logger';
 import { isDemoAccount } from '@/utils/account-helpers';
 import { AccountTypeDetectorService } from './account-type-detector.service';
@@ -272,7 +272,7 @@ export class OAuthTokenExchangeService {
             // - client_id: your OAuth2 client ID
             // - code_verifier: the PKCE code verifier (proves we initiated the auth flow)
 
-            const clientId = process.env.CLIENT_ID;
+            const clientId = resolveOAuthClientId();
             if (!clientId) {
                 ErrorLogger.error('OAuth', 'CLIENT_ID environment variable is not set');
                 return {
@@ -377,73 +377,36 @@ export class OAuthTokenExchangeService {
                                 route: 'ELITE',
                                 first_loginid: firstAccountId,
                             });
-                            ErrorLogger.info(
-                                'OAuth',
-                                'ELITE account detected by login ID pattern - redirecting to ELITE OAuth flow',
-                                {
-                                    account_id: firstAccountId,
-                                }
-                            );
+                            ErrorLogger.info('OAuth', 'ELITE account detected — storing session for app entry', {
+                                account_id: firstAccountId,
+                            });
 
-                            // Store auth system info to localStorage (not sessionStorage) because we're about to redirect to a different domain
                             localStorage.setItem('auth_system', 'ELITE');
                             setAuthSystem('ELITE');
-
-                            // Store account type metadata to localStorage as well
-                            const metadata = {
+                            setAccountTypeMetadata({
                                 accountType: 'ELITE',
                                 loginid: firstAccountId,
                                 currency: accounts[0].currency || 'USD',
                                 isVirtual: accounts[0].account_type === 'demo',
                                 detected_via: 'login_id_pattern',
-                            };
-                            localStorage.setItem('account_type_metadata', JSON.stringify(metadata));
-                            setAccountTypeMetadata(metadata);
-
-                            // Store the token temporarily for ELITE flow
-                            sessionStorage.setItem('elite_temp_token', data.access_token);
-                            sessionStorage.setItem('elite_oauth_flow_in_progress', 'true');
-                            localStorage.setItem('elite_oauth_flow_in_progress', 'true');
-                            localStorage.setItem('elite_temp_token', data.access_token);
-
-                            // Build redirect URL for ELITE OAuth callback
-                            const protocol = window.location.protocol;
-                            const host = window.location.host;
-                            const redirectUrl = `${protocol}//${host}/callback`;
-                            const eliteOAuthUrl = `https://oauth.deriv.com/oauth2/authorize?app_id=134081&redirect_uri=${encodeURIComponent(redirectUrl)}`;
-                            console.log(
-                                '[AuthTrace] ELITE account detected (NOT redirecting, continuing with ZOOM flow)',
-                                { url: eliteOAuthUrl }
-                            );
-
-                            // DISABLED - continue with ZOOM flow even if ELITE pattern detected
-                            // window.location.href = eliteOAuthUrl;
-
-                            // Return early - redirect will happen before this returns
-                            return {
-                                access_token: data.access_token,
-                                token_type: data.token_type || 'bearer',
-                                expires_in: data.expires_in || 3600,
-                                auth_system: 'ELITE',
-                            };
+                            });
+                        } else {
+                            console.log('[AuthTrace] route_detected', {
+                                route: 'ZOOM',
+                                first_loginid: accounts[0].account_id,
+                            });
+                            setAuthSystem('ZOOM');
+                            localStorage.setItem('auth_system', 'ZOOM');
+                            setAccountTypeMetadata({
+                                accountType: 'ZOOM',
+                                loginid: accounts[0].account_id,
+                                currency: accounts[0].currency,
+                                isVirtual: accounts[0].account_type === 'demo',
+                                detected_via: 'deriv_ws_endpoint',
+                            });
                         }
-                        // ZOOM account detected - continue standard flow
-                        console.log('[AuthTrace] route_detected', {
-                            route: 'ZOOM',
-                            first_loginid: accounts[0].account_id,
-                        });
-                        setAuthSystem('ZOOM');
-                        // Store auth_system to localStorage for persistence across domain changes (like ELITE does)
-                        localStorage.setItem('auth_system', 'ZOOM');
-                        setAccountTypeMetadata({
-                            accountType: 'ZOOM',
-                            loginid: accounts[0].account_id,
-                            currency: accounts[0].currency,
-                            isVirtual: accounts[0].account_type === 'demo',
-                            detected_via: 'deriv_ws_endpoint',
-                        });
 
-                        // Store accounts
+                        // Store accounts for both ELITE and ZOOM routes.
                         DerivWSAccountsService.storeAccounts(accounts);
 
                         // Keep backward-compatible local account maps populated.

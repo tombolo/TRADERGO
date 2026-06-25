@@ -8,7 +8,19 @@ export const hasStoredSession = (): boolean => {
     try {
         const loginid = localStorage.getItem('active_loginid');
         const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
-        return Boolean(loginid && accountsList[loginid]);
+        if (loginid && accountsList[loginid]) {
+            return true;
+        }
+
+        const authInfoRaw = sessionStorage.getItem('auth_info');
+        if (authInfoRaw) {
+            const authInfo = JSON.parse(authInfoRaw) as { access_token?: string; expires_at?: number };
+            if (authInfo.access_token && (!authInfo.expires_at || Date.now() < authInfo.expires_at)) {
+                return true;
+            }
+        }
+
+        return false;
     } catch {
         return false;
     }
