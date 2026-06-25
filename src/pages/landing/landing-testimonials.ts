@@ -1,0 +1,178 @@
+export type TTestimonial = {
+    initials: string;
+    name: string;
+    role: string;
+    quote: string;
+    color: string;
+};
+
+export const LANDING_TESTIMONIALS: TTestimonial[] = [
+    {
+        initials: 'MW',
+        name: 'Mercy Wanjiku',
+        role: 'Step Index Trader — Nairobi, Kenya',
+        quote: 'The free bots and analysis tools helped me structure trades without guessing every session.',
+        color: '#bef264',
+    },
+    {
+        initials: 'JK',
+        name: 'James Kariuki',
+        role: 'Volatility Trader — Kenya',
+        quote: 'Bulk Trader and the dashboard give me a focused workspace — exactly what I needed for Deriv.',
+        color: '#67e8f9',
+    },
+    {
+        initials: 'DO',
+        name: 'David Ochieng',
+        role: 'Even/Odd Specialist — Kampala, Uganda',
+        quote: 'Clean interface, live tick stats, and bot builder — this hub feels built for serious traders.',
+        color: '#fda4af',
+    },
+    {
+        initials: 'LT',
+        name: 'Linet Tanui',
+        role: 'Copy Trading — Dar es Salaam, Tanzania',
+        quote: 'From free bots to charts and analysis tools — everything is in one Deriv-focused workspace.',
+        color: '#c4b5fd',
+    },
+    {
+        initials: 'AN',
+        name: 'Amina Ndlovu',
+        role: 'Synthetic Indices — Johannesburg, South Africa',
+        quote: 'I load strategies fast, run them with confidence, and track results in one place.',
+        color: '#fcd34d',
+    },
+    {
+        initials: 'KO',
+        name: 'Kevin Omondi',
+        role: 'Rise/Fall Trader — Mombasa, Kenya',
+        quote: 'Finally a platform that understands East African Deriv traders — fast, clear, and reliable.',
+        color: '#86efac',
+    },
+    {
+        initials: 'FN',
+        name: 'Fatuma Njeri',
+        role: 'Digit Trader — Kisumu, Kenya',
+        quote: 'The tick stats and digit circles on Bulk Trader save me time every single morning.',
+        color: '#f9a8d4',
+    },
+    {
+        initials: 'BM',
+        name: 'Brian Mugisha',
+        role: 'Volatility 75 — Kigali, Rwanda',
+        quote: 'I switched from juggling spreadsheets to running bots here — my workflow is so much cleaner.',
+        color: '#93c5fd',
+    },
+    {
+        initials: 'SA',
+        name: 'Sarah Akello',
+        role: 'Step Index — Gulu, Uganda',
+        quote: 'Login is quick, the dashboard loads fast, and I can test strategies before going live.',
+        color: '#fdba74',
+    },
+    {
+        initials: 'HM',
+        name: 'Hassan Mwangi',
+        role: 'Crash/Boom — Arusha, Tanzania',
+        quote: 'Charts, free bots, and manual trader in one hub — I do not need five tabs open anymore.',
+        color: '#a5f3fc',
+    },
+    {
+        initials: 'EO',
+        name: 'Emmanuel Okonkwo',
+        role: 'Binary Options — Lagos, Nigeria',
+        quote: 'Solid tools for structured trading. The analysis section alone is worth the sign-up.',
+        color: '#fde047',
+    },
+    {
+        initials: 'AK',
+        name: 'Akosua Mensah',
+        role: 'Volatility Trader — Accra, Ghana',
+        quote: 'I recommend this to every trader in my community — especially the free bot library.',
+        color: '#fca5a5',
+    },
+    {
+        initials: 'TM',
+        name: 'Tendai Moyo',
+        role: 'Matches/Differs — Harare, Zimbabwe',
+        quote: 'Bulk Trader with barrier digits is a game changer. Smooth on mobile too.',
+        color: '#d8b4fe',
+    },
+    {
+        initials: 'CP',
+        name: 'Chanda Phiri',
+        role: 'Over/Under — Lusaka, Zambia',
+        quote: 'Clear layout, no clutter — I can focus on execution instead of fighting the UI.',
+        color: '#6ee7b7',
+    },
+    {
+        initials: 'YB',
+        name: 'Yonas Bekele',
+        role: 'Synthetic Indices — Addis Ababa, Ethiopia',
+        quote: 'The hub brings African traders and global Deriv tools together really well.',
+        color: '#fcd34d',
+    },
+    {
+        initials: 'JR',
+        name: 'James Reid',
+        role: 'Bot Builder — London, UK',
+        quote: 'Professional-grade Blockly workspace with a landing page that actually explains the product.',
+        color: '#94a3b8',
+    },
+    {
+        initials: 'ML',
+        name: 'Maria Lopez',
+        role: 'Volatility Trader — Madrid, Spain',
+        quote: 'I use it daily for back-testing ideas before deploying on my live Deriv account.',
+        color: '#f472b6',
+    },
+    {
+        initials: 'DW',
+        name: 'Daniel Weber',
+        role: 'Automation — Berlin, Germany',
+        quote: 'Clean OAuth login, stable dashboard, and the bot skeleton runs without drama.',
+        color: '#cbd5e1',
+    },
+    {
+        initials: 'SC',
+        name: 'Sophie Chen',
+        role: 'Chart Analysis — Toronto, Canada',
+        quote: 'Charts plus analysis tools in one place — perfect for part-time traders like me.',
+        color: '#7dd3fc',
+    },
+    {
+        initials: 'RT',
+        name: 'Ryan Thompson',
+        role: 'Copy Trading — Texas, USA',
+        quote: 'Signed up in minutes. The free bots folder alone saved me weeks of setup.',
+        color: '#fb923c',
+    },
+    {
+        initials: 'EW',
+        name: 'Emma Wilson',
+        role: 'Step Index — Sydney, Australia',
+        quote: 'Responsive on phone and desktop — rare for trading platforms this feature-rich.',
+        color: '#a78bfa',
+    },
+    {
+        initials: 'PL',
+        name: 'Pierre Lambert',
+        role: 'Digit Specialist — Paris, France',
+        quote: 'Even/Odd and Over/Under in Bulk Trader are intuitive. Great for quick sessions.',
+        color: '#38bdf8',
+    },
+    {
+        initials: 'NM',
+        name: 'Nomsa Mthembu',
+        role: 'Free Bots User — Durban, South Africa',
+        quote: 'Twenty-eight ready-made bots — I picked one, loaded it, and was trading the same hour.',
+        color: '#4ade80',
+    },
+    {
+        initials: 'IA',
+        name: 'Ibrahim Ali',
+        role: 'Manual Trader — Dar es Salaam, Tanzania',
+        quote: 'Kenya, Uganda, Tanzania — traders across the region are all on this hub now.',
+        color: '#fbbf24',
+    },
+];

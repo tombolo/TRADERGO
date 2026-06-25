@@ -9,6 +9,7 @@ import { AuthRoutingService } from '@/services/auth-routing.service';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import { localize } from '@deriv-com/translations';
 import { AppProviders } from './AppProviders';
+import RequireAuth from '@/components/auth/RequireAuth';
 import './app-root.scss';
 
 const AppRoot = lazy(() => import('./app-root'));
@@ -103,16 +104,18 @@ const router = createBrowserRouter(
                 path='/app'
                 element={
                     <AppProviders>
-                        <Suspense
-                            fallback={
-                                <NetworkBootLoader
-                                    message={localize('Please wait while we connect to the server...')}
-                                    hint={localize('Negotiating WebSocket session…')}
-                                />
-                            }
-                        >
-                            <AppChrome />
-                        </Suspense>
+                        <RequireAuth>
+                            <Suspense
+                                fallback={
+                                    <NetworkBootLoader
+                                        message={localize('Please wait while we connect to the server...')}
+                                        hint={localize('Negotiating WebSocket session…')}
+                                    />
+                                }
+                            >
+                                <AppChrome />
+                            </Suspense>
+                        </RequireAuth>
                     </AppProviders>
                 }
             >

@@ -25,7 +25,9 @@ export function useDerivAuthActions() {
             localStorage.removeItem('elite_temp_token');
 
             sessionStorage.setItem('oauth_pending', 'true');
-            sessionStorage.setItem('post_login_redirect', '/app#dashboard');
+            if (!sessionStorage.getItem('post_login_redirect')) {
+                sessionStorage.setItem('post_login_redirect', '/app#dashboard');
+            }
 
             const csrfArray = new Uint8Array(32);
             crypto.getRandomValues(csrfArray);

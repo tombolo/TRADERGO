@@ -3,6 +3,17 @@
  */
 import { getLoginId } from '@/external/bot-skeleton/services/api/appId';
 
+/** True when localStorage has an active login id and matching account token. */
+export const hasStoredSession = (): boolean => {
+    try {
+        const loginid = localStorage.getItem('active_loginid');
+        const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
+        return Boolean(loginid && accountsList[loginid]);
+    } catch {
+        return false;
+    }
+};
+
 /**
  * Transforms transaction IDs for display when CR9742993 is the active account.
  * For this special account, the displayed ID in the run panel journal should start with 147.

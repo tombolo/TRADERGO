@@ -7,55 +7,11 @@ import { TAB_HASH_SEGMENTS } from '@/constants/bot-contents';
 import { SITE_URL } from '@/constants/seo';
 import { useApiBase } from '@/hooks/useApiBase';
 import { useDerivAuthActions } from '@/hooks/useDerivAuthActions';
+import { hasStoredSession } from '@/utils/auth-utils';
 import { MarketTicker } from '@/pages/dashboard/market-ticker';
+import { LANDING_TESTIMONIALS, type TTestimonial } from '@/pages/landing/landing-testimonials';
 import { Localize, localize } from '@deriv-com/translations';
 import './landing.scss';
-
-type TTestimonial = {
-    initials: string;
-    name: string;
-    role: string;
-    quote: string;
-    color: string;
-};
-
-const TESTIMONIALS: TTestimonial[] = [
-    {
-        initials: 'MW',
-        name: 'Mercy Wanjiku',
-        role: 'Step Index Trader — Kenya',
-        quote: 'The free bots and analysis tools helped me structure trades without guessing every session.',
-        color: '#bef264',
-    },
-    {
-        initials: 'JK',
-        name: 'James Kariuki',
-        role: 'Volatility Trader — Nairobi',
-        quote: 'Bulk Trader and the dashboard give me a focused workspace — exactly what I needed for Deriv.',
-        color: '#67e8f9',
-    },
-    {
-        initials: 'AN',
-        name: 'Amina Ndlovu',
-        role: 'Synthetic Indices — South Africa',
-        quote: 'I load strategies fast, run them with confidence, and track results in one place.',
-        color: '#fcd34d',
-    },
-    {
-        initials: 'DO',
-        name: 'David Ochieng',
-        role: 'Even/Odd Specialist — Uganda',
-        quote: 'Clean interface, live tick stats, and bot builder — this hub feels built for serious traders.',
-        color: '#fda4af',
-    },
-    {
-        initials: 'LT',
-        name: 'Linet Tanui',
-        role: 'Copy Trading — Tanzania',
-        quote: 'From free bots to charts and analysis tools — everything is in one Deriv-focused workspace.',
-        color: '#c4b5fd',
-    },
-];
 
 const ChevronRight = () => (
     <svg width='16' height='16' viewBox='0 0 16 16' fill='none' aria-hidden='true'>
@@ -86,15 +42,23 @@ const BoltIcon = () => (
     </svg>
 );
 
-const hasStoredSession = (): boolean => {
-    try {
-        const loginid = localStorage.getItem('active_loginid');
-        const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
-        return Boolean(loginid && accountsList[loginid]);
-    } catch {
-        return false;
-    }
-};
+const TestimonialCard = ({ item }: { item: TTestimonial }) => (
+    <article className='landing-page__card'>
+        <div className='landing-page__card-top'>
+            <span className='landing-page__avatar' style={{ background: item.color }}>
+                {item.initials}
+            </span>
+            <div className='landing-page__card-meta'>
+                <p className='landing-page__card-name'>{item.name}</p>
+                <p className='landing-page__card-role'>{item.role}</p>
+            </div>
+        </div>
+        <div className='landing-page__stars' aria-label={localize('5 out of 5 stars')}>
+            ★★★★★
+        </div>
+        <p className='landing-page__quote'>{item.quote}</p>
+    </article>
+);
 
 const LandingPage = observer(() => {
     const navigate = useNavigate();
@@ -105,13 +69,19 @@ const LandingPage = observer(() => {
 
     React.useEffect(() => {
         const hash = window.location.hash.replace(/^#\/?/, '').split(/[?/]/)[0];
+        const isLoggedIn = isAuthorized || activeLoginid || hasStoredSession();
+
         if (hash && (TAB_HASH_SEGMENTS as readonly string[]).includes(hash)) {
-            setIsRedirecting(true);
-            navigate(`/app#${hash}`, { replace: true });
+            if (isLoggedIn) {
+                setIsRedirecting(true);
+                navigate(`/app#${hash}`, { replace: true });
+            } else {
+                sessionStorage.setItem('post_login_redirect', `/app#${hash}`);
+            }
             return;
         }
 
-        if (isAuthorized || activeLoginid || hasStoredSession()) {
+        if (isLoggedIn) {
             setIsRedirecting(true);
             navigate('/app#dashboard', { replace: true });
         }
@@ -133,11 +103,13 @@ const LandingPage = observer(() => {
 
             <header className='landing-page__header'>
                 <div className='landing-page__brand'>
-                    <BrandLogo width={120} height={36} className='landing-page__logo' />
+                    <BrandLogo width={96} height={30} className='landing-page__logo' />
                     <div className='landing-page__brand-text'>
                         <div className='landing-page__wordmark'>
-                            <span>DERIV ANALYSING </span>
-                            <span className='landing-page__wordmark-accent'>HUB</span>
+                            <span className='landing-page__wordmark-short'>Deriv Hub</span>
+                            <span className='landing-page__wordmark-full'>
+                                DERIV ANALYSING <span className='landing-page__wordmark-accent'>HUB</span>
+                            </span>
                         </div>
                         <span className='landing-page__powered'>
                             <Localize i18n_default_text='Powered by Deriv tools' />
@@ -215,24 +187,19 @@ const LandingPage = observer(() => {
             </section>
 
             <section className='landing-page__testimonials' ref={testimonialsRef} aria-label={localize('Testimonials')}>
-                <div className='landing-page__testimonials-track'>
-                    {TESTIMONIALS.map(item => (
-                        <article key={item.name} className='landing-page__card'>
-                            <div className='landing-page__card-top'>
-                                <span className='landing-page__avatar' style={{ background: item.color }}>
-                                    {item.initials}
-                                </span>
-                                <div className='landing-page__card-meta'>
-                                    <p className='landing-page__card-name'>{item.name}</p>
-                                    <p className='landing-page__card-role'>{item.role}</p>
-                                </div>
-                            </div>
-                            <div className='landing-page__stars' aria-label={localize('5 out of 5 stars')}>
-                                ★★★★★
-                            </div>
-                            <p className='landing-page__quote'>{item.quote}</p>
-                        </article>
-                    ))}
+                <h2 className='landing-page__testimonials-title'>
+                    <Localize i18n_default_text='What people say' />
+                </h2>
+
+                <div className='landing-page__marquee'>
+                    <div className='landing-page__marquee-track'>
+                        {LANDING_TESTIMONIALS.map(item => (
+                            <TestimonialCard key={`a-${item.name}`} item={item} />
+                        ))}
+                        {LANDING_TESTIMONIALS.map(item => (
+                            <TestimonialCard key={`b-${item.name}`} item={item} />
+                        ))}
+                    </div>
                 </div>
             </section>
 
