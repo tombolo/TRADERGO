@@ -36,7 +36,7 @@ const AppContent = observer(() => {
     const { recovered_transactions, recoverPendingContracts } = transactions;
     const is_subscribed_to_msg_listener = React.useRef(false);
     const msg_listener = React.useRef(null);
-    const { connectionStatus } = useApiBase();
+    const { connectionStatus, isAuthorized } = useApiBase();
 
     // Initialize dev mode keyboard shortcuts
     useDevMode();
@@ -122,42 +122,65 @@ const AppContent = observer(() => {
         init();
         const blockUI = getBootLoaderMinDisplayMs() > 0;
         const load_started_at = Date.now();
+        const SYMBOLS_BOOT_TIMEOUT_MS = 12_000;
+
+        const finishLoading = () => {
+            if (!blockUI) {
+                setIsLoading(false);
+                return;
+            }
+            const elapsed = Date.now() - load_started_at;
+            const minDisplay = getBootLoaderMinDisplayMs();
+            setTimeout(() => setIsLoading(false), Math.max(0, minDisplay - elapsed));
+        };
 
         const retrieveActiveSymbols = () => {
             const { active_symbols } = ApiHelpers.instance;
 
-            active_symbols.retrieveActiveSymbols(true).then(() => {
-                if (!blockUI) return;
-                const elapsed = Date.now() - load_started_at;
-                const minDisplay = getBootLoaderMinDisplayMs();
-                setTimeout(() => setIsLoading(false), Math.max(0, minDisplay - elapsed));
-            });
+            active_symbols.retrieveActiveSymbols(true).then(finishLoading).catch(finishLoading);
         };
+
+        let intervalId = null;
+        let timeoutId = null;
 
         if (ApiHelpers?.instance?.active_symbols) {
             retrieveActiveSymbols();
         } else {
-            const intervalId = setInterval(() => {
+            intervalId = setInterval(() => {
                 if (ApiHelpers?.instance?.active_symbols) {
                     clearInterval(intervalId);
+                    intervalId = null;
                     retrieveActiveSymbols();
                 }
             }, 200);
         }
+
+        timeoutId = setTimeout(() => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            finishLoading();
+        }, SYMBOLS_BOOT_TIMEOUT_MS);
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     };
 
     React.useEffect(() => {
-        if (is_api_initialized) {
-            const blockUI = getBootLoaderMinDisplayMs() > 0;
-            if (blockUI) {
-                setIsLoading(true);
-            } else {
-                setIsLoading(false);
-            }
+        if (!is_api_initialized) return;
 
-            if (!client.is_logged_in) {
-                changeActiveSymbolLoadingState();
-            }
+        const blockUI = getBootLoaderMinDisplayMs() > 0;
+        if (blockUI) {
+            setIsLoading(true);
+        } else {
+            setIsLoading(false);
+        }
+
+        if (!client.is_logged_in) {
+            return changeActiveSymbolLoadingState();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [is_api_initialized]);
@@ -167,10 +190,24 @@ const AppContent = observer(() => {
             if (getBootLoaderMinDisplayMs() === 0) {
                 setIsLoading(false);
             }
-            changeActiveSymbolLoadingState();
+            const cleanup = changeActiveSymbolLoadingState();
+            return cleanup;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [is_api_initialized, client.loginid]);
+
+    React.useEffect(() => {
+        if (!isAuthorized || !is_api_initialized) return;
+
+        const minDisplay = getBootLoaderMinDisplayMs();
+        if (minDisplay === 0) {
+            setIsLoading(false);
+            return;
+        }
+
+        const timer = setTimeout(() => setIsLoading(false), minDisplay);
+        return () => clearTimeout(timer);
+    }, [isAuthorized, is_api_initialized]);
 
     if (common?.error) return null;
 

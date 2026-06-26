@@ -15,6 +15,8 @@ const SESSION_VERIFY_TIMEOUT_MS = 12_000;
 /**
  * Blocks `/app` until the user has a valid Deriv session.
  * Unauthenticated visitors are sent to the landing page; intended tab is preserved for post-login redirect.
+ *
+ * While verifying auth, children still mount (behind the loader) so AppRoot can run api_base.init().
  */
 const RequireAuth = observer(({ children }: TRequireAuthProps) => {
     const location = useLocation();
@@ -49,25 +51,24 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
 
     const isAuthenticated = isAuthorized || Boolean(activeLoginid);
 
+    if (!hasSession && !isOAuthPending && !isRecentOAuth) {
+        const hash = location.hash || '#dashboard';
+        sessionStorage.setItem('post_login_redirect', `/app${hash}`);
+        return <Navigate to='/' replace />;
+    }
+
     if (sessionTimedOut && !isAuthenticated) {
         const hash = location.hash || '#dashboard';
         sessionStorage.setItem('post_login_redirect', `/app${hash}`);
         return <Navigate to='/' replace />;
     }
 
-    if (!isAuthenticated) {
-        const shouldWaitForAuth =
-            (isAuthorizing || isOAuthPending || isRecentOAuth) && (hasSession || isOAuthPending || isRecentOAuth);
+    const shouldShowAuthLoader =
+        !isAuthenticated &&
+        (isAuthorizing || isOAuthPending || isRecentOAuth) &&
+        (hasSession || isOAuthPending || isRecentOAuth);
 
-        if (shouldWaitForAuth) {
-            return (
-                <NetworkBootLoader
-                    message={localize('Please wait while we connect to the server...')}
-                    hint={localize('Verifying your session…')}
-                />
-            );
-        }
-
+    if (!isAuthenticated && !shouldShowAuthLoader) {
         if (hasSession) {
             clearStaleSessionIfUnauthorized();
         }
@@ -78,9 +79,21 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
         return <Navigate to='/' replace />;
     }
 
-    sessionStorage.removeItem('oauth_just_completed');
+    if (isAuthenticated) {
+        sessionStorage.removeItem('oauth_just_completed');
+    }
 
-    return <>{children}</>;
+    return (
+        <>
+            {shouldShowAuthLoader && (
+                <NetworkBootLoader
+                    message={localize('Please wait while we connect to the server...')}
+                    hint={localize('Verifying your session…')}
+                />
+            )}
+            {children}
+        </>
+    );
 });
 
 export default RequireAuth;
