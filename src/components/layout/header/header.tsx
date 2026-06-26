@@ -8,7 +8,7 @@ import { useApiBase } from '@/hooks/useApiBase';
 import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { getAccountId } from '@/utils/account-helpers';
-import { hasStoredSession } from '@/utils/auth-utils';
+import { clearStaleSessionIfUnauthorized, hasStoredSession } from '@/utils/auth-utils';
 import { navigateToTransfer } from '@/utils/transfer-utils';
 import { StandaloneCircleUserRegularIcon } from '@deriv/quill-icons/Standalone';
 import { Localize, useTranslations } from '@deriv-com/translations';
@@ -52,19 +52,26 @@ const AppHeader = observer(() => {
 
     const handleLogout = useLogout();
 
-    /** Prefer API stream ids; after OAuth, localStorage / account list can lead React state briefly. */
+    /** Prefer live API auth; only fall back to storage while OAuth is in flight or after authorize succeeds. */
     const resolvedLoginId = useMemo(() => {
         const fromStream = `${activeLoginid || authData?.loginid || ''}`.trim();
         if (fromStream) return fromStream;
 
-        const stored = `${getAccountId() || ''}`.trim();
-        if (stored && stored !== 'oauth_session' && (isAuthorized || hasStoredSession() || isAuthorizing)) {
-            return stored;
+        if (isAuthorized) {
+            const stored = `${getAccountId() || ''}`.trim();
+            if (stored && stored !== 'oauth_session') return stored;
+            return `${accountList?.[0]?.loginid || ''}`.trim();
         }
 
-        if (!isAuthorized) return '';
-        return `${accountList?.[0]?.loginid || ''}`.trim();
-    }, [activeLoginid, authData?.loginid, isAuthorized, accountList, isAuthorizing]);
+        if (isOAuthPending || isAuthorizing) {
+            const stored = `${getAccountId() || ''}`.trim();
+            if (stored && stored !== 'oauth_session' && hasStoredSession()) {
+                return stored;
+            }
+        }
+
+        return '';
+    }, [activeLoginid, authData?.loginid, isAuthorized, accountList, isAuthorizing, isOAuthPending]);
 
     // Clear OAuth-pending flag once the account is set (auth succeeded)
     // or after a generous timeout in case something goes wrong.
@@ -96,25 +103,31 @@ const AppHeader = observer(() => {
         }
     }, [setIsAuthorizing]);
 
-    // Fallback timeout: show login button if auth never resolves.
-    // Suppressed during the OAuth callback flow (isOAuthPending = true).
-    // Keep fallback short to avoid prolonged loading perception.
+    // Fallback timeout: show login when auth never resolves or stored tokens are invalid.
     useEffect(() => {
         if (isOAuthPending) return;
 
         const timer = setTimeout(() => {
+            if (isAuthorized) return;
+
+            if (hasStoredSession() && !isAuthorizing) {
+                clearStaleSessionIfUnauthorized();
+                setAuthTimeout(true);
+                return;
+            }
+
             if (isAuthorizing && !resolvedLoginId) {
                 setAuthTimeout(true);
             }
-        }, isOAuthPending ? 8_000 : 4_000);
+        }, isOAuthPending ? 8_000 : 6_000);
 
-        if (resolvedLoginId || !isAuthorizing) {
+        if (isAuthorized || (resolvedLoginId && isAuthorized)) {
             if (authTimeout) setAuthTimeout(false);
             clearTimeout(timer);
         }
 
         return () => clearTimeout(timer);
-    }, [isAuthorizing, resolvedLoginId, authTimeout, isOAuthPending]);
+    }, [isAuthorizing, resolvedLoginId, authTimeout, isOAuthPending, isAuthorized]);
 
     useEffect(() => {
         if (resolvedLoginId && authTimeout) {
@@ -196,8 +209,8 @@ const AppHeader = observer(() => {
     const { localize } = useTranslations();
 
     const renderAccountSection = useCallback(() => {
-        // Show account switcher and logout when user is fully authenticated
-        if (resolvedLoginId && !is_account_regenerating) {
+        // Show account switcher and logout when WebSocket auth succeeded
+        if (resolvedLoginId && isAuthorized && !is_account_regenerating) {
             return (
                 <>
                     {isDesktop && (
@@ -273,6 +286,7 @@ const AppHeader = observer(() => {
         );
     }, [
         isAuthorizing,
+        isAuthorized,
         isDesktop,
         resolvedLoginId,
         client,

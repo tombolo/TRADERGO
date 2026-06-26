@@ -69,6 +69,27 @@
 
                     if (!hasLocalSession && !hasOAuthSession) return;
 
+                    var siteKey = function () {
+                        var h = location.hostname.toLowerCase();
+                        if (h === 'localhost' || h === '127.0.0.1') return h;
+                        var p = h.split('.');
+                        return p.length >= 2 ? p.slice(-2).join('.') : h;
+                    };
+                    var storedOrigin = localStorage.getItem('auth_site_origin');
+                    var currentOrigin = siteKey();
+                    if (
+                        storedOrigin &&
+                        storedOrigin !== currentOrigin &&
+                        (storedOrigin === 'smarttraderstool.com' || storedOrigin === 'smartderiv.pro')
+                    ) {
+                        localStorage.removeItem('active_loginid');
+                        localStorage.removeItem('accountsList');
+                        localStorage.removeItem('clientAccounts');
+                        localStorage.removeItem('authToken');
+                        sessionStorage.removeItem('auth_info');
+                        return;
+                    }
+
                     var hash = (window.location.hash || '').replace(/^#\/?/, '').split(/[?/]/)[0];
                     var appTabs = [
                         'dashboard',

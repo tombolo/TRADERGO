@@ -19,7 +19,7 @@ import { AccountTypeDetectorService } from '@/services/account-type-detector.ser
 import { getAuthSystem, setAccountTypeMetadata, setAuthSystem } from '@/utils/auth-system-helpers';
 import { TAuthData } from '@/types/api-types';
 import type { Balance } from '@deriv/api-types';
-import { clearAuthData } from '@/utils/auth-utils';
+import { clearAuthData, stampAuthSiteOrigin } from '@/utils/auth-utils';
 import { handleBackendError, isBackendError } from '@/utils/error-handler';
 import { activeSymbolsProcessorService } from '../../../../services/active-symbols-processor.service';
 import { observer as globalObserver } from '../../utils/observer';
@@ -1124,6 +1124,7 @@ class APIBase {
 
             setIsAuthorized(true);
             this.is_authorized = true;
+            stampAuthSiteOrigin();
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
             localStorage.setItem('client.country', (raw_account_data as any)?.country);
 

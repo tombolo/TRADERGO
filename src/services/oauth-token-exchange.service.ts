@@ -2,6 +2,7 @@ import { clearCodeVerifier, getAuthEnvironment, getCodeVerifier } from '@/compon
 import { OAUTH_CALLBACK_URL, resolveOAuthClientId } from '@/constants/oauth';
 import { ErrorLogger } from '@/utils/error-logger';
 import { isDemoAccount } from '@/utils/account-helpers';
+import { stampAuthSiteOrigin } from '@/utils/auth-utils';
 import { AccountTypeDetectorService } from './account-type-detector.service';
 import { setAuthSystem, setAccountTypeMetadata } from '@/utils/auth-system-helpers';
 import { AuthRoutingService } from './auth-routing.service';
@@ -427,6 +428,7 @@ export class OAuthTokenExchangeService {
                         // Set account type
                         const isDemo = isDemoAccount(firstAccount.account_id);
                         localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
+                        stampAuthSiteOrigin();
 
                         console.log(
                             '%c[DTrader iframe] Active account set in localStorage:',
@@ -546,6 +548,7 @@ export class OAuthTokenExchangeService {
         localStorage.setItem('authToken', accessToken);
         localStorage.setItem('auth_system', 'ZOOM');
         setAuthSystem('ZOOM');
+        stampAuthSiteOrigin();
     }
 
     /**

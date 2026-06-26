@@ -11,7 +11,7 @@ import { localize } from '@deriv-com/translations';
 import { AppProviders } from './AppProviders';
 import { redirectToHomeAfterAuthFailure, redirectToPostLoginApp } from '@/constants/oauth';
 import RequireAuth from '@/components/auth/RequireAuth';
-import { hasStoredSession } from '@/utils/auth-utils';
+import { hasStoredSession, stampAuthSiteOrigin } from '@/utils/auth-utils';
 import AppChrome from './AppChrome';
 import AppRoot from './app-root';
 import './app-root.scss';
@@ -53,6 +53,8 @@ async function processEliteCallback(accounts: any[]): Promise<void> {
 
         localStorage.setItem('authToken', firstToken);
         localStorage.setItem('active_loginid', firstAccountId);
+
+        stampAuthSiteOrigin();
 
         sessionStorage.setItem('auth_system', 'ELITE');
         localStorage.setItem('auth_system', 'ELITE');
