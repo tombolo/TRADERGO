@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaFacebook, FaInstagram, FaYoutube } from 'react-icons/fa';
 import { FaTelegram } from 'react-icons/fa6';
+import { PARTNER_SIGNUP_URL } from '@/constants/oauth';
 import './landing-banner.scss';
 
 const SOCIALS = [
@@ -124,7 +125,7 @@ const LandingBanner = () => {
                             Don&apos;t have a Deriv account?
                         </div>
                         <a
-                            href='https://partner-tracking.deriv.com/click?a=10438&o=1&c=3&link_id=1'
+                            href={PARTNER_SIGNUP_URL}
                             target='_blank'
                             rel='noopener noreferrer'
                             className='landing-banner__deriv-btn'

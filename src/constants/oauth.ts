@@ -1,6 +1,10 @@
 /** Must match the redirect URI registered with Deriv OAuth and used in the login request. */
 export const OAUTH_CALLBACK_URL = 'https://www.smartderiv.pro/callback';
 
+/** Partner affiliate link for new Deriv account registration (sign up / get started). */
+export const PARTNER_SIGNUP_URL =
+    'https://partner-tracking.deriv.com/click?a=18678&o=1&c=3&link_id=1';
+
 /** Production OAuth client — must match token exchange and login redirect. */
 export const OAUTH_CLIENT_ID = '334K5h8BM78FkXX0I12PK';
 

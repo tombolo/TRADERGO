@@ -1,8 +1,6 @@
 import { useCallback, useState } from 'react';
-import { DEFAULT_POST_LOGIN_PATH, OAUTH_APP_ID, OAUTH_CALLBACK_URL, resolveOAuthClientId } from '@/constants/oauth';
+import { DEFAULT_POST_LOGIN_PATH, OAUTH_APP_ID, OAUTH_CALLBACK_URL, PARTNER_SIGNUP_URL, resolveOAuthClientId } from '@/constants/oauth';
 import { useApiBase } from '@/hooks/useApiBase';
-
-const SIGNUP_URL = 'https://partner-tracking.deriv.com/click?a=21435&o=1&c=3&link_id=1';
 
 const storeOAuthState = (csrfToken: string, codeVerifier: string) => {
     const timestamp = Date.now().toString();
@@ -24,7 +22,7 @@ export function useDerivAuthActions() {
     const [isLoginLoading, setIsLoginLoading] = useState(false);
 
     const handleSignup = useCallback(() => {
-        window.location.href = SIGNUP_URL;
+        window.location.href = PARTNER_SIGNUP_URL;
     }, []);
 
     const handleLogin = useCallback(async () => {
