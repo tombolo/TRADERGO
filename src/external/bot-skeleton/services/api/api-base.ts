@@ -19,7 +19,7 @@ import { AccountTypeDetectorService } from '@/services/account-type-detector.ser
 import { getAuthSystem, setAccountTypeMetadata, setAuthSystem } from '@/utils/auth-system-helpers';
 import { TAuthData } from '@/types/api-types';
 import type { Balance } from '@deriv/api-types';
-import { clearAuthData, stampAuthSiteOrigin } from '@/utils/auth-utils';
+import { clearAuthData, clearAccountSwitchInProgress, stampAuthSiteOrigin } from '@/utils/auth-utils';
 import { handleBackendError, isBackendError } from '@/utils/error-handler';
 import { activeSymbolsProcessorService } from '../../../../services/active-symbols-processor.service';
 import { observer as globalObserver } from '../../utils/observer';
@@ -1092,6 +1092,7 @@ class APIBase {
             }
             if (currentClientStore) {
                 currentClientStore.setIsAccountRegenerating(false);
+                clearAccountSwitchInProgress();
             }
 
             if (
@@ -1197,6 +1198,7 @@ class APIBase {
             const failedClientStore = globalObserver.getState('client.store');
             if (failedClientStore) {
                 failedClientStore.setIsAccountRegenerating(false);
+                clearAccountSwitchInProgress();
             }
             globalObserver.emit('Error', e);
         } finally {

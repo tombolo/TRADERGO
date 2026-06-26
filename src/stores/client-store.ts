@@ -8,6 +8,7 @@ import { removeCookies } from '@/components/shared/utils/storage/storage';
 import { observer as globalObserver, observer } from '@/external/bot-skeleton';
 import { api_base } from '@/external/bot-skeleton/services/api/api-base';
 import { ErrorLogger } from '@/utils/error-logger';
+import { clearAccountSwitchInProgress } from '@/utils/auth-utils';
 import type { Balance } from '@deriv/api-types';
 import {
     authData$,
@@ -409,10 +410,7 @@ export default class ClientStore {
                 // Token for the selected account is in accountsList — do not wipe authToken here.
                 removeCookies('client_information');
 
-                setIsAuthorized(false);
-                setAccountList([]);
-                setAuthData(null);
-
+                // Keep isAuthorized/authData during switch so the app does not show a full-screen loader.
                 this.setIsLoggingOut(false);
 
                 // disable livechat
@@ -426,6 +424,7 @@ export default class ClientStore {
                 } catch (initError) {
                     ErrorLogger.error('ClientStore', 'WebSocket initialization failed', initError);
                     this.setIsAccountRegenerating(false);
+                    clearAccountSwitchInProgress();
                     setIsAuthorizing(false);
                     throw initError;
                 }
@@ -436,6 +435,7 @@ export default class ClientStore {
         } catch (error) {
             ErrorLogger.error('ClientStore', 'WebSocket regeneration failed', error);
             this.setIsAccountRegenerating(false);
+            clearAccountSwitchInProgress();
             setIsAuthorizing(false);
             // Consider showing user-facing error notification here
             // or dispatching an event that UI components can listen to

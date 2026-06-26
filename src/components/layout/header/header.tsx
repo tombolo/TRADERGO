@@ -211,11 +211,11 @@ const AppHeader = observer(() => {
     const { localize } = useTranslations();
 
     const renderAccountSection = useCallback(() => {
-        // Show account switcher and logout when WebSocket auth succeeded
-        if (resolvedLoginId && isAuthorized && !is_account_regenerating) {
+        // Show account switcher during reconnect so switching stays scoped to the header control.
+        if (resolvedLoginId && (isAuthorized || is_account_regenerating)) {
             return (
                 <>
-                    {isDesktop && (
+                    {isDesktop && !is_account_regenerating && (
                         <Button
                             primary
                             className='manage-funds-button'

@@ -3,7 +3,11 @@ import { observer } from 'mobx-react-lite';
 import { Navigate, useLocation } from 'react-router-dom';
 import NetworkBootLoader from '@/components/loader/network-boot-loader';
 import { useApiBase } from '@/hooks/useApiBase';
-import { clearStaleSessionIfUnauthorized, hasStoredSession } from '@/utils/auth-utils';
+import {
+    clearStaleSessionIfUnauthorized,
+    hasStoredSession,
+    isAccountSwitchInProgress,
+} from '@/utils/auth-utils';
 import { getAccountId } from '@/utils/account-helpers';
 import { localize } from '@deriv-com/translations';
 
@@ -68,6 +72,7 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
     }
 
     const shouldShowAuthLoader =
+        !isAccountSwitchInProgress() &&
         !isAuthorized &&
         (isAuthorizing || isOAuthPending || isRecentOAuth) &&
         (hasSession || isOAuthPending || isRecentOAuth);

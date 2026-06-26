@@ -4,6 +4,31 @@
 import { getLoginId } from '@/external/bot-skeleton/services/api/appId';
 
 export const AUTH_SITE_ORIGIN_KEY = 'auth_site_origin';
+export const ACCOUNT_SWITCH_IN_PROGRESS_KEY = 'account_switch_in_progress';
+
+export const markAccountSwitchInProgress = (): void => {
+    try {
+        sessionStorage.setItem(ACCOUNT_SWITCH_IN_PROGRESS_KEY, String(Date.now()));
+    } catch {
+        // ignore
+    }
+};
+
+export const clearAccountSwitchInProgress = (): void => {
+    try {
+        sessionStorage.removeItem(ACCOUNT_SWITCH_IN_PROGRESS_KEY);
+    } catch {
+        // ignore
+    }
+};
+
+export const isAccountSwitchInProgress = (): boolean => {
+    try {
+        return sessionStorage.getItem(ACCOUNT_SWITCH_IN_PROGRESS_KEY) !== null;
+    } catch {
+        return false;
+    }
+};
 
 /** Registrable domain keys for sites that may have left stale sessions in storage. */
 const LEGACY_AUTH_SITE_ORIGINS = new Set([
@@ -79,6 +104,7 @@ export const clearAuthData = (): void => {
         sessionStorage.removeItem('oauth_code_verifier');
         sessionStorage.removeItem('oauth_code_verifier_timestamp');
         sessionStorage.removeItem('elite_temp_token');
+        sessionStorage.removeItem(ACCOUNT_SWITCH_IN_PROGRESS_KEY);
     } catch {
         // ignore
     }

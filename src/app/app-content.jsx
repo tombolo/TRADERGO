@@ -13,6 +13,7 @@ import { useApiBase } from '@/hooks/useApiBase';
 import useDevMode from '@/hooks/useDevMode';
 import { useStore } from '@/hooks/useStore';
 import useThemeSwitcher from '@/hooks/useThemeSwitcher';
+import { isAccountSwitchInProgress } from '@/utils/auth-utils';
 import { ThemeProvider } from '@deriv-com/quill-ui';
 import { setSmartChartsPublicPath } from '@deriv-com/smartcharts-champion';
 import { localize } from '@deriv-com/translations';
@@ -36,7 +37,9 @@ const AppContent = observer(() => {
     const { recovered_transactions, recoverPendingContracts } = transactions;
     const is_subscribed_to_msg_listener = React.useRef(false);
     const msg_listener = React.useRef(null);
+    const prev_loginid_ref = React.useRef(client?.loginid);
     const { connectionStatus, isAuthorized } = useApiBase();
+    const is_account_switching = client?.is_account_regenerating || isAccountSwitchInProgress();
 
     // Initialize dev mode keyboard shortcuts
     useDevMode();
@@ -187,6 +190,19 @@ const AppContent = observer(() => {
 
     React.useEffect(() => {
         if (client.is_logged_in && is_api_initialized) {
+            if (is_account_switching) {
+                prev_loginid_ref.current = client.loginid;
+                return;
+            }
+
+            const is_account_switch =
+                prev_loginid_ref.current && client.loginid && prev_loginid_ref.current !== client.loginid;
+            prev_loginid_ref.current = client.loginid;
+
+            if (is_account_switch) {
+                return;
+            }
+
             if (getBootLoaderMinDisplayMs() === 0) {
                 setIsLoading(false);
             }
@@ -194,7 +210,7 @@ const AppContent = observer(() => {
             return cleanup;
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [is_api_initialized, client.loginid]);
+    }, [is_api_initialized, client.loginid, client.is_account_regenerating]);
 
     React.useEffect(() => {
         if (!isAuthorized || !is_api_initialized) return;
@@ -218,7 +234,7 @@ const AppContent = observer(() => {
         );
     }
 
-    return is_loading ? (
+    return is_loading && !is_account_switching ? (
         <NetworkBootLoader
             message={localize('Initializing Deriv Bot account...')}
             hint={localize('Syncing symbols and account data…')}
