@@ -68,6 +68,18 @@
                 fill: #0f172a;
             }
         }
+
+        .auth-actions {
+            gap: 0.5rem;
+            margin-inline-end: 0.6rem;
+            padding-block: 6px;
+
+            button {
+                min-width: 4.85rem;
+                padding-inline: 0.95rem !important;
+                min-height: 2.35rem !important;
+            }
+        }
     }
 
     &::after {
