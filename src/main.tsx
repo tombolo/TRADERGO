@@ -1,9 +1,6 @@
 import { configure } from 'mobx';
 import ReactDOM from 'react-dom/client';
 import { AuthWrapper } from './app/AuthWrapper';
-// Removed AnalyticsInitializer import - analytics dependency removed
-// See migrate-docs/ANALYTICS_IMPLEMENTATION_GUIDE.md for re-implementation
-import { initDevToolsProtection } from './utils/devtools-protection';
 import { recoverStaleSessionForSite } from './utils/auth-utils';
 import { performVersionCheck } from './utils/version-check';
 import './styles/index.scss';
@@ -17,8 +14,5 @@ performVersionCheck();
 // Drop sessions tied to a previous branded domain before the app reads localStorage
 recoverStaleSessionForSite();
 
-// Block app access when developer tools are open (production / non-local only)
-if (initDevToolsProtection()) {
-    // Removed AnalyticsInitializer() call - analytics dependency removed
-    ReactDOM.createRoot(document.getElementById('root')!).render(<AuthWrapper />);
-}
+// Always mount the app — devtools / right-click inspection are allowed for debugging.
+ReactDOM.createRoot(document.getElementById('root')!).render(<AuthWrapper />);

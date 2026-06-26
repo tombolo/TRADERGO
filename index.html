@@ -207,38 +207,6 @@
                 font-size: 62.5%;
             }
         </style>
-        <script src="/scripts/devtools-blocked.js"></script>
-        <script>
-            (function () {
-                var host = window.location.hostname;
-                var isLocal = /localhost$/i.test(host) || /^127\.0\.0\.1$/i.test(host);
-                if (isLocal || !window.renderDevToolsBlockedScreen) return;
-
-                function isMobileBrowser() {
-                    var ua = navigator.userAgent || '';
-                    if (/iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
-                        return true;
-                    }
-                    return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
-                }
-
-                if (isMobileBrowser()) return;
-
-                function isDevToolsOpen() {
-                    return (
-                        window.outerWidth - window.innerWidth > 160 ||
-                        window.outerHeight - window.innerHeight > 160
-                    );
-                }
-
-                if (isDevToolsOpen()) {
-                    window.__DEVTOOLS_BLOCKED__ = true;
-                    document.addEventListener('DOMContentLoaded', function () {
-                        window.renderDevToolsBlockedScreen();
-                    });
-                }
-            })();
-        </script>
     </head>
 
     <body class="body theme theme--light">

@@ -1,7 +1,7 @@
 import { isLocal } from '@/components/shared/utils/config/config';
 import { renderDevToolsBlockedScreen } from '@/utils/devtools-blocked-screen';
 
-const DEVTOOLS_PROTECTION_ACTIVE = true;
+const DEVTOOLS_PROTECTION_ACTIVE = false;
 
 const DEVTOOLS_SIZE_THRESHOLD = 160;
 const DEVTOOLS_POLL_INTERVAL_MS = 500;
