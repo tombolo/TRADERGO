@@ -207,6 +207,80 @@
                 font-size: 62.5%;
             }
         </style>
+
+        <!-- DevTools protection (large screens, production only) — runs before React boots -->
+        <script src="/scripts/devtools-blocked.js"></script>
+        <script>
+            (function () {
+                var host = location.hostname.toLowerCase();
+                var isLocal = host === 'localhost' || host === '127.0.0.1';
+                var LARGE_SCREEN_MIN_WIDTH = 1280;
+                var DEVTOOLS_THRESHOLD = 160;
+
+                function isMobileBrowser() {
+                    var ua = navigator.userAgent || '';
+                    if (/iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+                        return true;
+                    }
+                    return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+                }
+
+                function isLargeScreen() {
+                    return window.innerWidth >= LARGE_SCREEN_MIN_WIDTH;
+                }
+
+                function isDevToolsOpen() {
+                    var widthGap = window.outerWidth - window.innerWidth;
+                    var heightGap = window.outerHeight - window.innerHeight;
+                    return widthGap > DEVTOOLS_THRESHOLD || heightGap > DEVTOOLS_THRESHOLD;
+                }
+
+                function isProtectionEnabled() {
+                    if (isLocal) return false;
+                    if (isMobileBrowser()) return false;
+                    if (!isLargeScreen()) return false;
+                    return true;
+                }
+
+                if (!isProtectionEnabled()) return;
+
+                if (isDevToolsOpen()) {
+                    window.__DEVTOOLS_BLOCKED__ = true;
+                    if (typeof window.renderDevToolsBlockedScreen === 'function') {
+                        window.renderDevToolsBlockedScreen();
+                    }
+                    return;
+                }
+
+                document.addEventListener('contextmenu', function (event) {
+                    event.preventDefault();
+                });
+
+                document.addEventListener(
+                    'keydown',
+                    function (event) {
+                        var key = (event.key || '').toLowerCase();
+                        if (key === 'f12') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            return;
+                        }
+                        var usesPrimary = event.ctrlKey || event.metaKey;
+                        if (!usesPrimary) return;
+                        var usesSecondary = event.shiftKey || event.altKey;
+                        if (usesSecondary && (key === 'i' || key === 'j' || key === 'c')) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        if (event.ctrlKey && key === 'u') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                    },
+                    true
+                );
+            })();
+        </script>
     </head>
 
     <body class="body theme theme--light">

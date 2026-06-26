@@ -1,9 +1,10 @@
 import { isLocal } from '@/components/shared/utils/config/config';
 import { renderDevToolsBlockedScreen } from '@/utils/devtools-blocked-screen';
 
-const DEVTOOLS_PROTECTION_ACTIVE = false;
+const DEVTOOLS_PROTECTION_ACTIVE = true;
 
 const DEVTOOLS_SIZE_THRESHOLD = 160;
+const LARGE_SCREEN_MIN_WIDTH = 1280;
 const DEVTOOLS_POLL_INTERVAL_MS = 500;
 const DEBUGGER_TIMING_THRESHOLD_MS = 100;
 
@@ -17,6 +18,12 @@ const state: TDevToolsProtectionState = {
     blocked: false,
     listenersAttached: false,
     pollTimer: null,
+};
+
+/** Protection applies on desktop-sized viewports only (not phones/tablets). */
+const isLargeScreen = (): boolean => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth >= LARGE_SCREEN_MIN_WIDTH;
 };
 
 /** Mobile Safari reports large outer/inner gaps from browser chrome, not devtools. */
@@ -36,6 +43,7 @@ export const isDevToolsProtectionEnabled = (): boolean => {
     if (process.env.NODE_ENV === 'development') return false;
     if (isLocal()) return false;
     if (isMobileBrowser()) return false;
+    if (!isLargeScreen()) return false;
     return true;
 };
 
