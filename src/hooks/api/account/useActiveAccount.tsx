@@ -24,9 +24,40 @@ const useActiveAccount = ({
         `${accountList?.[0]?.loginid || ''}`.trim() ||
         '';
 
+    const storedAccountFallback = useMemo(() => {
+        if (!resolved_loginid) return undefined;
+
+        try {
+            const clientAccounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
+                string,
+                { currency?: string; balance?: number | string; is_virtual?: number }
+            >;
+            const stored = clientAccounts[resolved_loginid];
+            if (!stored) return undefined;
+
+            const balance =
+                typeof stored.balance === 'number'
+                    ? stored.balance
+                    : typeof stored.balance === 'string'
+                      ? Number.parseFloat(stored.balance)
+                      : 0;
+
+            return {
+                loginid: resolved_loginid,
+                currency: stored.currency || 'USD',
+                balance: Number.isNaN(balance) ? 0 : balance,
+                is_virtual: stored.is_virtual ?? (isVirtualAccount(resolved_loginid) ? 1 : 0),
+            };
+        } catch {
+            return undefined;
+        }
+    }, [resolved_loginid]);
+
     const activeAccount = useMemo(
-        () => accountList?.find(account => account.loginid === resolved_loginid),
-        [resolved_loginid, accountList]
+        () =>
+            accountList?.find(account => account.loginid === resolved_loginid) ??
+            storedAccountFallback,
+        [resolved_loginid, accountList, storedAccountFallback]
     );
 
     const is_special = isSpecialCaseLoginId(resolved_loginid);

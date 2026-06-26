@@ -52,47 +52,33 @@ const AppHeader = observer(() => {
 
     const handleLogout = useLogout();
 
-    /** Prefer live API auth; only fall back to storage while OAuth is in flight or after authorize succeeds. */
+    const hasSession = hasStoredSession();
+
+    /** Prefer live API auth; fall back to stored session while authorize completes. */
     const resolvedLoginId = useMemo(() => {
         const fromStream = `${activeLoginid || authData?.loginid || ''}`.trim();
         if (fromStream) return fromStream;
 
+        const stored = `${getAccountId() || ''}`.trim();
+        if (stored && stored !== 'oauth_session' && hasSession) {
+            return stored;
+        }
+
         if (isAuthorized) {
-            const stored = `${getAccountId() || ''}`.trim();
-            if (stored && stored !== 'oauth_session') return stored;
             return `${accountList?.[0]?.loginid || ''}`.trim();
         }
 
-        if (isOAuthPending || isAuthorizing) {
-            const stored = `${getAccountId() || ''}`.trim();
-            if (stored && stored !== 'oauth_session' && hasStoredSession()) {
-                return stored;
-            }
-        }
-
         return '';
-    }, [activeLoginid, authData?.loginid, isAuthorized, accountList, isAuthorizing, isOAuthPending]);
+    }, [activeLoginid, authData?.loginid, isAuthorized, accountList, hasSession]);
 
-    // Clear OAuth-pending flag once the account is set (auth succeeded)
-    // or after a generous timeout in case something goes wrong.
+    // Clear OAuth-pending flag only after WebSocket authorize succeeds.
     useEffect(() => {
-        if (!isOAuthPending) return;
+        if (!isOAuthPending || !isAuthorized) return;
 
-        if (resolvedLoginId) {
-            sessionStorage.removeItem('oauth_pending');
-            sessionStorage.removeItem('oauth_just_completed');
-            setIsOAuthPending(false);
-            return;
-        }
-
-        // Safety net: give OAuth authorize enough time (token exchange + WS auth).
-        const timer = setTimeout(() => {
-            sessionStorage.removeItem('oauth_pending');
-            sessionStorage.removeItem('oauth_just_completed');
-            setIsOAuthPending(false);
-        }, 8_000);
-        return () => clearTimeout(timer);
-    }, [isOAuthPending, resolvedLoginId]);
+        sessionStorage.removeItem('oauth_pending');
+        sessionStorage.removeItem('oauth_just_completed');
+        setIsOAuthPending(false);
+    }, [isOAuthPending, isAuthorized]);
 
     // Handle direct URL access with legacy token param
     useEffect(() => {
@@ -211,11 +197,38 @@ const AppHeader = observer(() => {
     const { localize } = useTranslations();
 
     const renderAccountSection = useCallback(() => {
-        // Show account switcher during reconnect so switching stays scoped to the header control.
-        if (resolvedLoginId && (isAuthorized || is_account_regenerating)) {
+        const showAccountChrome =
+            Boolean(resolvedLoginId) &&
+            (isAuthorized || is_account_regenerating || hasSession || isOAuthPending || isAuthorizing);
+
+        if (showAccountChrome) {
+            if (!activeAccount && (hasSession || isAuthorizing || isOAuthPending)) {
+                return (
+                    <div className='auth-actions auth-actions--loading'>
+                        <svg
+                            className='auth-actions__spinner'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            xmlns='http://www.w3.org/2000/svg'
+                        >
+                            <circle
+                                cx='12'
+                                cy='12'
+                                r='10'
+                                stroke='currentColor'
+                                strokeWidth='2.5'
+                                strokeLinecap='round'
+                                strokeDasharray='31.416'
+                                strokeDashoffset='10'
+                            />
+                        </svg>
+                    </div>
+                );
+            }
+
             return (
                 <>
-                    {isDesktop && !is_account_regenerating && (
+                    {isDesktop && !is_account_regenerating && isAuthorized && (
                         <Button
                             primary
                             className='manage-funds-button'
@@ -241,8 +254,9 @@ const AppHeader = observer(() => {
                 </>
             );
         }
-        // Show login/signup buttons only when fully settled (not during OAuth flow)
+
         if (
+            !hasSession &&
             !isOAuthPending &&
             ((!is_account_regenerating && (!isAuthorizing || isLoginLoading) && !resolvedLoginId) || authTimeout)
         ) {
@@ -299,6 +313,7 @@ const AppHeader = observer(() => {
         handleTransfer,
         is_account_regenerating,
         isOAuthPending,
+        hasSession,
         authData,
         isLoginLoading,
         localize,
