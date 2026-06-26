@@ -1,9 +1,9 @@
 /** Canonical site URL — keep in sync with index.html, robots.txt, and sitemap.xml */
-export const SITE_URL = 'https://pipstrades.pro';
+export const SITE_URL = 'https://tradergo.pro';
 
-export const SITE_DOMAIN = 'pipstrades.pro';
+export const SITE_DOMAIN = 'tradergo.pro';
 
-export const SITE_NAME = 'PIPS TRADES';
+export const SITE_NAME = 'TRADER GO';
 
 export const SITE_LOGO_PATH = '/assets/images/MERRICK.png';
 
@@ -17,10 +17,10 @@ export const OG_IMAGE_HEIGHT = 408;
 export const THEME_COLOR = '#10b981';
 
 export const SEO_KEYWORDS = [
-    'PIPS TRADES',
-    'pipstrades.pro',
-    'PIPS TRADES home',
-    'pips trades',
+    'TRADER GO',
+    'tradergo.pro',
+    'TRADER GO home',
+    'trader go',
     'binary tools',
     'trade scheme',
     'dollar printer',
@@ -33,14 +33,14 @@ export const SEO_KEYWORDS = [
     'binary options bot',
     'Deriv trading platform',
     'market analysis',
-    'pips trading tools',
+    'trader go tools',
 ].join(', ');
 
 export const DEFAULT_TITLE =
-    'PIPS TRADES (pipstrades.pro) | Home — Binary Tools, Trade Scheme, Dollar Printer & Deriv Tools';
+    'TRADER GO (tradergo.pro) | Home — Binary Tools, Trade Scheme, Dollar Printer & Deriv Tools';
 
 export const DEFAULT_DESCRIPTION =
-    'PIPS TRADES (pipstrades.pro) is your home for market analysis, binary tools, trade schemes, and Dollar Printer strategies. Build automated bots with Deriv tools, Deriv academy guides, and no-code bot builder.';
+    'TRADER GO (tradergo.pro) is your home for market analysis, binary tools, trade schemes, and Dollar Printer strategies. Build automated bots with Deriv tools, Deriv academy guides, and no-code bot builder.';
 
 export const TAB_SEO: Record<string, { title: string; description: string }> = {
     home: {
@@ -48,48 +48,48 @@ export const TAB_SEO: Record<string, { title: string; description: string }> = {
         description: DEFAULT_DESCRIPTION,
     },
     dashboard: {
-        title: 'PIPS TRADES Dashboard | Binary Tools & Trade Scheme Home',
+        title: 'TRADER GO Dashboard | Binary Tools & Trade Scheme Home',
         description:
-            'PIPS TRADES dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
+            'TRADER GO dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
     },
     bot_builder: {
-        title: 'PIPS TRADES Bot Builder | Deriv Tools & Automated Trading',
+        title: 'TRADER GO Bot Builder | Deriv Tools & Automated Trading',
         description:
-            'Build automated trading bots with PIPS TRADES bot builder. Visual blocks, Deriv tools, and binary tools — no coding required.',
+            'Build automated trading bots with TRADER GO bot builder. Visual blocks, Deriv tools, and binary tools — no coding required.',
     },
     free_bots: {
-        title: 'PIPS TRADES Free Bots | Dollar Printer & Binary Tools',
+        title: 'TRADER GO Free Bots | Dollar Printer & Binary Tools',
         description:
-            'Download free trading bots including Dollar Printer strategies. PIPS TRADES free bots for Deriv and binary tools.',
+            'Download free trading bots including Dollar Printer strategies. TRADER GO free bots for Deriv and binary tools.',
     },
     bulk_trader: {
-        title: 'PIPS TRADES Bulk Trader | Even/Odd & Binary Tools',
+        title: 'TRADER GO Bulk Trader | Even/Odd & Binary Tools',
         description:
-            'Bulk trade Even/Odd contracts on PIPS TRADES — live tick analysis, digit distribution, and fast bulk execution.',
+            'Bulk trade Even/Odd contracts on TRADER GO — live tick analysis, digit distribution, and fast bulk execution.',
     },
     trader: {
-        title: 'PIPS TRADES Trader | Deriv Trading Platform',
+        title: 'TRADER GO Trader | Deriv Trading Platform',
         description:
-            'Trade on Deriv with PIPS TRADES — integrated trader, binary tools, and Deriv tools in one platform.',
+            'Trade on Deriv with TRADER GO — integrated trader, binary tools, and Deriv tools in one platform.',
     },
     copy_trading: {
-        title: 'PIPS TRADES Copy Trading | Trade Scheme & Deriv Tools',
+        title: 'TRADER GO Copy Trading | Trade Scheme & Deriv Tools',
         description:
-            'Copy trading on PIPS TRADES — follow trade schemes and strategies with Deriv tools support.',
+            'Copy trading on TRADER GO — follow trade schemes and strategies with Deriv tools support.',
     },
     chart: {
-        title: 'PIPS TRADES Charts | Binary Tools & Market Analysis',
-        description: 'Live charts and market analysis on PIPS TRADES — binary tools for Deriv traders.',
+        title: 'TRADER GO Charts | Binary Tools & Market Analysis',
+        description: 'Live charts and market analysis on TRADER GO — binary tools for Deriv traders.',
     },
     analysis_tools: {
-        title: 'PIPS TRADES Analysis Tools | Deriv Academy & Binary Tools',
+        title: 'TRADER GO Analysis Tools | Deriv Academy & Binary Tools',
         description:
-            'Technical analysis on PIPS TRADES — Deriv academy style insights and binary tools.',
+            'Technical analysis on TRADER GO — Deriv academy style insights and binary tools.',
     },
     app: {
-        title: 'PIPS TRADES Dashboard | Binary Tools & Trade Scheme Home',
+        title: 'TRADER GO Dashboard | Binary Tools & Trade Scheme Home',
         description:
-            'PIPS TRADES dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
+            'TRADER GO dashboard — load bots, use binary tools, trade schemes, and Dollar Printer strategies with Deriv tools.',
     },
 };
 

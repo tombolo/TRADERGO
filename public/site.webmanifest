@@ -1,23 +1,16 @@
 {
-    "name": "PIPS TRADES (pipstrades.pro)",
-    "short_name": "PIPS TRADES",
-    "description": "PIPS TRADES (pipstrades.pro) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
+    "name": "TRADER GO (tradergo.pro)",
+    "short_name": "TRADER GO",
+    "description": "TRADER GO (tradergo.pro) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#000000",
+    "background_color": "#03060d",
     "theme_color": "#10b981",
     "icons": [
         {
             "src": "/assets/images/MERRICK.png",
             "sizes": "612x408",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/assets/images/MERRICK.png",
-            "sizes": "612x408",
-            "type": "image/png",
-            "purpose": "maskable"
+            "type": "image/png"
         }
     ]
 }

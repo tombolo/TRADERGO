@@ -1,11 +1,11 @@
 {
-    "brand_name": "PipsTrades",
-    "brand_domain": "pipstrades.pro",
+    "brand_name": "TraderGo",
+    "brand_domain": "tradergo.pro",
     "brand_hostname": {
-        "staging": "staging.pipstrades.pro/dashboard",
-        "production": "pipstrades.pro/dashboard"
+        "staging": "staging.tradergo.pro/dashboard",
+        "production": "tradergo.pro/dashboard"
     },
-    "domain_name": "PipsTrades.pro",
+    "domain_name": "TraderGo.pro",
     "colors": {
         "primary": "#7C3AED",
         "secondary": "#A78BFA",
@@ -58,14 +58,14 @@
         "css_variable_prefix": "--brand"
     },
     "platform": {
-        "name": "PIPS TRADES",
+        "name": "TRADER GO",
         "logo": {
             "type": "component",
             "component_name": "BrandLogo",
-            "alt_text": "PIPS TRADES",
+            "alt_text": "TRADER GO",
             "link_url": "/",
             "show_text": false,
-            "text": "PIPS TRADES"
+            "text": "TRADER GO"
         },
         "footer": {
             "enable_language_settings": false,
@@ -73,10 +73,10 @@
         },
         "hostname": {
             "production": {
-                "com": "www.pipstrades.pro"
+                "com": "www.tradergo.pro"
             },
             "staging": {
-                "com": "staging-bot.pipstrades.pro"
+                "com": "staging-bot.tradergo.pro"
             }
         },
         "auth2_url": {

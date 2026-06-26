@@ -1,13 +1,14 @@
-# PIPS TRADES — allow all search engines
+# TRADER GO — allow all search engines
 User-agent: *
 Allow: /
 
-# Google
 User-agent: Googlebot
 Allow: /
 
-# Bing
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://pipstrades.pro/sitemap.xml
+User-agent: Slurp
+Allow: /
+
+Sitemap: https://tradergo.pro/sitemap.xml

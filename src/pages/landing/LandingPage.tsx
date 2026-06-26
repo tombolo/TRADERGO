@@ -153,7 +153,7 @@ const LandingPage = () => {
                 <h1 className='landing-page__title landing-page__title--desktop'>
                     <Localize i18n_default_text='Welcome to' />{' '}
                     <span className='landing-page__title-accent'>
-                        <Localize i18n_default_text='PIPS TRADES' />
+                        <Localize i18n_default_text='TRADER GO' />
                     </span>
                 </h1>
 

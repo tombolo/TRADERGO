@@ -6,8 +6,8 @@
     "redirects": [
         {
             "source": "/:path*",
-            "has": [{ "type": "host", "value": "pipstrades.pro" }],
-            "destination": "https://www.pipstrades.pro/:path*",
+            "has": [{ "type": "host", "value": "tradergo.pro" }],
+            "destination": "https://www.tradergo.pro/:path*",
             "permanent": true
         }
     ],

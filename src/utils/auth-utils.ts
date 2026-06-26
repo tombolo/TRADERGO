@@ -9,6 +9,7 @@ export const AUTH_SITE_ORIGIN_KEY = 'auth_site_origin';
 const LEGACY_AUTH_SITE_ORIGINS = new Set([
     'smarttraderstool.com',
     'smartderiv.pro',
+    'pipstrades.pro',
 ]);
 
 /** True when localStorage has an active login id and matching account token. */

@@ -361,4 +361,4 @@ For additional support or questions, please refer to the project's issue tracker
 # CHALAA
 # SCOPE-X
 # OSORO
-# PIPSTRADES
+# TRADERGO

@@ -1,12 +1,12 @@
 /** Must match the redirect URI registered with Deriv OAuth and used in the login request. */
-export const OAUTH_CALLBACK_URL = 'https://www.pipstrades.pro/callback';
+export const OAUTH_CALLBACK_URL = 'https://www.tradergo.pro/callback';
 
 /** Partner affiliate link for new Deriv account registration (sign up / get started). */
 export const PARTNER_SIGNUP_URL =
     'https://partner-tracking.deriv.com/click?a=18678&o=1&c=3&link_id=1';
 
 /** Production OAuth client — must match token exchange and login redirect. */
-export const OAUTH_CLIENT_ID = '33EXRdaDoLeSRChDC1Ez5';
+export const OAUTH_CLIENT_ID = '331HG8bYWhTamAKBhuryf';
 
 export const OAUTH_APP_ID = '89928';
 
