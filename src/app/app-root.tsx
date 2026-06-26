@@ -4,6 +4,7 @@ import ErrorBoundary from '@/components/error-component/error-boundary';
 import ErrorComponent from '@/components/error-component/error-component';
 import NetworkBootLoader from '@/components/loader/network-boot-loader';
 import { api_base } from '@/external/bot-skeleton';
+import { setIsAuthorizing } from '@/external/bot-skeleton/services/api/observables/connection-status-stream';
 import { useStore } from '@/hooks/useStore';
 import { localize } from '@deriv-com/translations';
 import './app-root.scss';
@@ -45,6 +46,7 @@ const AppRoot = () => {
         const maxAttempts = oauthJustCompleted ? 3 : 1;
 
         const initializeApi = async () => {
+            let connected = false;
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
                 try {
                     if (attempt > 0) {
@@ -57,6 +59,7 @@ const AppRoot = () => {
                     }
 
                     await api_base.init(attempt > 0);
+                    connected = true;
                     break;
                 } catch (error) {
                     console.error(`API initialization failed (attempt ${attempt + 1}/${maxAttempts}):`, error);
@@ -64,6 +67,10 @@ const AppRoot = () => {
                         break;
                     }
                 }
+            }
+
+            if (!connected) {
+                setIsAuthorizing(false);
             }
         };
 

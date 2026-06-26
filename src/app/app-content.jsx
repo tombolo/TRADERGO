@@ -209,7 +209,14 @@ const AppContent = observer(() => {
         return () => clearTimeout(timer);
     }, [isAuthorized, is_api_initialized]);
 
-    if (common?.error) return null;
+    if (common?.error) {
+        return (
+            <NetworkBootLoader
+                message={localize('Something went wrong')}
+                hint={common.error?.message || localize('Please refresh the page to try again.')}
+            />
+        );
+    }
 
     return is_loading ? (
         <NetworkBootLoader

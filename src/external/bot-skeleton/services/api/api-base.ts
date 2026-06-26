@@ -183,14 +183,6 @@ class APIBase {
         // Reset reconnection attempts on successful connection
         this.reconnection_attempts = 0;
 
-        const currentClientStore = globalObserver.getState('client.store');
-        if (currentClientStore) {
-            // Account regeneration completes after authorize, not merely on socket open.
-            if (!currentClientStore.is_account_regenerating) {
-                currentClientStore.setIsAccountRegenerating(false);
-            }
-        }
-
         void this.handleTokenExchangeIfNeeded().catch(error => {
             // Prevent "Uncaught (in promise)" from bubbling to the console and
             // leaving the UI stuck in an authorizing/loading state on mobile.
@@ -1204,6 +1196,10 @@ class APIBase {
                 );
             }
             setIsAuthorized(false);
+            const failedClientStore = globalObserver.getState('client.store');
+            if (failedClientStore) {
+                failedClientStore.setIsAccountRegenerating(false);
+            }
             globalObserver.emit('Error', e);
         } finally {
             console.log(

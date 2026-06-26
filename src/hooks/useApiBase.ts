@@ -13,7 +13,7 @@ import { TAuthData } from '@/types/api-types';
 export const useApiBase = () => {
     const [connectionStatus, setConnectionStatus] = useState<CONNECTION_STATUS>(CONNECTION_STATUS.UNKNOWN);
     const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
-    const [isAuthorizing, setIsAuthorizingState] = useState<boolean>(true); // Synced from isAuthorizing$
+    const [isAuthorizing, setIsAuthorizingState] = useState<boolean>(false);
     const [accountList, setAccountList] = useState<TAuthData['account_list']>([]);
     const [authData, setAuthData] = useState<TAuthData | null>(null);
     const [activeLoginid, setActiveLoginid] = useState<string>('');

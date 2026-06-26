@@ -69,7 +69,7 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
 
     const shouldShowAuthLoader =
         !isAuthorized &&
-        (isAuthorizing || isOAuthPending || isRecentOAuth || hasValidStoredAccount) &&
+        (isAuthorizing || isOAuthPending || isRecentOAuth) &&
         (hasSession || isOAuthPending || isRecentOAuth);
 
     if (!isAuthenticated && !shouldShowAuthLoader) {
