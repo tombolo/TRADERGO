@@ -94,11 +94,11 @@ const LandingPage = () => {
                         <div className='landing-page__brand-text'>
                             <div className='landing-page__wordmark'>
                                 <span className='landing-page__wordmark-short'>
-                                    <span className='landing-page__wordmark-deriv'>SMART</span>{' '}
-                                    <span className='landing-page__wordmark-accent'>DERIV</span>
+                                    <span className='landing-page__wordmark-deriv'>PIPS</span>{' '}
+                                    <span className='landing-page__wordmark-accent'>TRADES</span>
                                 </span>
                                 <span className='landing-page__wordmark-full'>
-                                    SMART <span className='landing-page__wordmark-accent'>DERIV</span>
+                                    PIPS <span className='landing-page__wordmark-accent'>TRADES</span>
                                 </span>
                             </div>
                             <span className='landing-page__powered'>
@@ -153,7 +153,7 @@ const LandingPage = () => {
                 <h1 className='landing-page__title landing-page__title--desktop'>
                     <Localize i18n_default_text='Welcome to' />{' '}
                     <span className='landing-page__title-accent'>
-                        <Localize i18n_default_text='SMART DERIV' />
+                        <Localize i18n_default_text='PIPS TRADES' />
                     </span>
                 </h1>
 

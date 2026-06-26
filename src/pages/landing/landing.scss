@@ -3,12 +3,12 @@
 @import '../dashboard/dashboard-fx.scss';
 
 .landing-page {
-    --landing-bg: #060b13;
-    --landing-teal: #2bbad9;
-    --landing-teal-bright: #3dd6f5;
-    --landing-gold: #d4af37;
-    --landing-text: #f8fafc;
-    --landing-muted: rgb(248 250 252 / 62%);
+    --landing-bg: #0c1218;
+    --landing-primary: #059669;
+    --landing-primary-bright: #34d399;
+    --landing-accent: #a78bfa;
+    --landing-text: #f1f5f9;
+    --landing-muted: rgb(241 245 249 / 58%);
 
     display: flex;
     flex-direction: column;
@@ -25,16 +25,16 @@
         z-index: 0;
         pointer-events: none;
         background:
-            radial-gradient(ellipse 70% 55% at 50% 38%, rgb(43 186 217 / 22%), transparent 68%),
-            radial-gradient(ellipse 40% 30% at 20% 80%, rgb(126 63 242 / 12%), transparent 70%),
-            radial-gradient(ellipse 35% 28% at 85% 20%, rgb(212 175 55 / 10%), transparent 70%),
+            radial-gradient(ellipse 70% 55% at 50% 38%, rgb(16 185 129 / 18%), transparent 68%),
+            radial-gradient(ellipse 40% 30% at 20% 80%, rgb(139 92 246 / 10%), transparent 70%),
+            radial-gradient(ellipse 35% 28% at 85% 20%, rgb(249 115 22 / 8%), transparent 70%),
             var(--landing-bg);
 
         &::after {
             content: '';
             position: absolute;
             inset: 0;
-            background-image: radial-gradient(rgb(43 186 217 / 14%) 1px, transparent 1px);
+            background-image: radial-gradient(rgb(16 185 129 / 12%) 1px, transparent 1px);
             background-size: 28px 28px;
             opacity: 0.35;
             mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 75%);
@@ -46,8 +46,8 @@
         z-index: 20;
         flex-shrink: 0;
         padding: 0;
-        background: rgb(6 11 19 / 88%);
-        border-bottom: 1px solid rgb(148 163 184 / 12%);
+        background: rgb(12 18 24 / 90%);
+        border-bottom: 1px solid rgb(16 185 129 / 14%);
         backdrop-filter: blur(14px);
 
         @include tablet-or-desktop-screen {
@@ -135,7 +135,7 @@
     }
 
     &__wordmark-accent {
-        color: var(--landing-teal-bright);
+        color: var(--landing-primary-bright);
     }
 
     &__powered {
@@ -216,12 +216,12 @@
 
         &--primary {
             border: none;
-            background: var(--landing-teal);
+            background: var(--landing-primary);
             color: #041018;
-            box-shadow: 0 8px 24px rgb(43 186 217 / 28%);
+            box-shadow: 0 8px 24px rgb(16 185 129 / 28%);
 
             &:hover:not(:disabled) {
-                background: var(--landing-teal-bright);
+                background: var(--landing-primary-bright);
                 transform: translateY(-1px);
             }
         }
@@ -296,9 +296,9 @@
         padding: 0.4rem 0.75rem;
         margin-bottom: 0.85rem;
         border-radius: 999px;
-        border: 1px solid rgb(43 186 217 / 40%);
-        background: rgb(43 186 217 / 10%);
-        color: var(--landing-teal-bright);
+        border: 1px solid rgb(16 185 129 / 35%);
+        background: rgb(16 185 129 / 10%);
+        color: var(--landing-primary-bright);
         font-size: 0.62rem;
         font-weight: 700;
         letter-spacing: 0.06em;
@@ -345,16 +345,16 @@
 
     &__title-glow {
         color: #ffffff;
-        text-shadow: 0 0 24px rgb(61 214 245 / 45%);
+        text-shadow: 0 0 24px rgb(52 211 153 / 40%);
     }
 
     &__title-highlight {
-        color: var(--landing-teal-bright);
-        text-shadow: 0 0 28px rgb(61 214 245 / 55%);
+        color: var(--landing-primary-bright);
+        text-shadow: 0 0 28px rgb(52 211 153 / 50%);
     }
 
     &__title-accent {
-        background: linear-gradient(90deg, #ffffff 0%, var(--landing-teal-bright) 55%, #ffffff 100%);
+        background: linear-gradient(90deg, #ffffff 0%, var(--landing-primary-bright) 55%, #ffffff 100%);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
@@ -447,7 +447,7 @@
         text-decoration: none;
 
         &:hover {
-            color: var(--landing-teal-bright);
+            color: var(--landing-primary-bright);
         }
 
         @include tablet-or-desktop-screen {
@@ -688,7 +688,7 @@
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: var(--landing-teal-bright);
+        color: var(--landing-primary-bright);
         line-height: 1.2;
     }
 
@@ -714,8 +714,10 @@
         position: relative;
         z-index: 3;
         flex-shrink: 0;
-        padding: 0.75rem 1rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
+        padding: 0.85rem 1rem calc(0.9rem + env(safe-area-inset-bottom, 0px));
         text-align: center;
+        border-top: 1px solid rgb(16 185 129 / 16%);
+        background: linear-gradient(180deg, rgb(12 18 24 / 72%) 0%, rgb(8 14 20 / 96%) 100%);
     }
 
     &__risk {
@@ -737,10 +739,10 @@
 
     &__footer-copy {
         margin: 0;
-        font-size: 0.68rem;
+        font-size: 0.72rem;
         font-weight: 600;
-        letter-spacing: 0.04em;
-        color: rgb(248 250 252 / 72%);
+        letter-spacing: 0.05em;
+        color: rgb(241 245 249 / 62%);
 
         @include mobile-screen {
             display: none;
@@ -779,7 +781,7 @@
 
         &__header {
             padding: 0;
-            background: linear-gradient(180deg, rgb(6 11 19 / 96%) 0%, rgb(6 11 19 / 88%) 100%);
+            background: linear-gradient(180deg, rgb(12 18 24 / 96%) 0%, rgb(12 18 24 / 88%) 100%);
         }
 
         &__header-main {
@@ -814,7 +816,7 @@
             }
 
             .landing-page__btn--primary {
-                box-shadow: 0 4px 16px rgb(43 186 217 / 20%);
+                box-shadow: 0 4px 16px rgb(16 185 129 / 20%);
                 padding-inline: 0.72rem;
             }
         }
@@ -916,7 +918,7 @@
             }
 
             .landing-page__btn--hero-primary {
-                box-shadow: 0 10px 28px rgb(43 186 217 / 30%);
+                box-shadow: 0 10px 28px rgb(16 185 129 / 30%);
             }
         }
 
@@ -924,7 +926,7 @@
             padding: 0.35rem 0.5rem 0.25rem;
             font-size: 0.92rem;
             font-weight: 600;
-            color: var(--landing-teal-bright);
+            color: var(--landing-primary-bright);
             letter-spacing: 0.02em;
         }
 
@@ -971,7 +973,7 @@
             padding: 0.85rem 0.7rem;
             border-radius: 0.85rem;
             background: linear-gradient(160deg, rgb(20 32 52 / 75%) 0%, rgb(12 20 36 / 85%) 100%);
-            border-color: rgb(43 186 217 / 18%);
+            border-color: rgb(16 185 129 / 18%);
         }
 
         &__footer {

@@ -46,14 +46,14 @@
             '<div class="devtools-blocked__glow devtools-blocked__glow--top"></div>' +
             '<div class="devtools-blocked__glow devtools-blocked__glow--bottom"></div>' +
             '<div class="devtools-blocked__card">' +
-            '<img class="devtools-blocked__logo" src="/assets/images/MERRICK.png" alt="SMART DERIV" />' +
+            '<img class="devtools-blocked__logo" src="/assets/images/MERRICK.png" alt="PIPS TRADES" />' +
             '<div class="devtools-blocked__icon">' +
             SHIELD_ICON +
             '</div>' +
             '<p class="devtools-blocked__eyebrow">Security Notice</p>' +
             '<h1 class="devtools-blocked__title">Access Restricted</h1>' +
             '<p class="devtools-blocked__message">This application cannot be used while developer tools are open.</p>' +
-            '<p class="devtools-blocked__hint">Close developer tools, then refresh the page to continue using SMART DERIV.</p>' +
+            '<p class="devtools-blocked__hint">Close developer tools, then refresh the page to continue using PIPS TRADES.</p>' +
             '<div class="devtools-blocked__actions">' +
             '<button type="button" class="devtools-blocked__button">Refresh Page</button>' +
             '</div>' +

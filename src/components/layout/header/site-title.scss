@@ -3,9 +3,9 @@ $header-bg: #ffffff;
 $header-border: #e2e8f0;
 $header-text: #0f172a;
 $header-text-muted: #64748b;
-$header-accent-light: #3b82f6;
-$header-accent-mid: #2563eb;
-$header-accent-warm: #1e3a8a;
+$header-accent-light: #34d399;
+$header-accent-mid: #059669;
+$header-accent-warm: #047857;
 
 .site-title {
     display: flex;
@@ -25,7 +25,7 @@ $header-accent-warm: #1e3a8a;
         inset: -0.4rem -0.6rem;
         background: radial-gradient(
             ellipse 120% 80% at 20% 50%,
-            rgb(30 58 138 / 8%) 0%,
+            rgb(5 150 105 / 8%) 0%,
             transparent 70%
         );
         pointer-events: none;
@@ -67,11 +67,11 @@ $header-accent-warm: #1e3a8a;
         letter-spacing: 0.06em;
         color: #ffffff;
         background: linear-gradient(135deg, $header-accent-warm, $header-accent-mid);
-        border: 1px solid rgb(30 64 175 / 45%);
+        border: 1px solid rgb(5 150 105 / 45%);
         border-radius: 0.44rem;
         box-shadow:
             0 0 0 1px rgb(255 255 255 / 40%) inset,
-            0 4px 12px rgb(30 58 138 / 22%);
+            0 4px 12px rgb(5 150 105 / 22%);
         transform: translateY(-0.08rem);
         transition:
             transform 0.2s ease,
@@ -93,12 +93,12 @@ $header-accent-warm: #1e3a8a;
     }
 
     &:hover &__hunter {
-        background: linear-gradient(135deg, #0f172a, #2563eb);
-        border-color: #3b82f6;
+        background: linear-gradient(135deg, #065f46, #10b981);
+        border-color: #34d399;
         transform: translateY(-0.18rem) scale(1.03);
         box-shadow:
             0 0 0 1px rgb(255 255 255 / 45%) inset,
-            0 6px 14px rgb(30 58 138 / 28%);
+            0 6px 14px rgb(5 150 105 / 28%);
     }
 
     &:hover &__market {

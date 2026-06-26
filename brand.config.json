@@ -1,11 +1,11 @@
 {
-    "brand_name": "SmartDeriv",
-    "brand_domain": "smartderiv.pro",
+    "brand_name": "PipsTrades",
+    "brand_domain": "pipstrades.pro",
     "brand_hostname": {
-        "staging": "staging.smartderiv.pro/dashboard",
-        "production": "smartderiv.pro/dashboard"
+        "staging": "staging.pipstrades.pro/dashboard",
+        "production": "pipstrades.pro/dashboard"
     },
-    "domain_name": "SmartDeriv.pro",
+    "domain_name": "PipsTrades.pro",
     "colors": {
         "primary": "#7C3AED",
         "secondary": "#A78BFA",
@@ -58,14 +58,14 @@
         "css_variable_prefix": "--brand"
     },
     "platform": {
-        "name": "SMART DERIV",
+        "name": "PIPS TRADES",
         "logo": {
             "type": "component",
             "component_name": "BrandLogo",
-            "alt_text": "SMART DERIV",
+            "alt_text": "PIPS TRADES",
             "link_url": "/",
             "show_text": false,
-            "text": "SMART DERIV"
+            "text": "PIPS TRADES"
         },
         "footer": {
             "enable_language_settings": false,
@@ -73,10 +73,10 @@
         },
         "hostname": {
             "production": {
-                "com": "www.smartderiv.pro"
+                "com": "www.pipstrades.pro"
             },
             "staging": {
-                "com": "staging-bot.smartderiv.pro"
+                "com": "staging-bot.pipstrades.pro"
             }
         },
         "auth2_url": {

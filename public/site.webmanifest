@@ -1,11 +1,11 @@
 {
-    "name": "SMART DERIV (smartderiv.pro)",
-    "short_name": "SMART DERIV",
-    "description": "SMART DERIV (smartderiv.pro) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
+    "name": "PIPS TRADES (pipstrades.pro)",
+    "short_name": "PIPS TRADES",
+    "description": "PIPS TRADES (pipstrades.pro) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#000000",
-    "theme_color": "#22c55e",
+    "theme_color": "#10b981",
     "icons": [
         {
             "src": "/assets/images/MERRICK.png",

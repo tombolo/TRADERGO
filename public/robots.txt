@@ -1,4 +1,4 @@
-# SMART DERIV — allow all search engines
+# PIPS TRADES — allow all search engines
 User-agent: *
 Allow: /
 
@@ -10,4 +10,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://smartderiv.pro/sitemap.xml
+Sitemap: https://pipstrades.pro/sitemap.xml

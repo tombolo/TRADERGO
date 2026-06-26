@@ -6,8 +6,8 @@
     "redirects": [
         {
             "source": "/:path*",
-            "has": [{ "type": "host", "value": "smartderiv.pro" }],
-            "destination": "https://www.smartderiv.pro/:path*",
+            "has": [{ "type": "host", "value": "pipstrades.pro" }],
+            "destination": "https://www.pipstrades.pro/:path*",
             "permanent": true
         }
     ],
