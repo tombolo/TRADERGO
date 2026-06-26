@@ -4,6 +4,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import NetworkBootLoader from '@/components/loader/network-boot-loader';
 import { useApiBase } from '@/hooks/useApiBase';
 import { clearStaleSessionIfUnauthorized, hasStoredSession } from '@/utils/auth-utils';
+import { getAccountId } from '@/utils/account-helpers';
 import { localize } from '@deriv-com/translations';
 
 type TRequireAuthProps = {
@@ -22,6 +23,9 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
     const location = useLocation();
     const { isAuthorized, isAuthorizing, activeLoginid } = useApiBase();
     const hasSession = hasStoredSession();
+    const storedLoginId = getAccountId();
+    const hasValidStoredAccount =
+        Boolean(storedLoginId) && storedLoginId !== 'oauth_session' && hasSession;
     const isOAuthPending = sessionStorage.getItem('oauth_pending') === 'true';
     const oauthJustCompleted = sessionStorage.getItem('oauth_just_completed');
     const isRecentOAuth =
@@ -49,7 +53,7 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
         }
     }, [isAuthorized]);
 
-    const isAuthenticated = isAuthorized || Boolean(activeLoginid);
+    const isAuthenticated = isAuthorized || Boolean(activeLoginid) || hasValidStoredAccount;
 
     if (!hasSession && !isOAuthPending && !isRecentOAuth) {
         const hash = location.hash || '#dashboard';
@@ -64,8 +68,8 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
     }
 
     const shouldShowAuthLoader =
-        !isAuthenticated &&
-        (isAuthorizing || isOAuthPending || isRecentOAuth) &&
+        !isAuthorized &&
+        (isAuthorizing || isOAuthPending || isRecentOAuth || hasValidStoredAccount) &&
         (hasSession || isOAuthPending || isRecentOAuth);
 
     if (!isAuthenticated && !shouldShowAuthLoader) {

@@ -290,6 +290,10 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                 const token = accountsList[loginid] || clientAccounts[loginid]?.token;
                 if (token) {
                     localStorage.setItem('authToken', token);
+                    if (!accountsList[loginid]) {
+                        accountsList[loginid] = token;
+                        localStorage.setItem('accountsList', JSON.stringify(accountsList));
+                    }
                     console.log('[AccountSwitcher] Set authToken for account:', { loginid });
                 } else {
                     console.warn('[AccountSwitcher] No token found for account:', { loginid });

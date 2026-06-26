@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FaFacebook, FaInstagram, FaYoutube } from 'react-icons/fa';
 import { FaTelegram } from 'react-icons/fa6';
 import { PARTNER_SIGNUP_URL } from '@/constants/oauth';
+import { SITE_NAME } from '@/constants/seo';
 import './landing-banner.scss';
 
 const SOCIALS = [
@@ -74,7 +75,7 @@ const LandingBanner = () => {
                     </div>
 
                     <h1 className='landing-banner__title'>
-                        Join the <em>TRADER GO</em>
+                        Join the <em>{SITE_NAME}</em>
                         <br />
                         Inner Circle
                     </h1>

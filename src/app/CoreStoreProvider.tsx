@@ -217,7 +217,8 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                 // During OAuth callback/bootstrap we can receive transient auth errors
                 // before authorize completes. Do not clear persisted auth state in that window.
                 const is_oauth_pending = sessionStorage.getItem('oauth_pending') === 'true';
-                if (isAuthorizing || is_oauth_pending) {
+                const is_switching_account = client?.is_account_regenerating;
+                if (isAuthorizing || is_oauth_pending || is_switching_account) {
                     return;
                 }
                 // Clear all URL query parameters for these auth errors

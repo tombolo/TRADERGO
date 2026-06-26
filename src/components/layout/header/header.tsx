@@ -110,6 +110,8 @@ const AppHeader = observer(() => {
         const timer = setTimeout(() => {
             if (isAuthorized) return;
 
+            if (is_account_regenerating || isAuthorizing) return;
+
             if (hasStoredSession() && !isAuthorizing) {
                 clearStaleSessionIfUnauthorized();
                 setAuthTimeout(true);
@@ -127,7 +129,7 @@ const AppHeader = observer(() => {
         }
 
         return () => clearTimeout(timer);
-    }, [isAuthorizing, resolvedLoginId, authTimeout, isOAuthPending, isAuthorized]);
+    }, [isAuthorizing, resolvedLoginId, authTimeout, isOAuthPending, isAuthorized, is_account_regenerating]);
 
     useEffect(() => {
         if (resolvedLoginId && authTimeout) {

@@ -185,7 +185,10 @@ class APIBase {
 
         const currentClientStore = globalObserver.getState('client.store');
         if (currentClientStore) {
-            currentClientStore.setIsAccountRegenerating(false);
+            // Account regeneration completes after authorize, not merely on socket open.
+            if (!currentClientStore.is_account_regenerating) {
+                currentClientStore.setIsAccountRegenerating(false);
+            }
         }
 
         void this.handleTokenExchangeIfNeeded().catch(error => {
@@ -1125,6 +1128,12 @@ class APIBase {
             setIsAuthorized(true);
             this.is_authorized = true;
             stampAuthSiteOrigin();
+
+            const currentClientStore = globalObserver.getState('client.store');
+            if (currentClientStore) {
+                currentClientStore.setIsAccountRegenerating(false);
+            }
+
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
             localStorage.setItem('client.country', (raw_account_data as any)?.country);
 

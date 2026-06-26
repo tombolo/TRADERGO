@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useStore } from '@/hooks/useStore';
 import { DBOT_TABS } from '@/constants/bot-contents';
+import { SITE_NAME } from '@/constants/seo';
+import { useStore } from '@/hooks/useStore';
 import {
     AI_SCANNER_BASELINE_PCT,
     SCAN_DIGIT_COUNT,
@@ -173,7 +174,7 @@ const AIModal: React.FC<AIModalProps> = ({ isOpen, onClose }) => {
                 {phase === 'scanning' && (
                     <div className='ai-modal__scanner'>
                         <div className='ai-modal__scanner-header'>
-                            <div className='ai-modal__scanner-title'>TRADER GO AI SCANNER</div>
+                            <div className='ai-modal__scanner-title'>{SITE_NAME} AI SCANNER</div>
                             <div className='ai-modal__scanner-subtitle'>
                                 Volatility indices • {SCAN_DIGIT_COUNT.toLocaleString()} digit deep scan
                             </div>

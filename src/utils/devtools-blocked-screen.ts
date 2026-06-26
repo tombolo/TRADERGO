@@ -1,3 +1,5 @@
+import { SITE_NAME } from '@/constants/seo';
+
 const DEVTOOLS_BLOCKED_STYLE_ID = 'devtools-blocked-styles';
 
 const DEVTOOLS_BLOCKED_CSS = `
@@ -198,7 +200,7 @@ export const renderDevToolsBlockedScreen = (doc: Document = document): void => {
             <img
                 class="devtools-blocked__logo"
                 src="/assets/images/MERRICK.png"
-                alt="TRADER GO"
+                alt="${SITE_NAME}"
             />
             <div class="devtools-blocked__icon">${SHIELD_ICON_SVG}</div>
             <p class="devtools-blocked__eyebrow">Security Notice</p>
@@ -207,7 +209,7 @@ export const renderDevToolsBlockedScreen = (doc: Document = document): void => {
                 This application cannot be used while developer tools are open.
             </p>
             <p class="devtools-blocked__hint">
-                Close developer tools, then refresh the page to continue using TRADER GO.
+                Close developer tools, then refresh the page to continue using ${SITE_NAME}.
             </p>
             <div class="devtools-blocked__actions">
                 <button type="button" class="devtools-blocked__button">Refresh Page</button>

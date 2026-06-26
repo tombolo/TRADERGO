@@ -58,6 +58,7 @@ const TestimonialCard = ({ item }: { item: TTestimonial }) => (
 const LandingPage = () => {
     const { handleLogin, handleSignup, isLoginLoading } = useDerivAuthActions();
     const testimonialsRef = React.useRef<HTMLDivElement>(null);
+    const [brandPrimary, brandAccent] = SITE_NAME.split(' ');
 
     const scrollToTestimonials = () => {
         testimonialsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -94,11 +95,12 @@ const LandingPage = () => {
                         <div className='landing-page__brand-text'>
                             <div className='landing-page__wordmark'>
                                 <span className='landing-page__wordmark-short'>
-                                    <span className='landing-page__wordmark-deriv'>PIPS</span>{' '}
-                                    <span className='landing-page__wordmark-accent'>TRADES</span>
+                                    <span className='landing-page__wordmark-deriv'>{brandPrimary}</span>{' '}
+                                    <span className='landing-page__wordmark-accent'>{brandAccent}</span>
                                 </span>
                                 <span className='landing-page__wordmark-full'>
-                                    PIPS <span className='landing-page__wordmark-accent'>TRADES</span>
+                                    {brandPrimary}{' '}
+                                    <span className='landing-page__wordmark-accent'>{brandAccent}</span>
                                 </span>
                             </div>
                             <span className='landing-page__powered'>

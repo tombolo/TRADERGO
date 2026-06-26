@@ -14,6 +14,7 @@ import {
     setAccountList,
     setAuthData,
     setIsAuthorized,
+    setIsAuthorizing,
 } from '../external/bot-skeleton/services/api/observables/connection-status-stream';
 import type { TAuthData } from '../types/api-types';
 import type RootStore from './root-store';
@@ -384,6 +385,9 @@ export default class ClientStore {
             const active_login_id = getAccountId();
 
             if (active_login_id) {
+                // Keep the header / RequireAuth from treating this as a logged-out state.
+                setIsAuthorizing(true);
+
                 // Clear DerivAPI singleton instance to force new connection
                 const { clearDerivApiInstance } = await import('@/external/bot-skeleton/services/api/appId');
                 clearDerivApiInstance();
@@ -402,9 +406,7 @@ export default class ClientStore {
 
                 this.all_accounts_balance = null;
 
-                localStorage.removeItem('authToken');
-                // Keep accountsList/clientAccounts during account switch so switcher can still
-                // display all available accounts (demo + real) after regeneration.
+                // Token for the selected account is in accountsList — do not wipe authToken here.
                 removeCookies('client_information');
 
                 setIsAuthorized(false);
@@ -420,11 +422,12 @@ export default class ClientStore {
                 // Force create a new connection with the current active login ID
                 // Wrap the potentially failing init call in a try-catch
                 try {
-                    await api_base.init(true); // ✅ Await the async call
+                    await api_base.init(true);
                 } catch (initError) {
                     ErrorLogger.error('ClientStore', 'WebSocket initialization failed', initError);
                     this.setIsAccountRegenerating(false);
-                    throw initError; // Re-throw to be caught by outer catch if needed
+                    setIsAuthorizing(false);
+                    throw initError;
                 }
 
                 // Update the tracked WebSocket login ID
@@ -433,6 +436,7 @@ export default class ClientStore {
         } catch (error) {
             ErrorLogger.error('ClientStore', 'WebSocket regeneration failed', error);
             this.setIsAccountRegenerating(false);
+            setIsAuthorizing(false);
             // Consider showing user-facing error notification here
             // or dispatching an event that UI components can listen to
         } finally {
