@@ -1,7 +1,7 @@
 {
-    "name": "SMART TRADERS (smarttraderstool.com)",
-    "short_name": "SMART TRADERS",
-    "description": "SMART TRADERS (smarttraderstool.com) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
+    "name": "SMART DERIV (smartderiv.pro)",
+    "short_name": "SMART DERIV",
+    "description": "SMART DERIV (smartderiv.pro) — market analysis, binary tools, trade schemes, and automated Deriv trading bots.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#000000",

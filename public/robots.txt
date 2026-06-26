@@ -1,4 +1,4 @@
-# SMART TRADERS — allow all search engines
+# SMART DERIV — allow all search engines
 User-agent: *
 Allow: /
 
@@ -10,4 +10,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://smarttraderstool.com/sitemap.xml
+Sitemap: https://smartderiv.pro/sitemap.xml

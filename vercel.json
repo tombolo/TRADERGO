@@ -6,8 +6,8 @@
     "redirects": [
         {
             "source": "/:path*",
-            "has": [{ "type": "host", "value": "smarttraderstool.com" }],
-            "destination": "https://www.smarttraderstool.com/:path*",
+            "has": [{ "type": "host", "value": "smartderiv.pro" }],
+            "destination": "https://www.smartderiv.pro/:path*",
             "permanent": true
         }
     ],
