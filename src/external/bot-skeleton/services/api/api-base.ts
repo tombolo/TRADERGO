@@ -1090,6 +1090,9 @@ class APIBase {
             if (currentClientStore && normalized_account_data?.loginid) {
                 currentClientStore.setWebSocketLoginId(normalized_account_data.loginid);
             }
+            if (currentClientStore) {
+                currentClientStore.setIsAccountRegenerating(false);
+            }
 
             if (
                 currentClientStore &&
@@ -1120,11 +1123,6 @@ class APIBase {
             setIsAuthorized(true);
             this.is_authorized = true;
             stampAuthSiteOrigin();
-
-            const currentClientStore = globalObserver.getState('client.store');
-            if (currentClientStore) {
-                currentClientStore.setIsAccountRegenerating(false);
-            }
 
             localStorage.setItem('client_account_details', JSON.stringify(accountList));
             localStorage.setItem('client.country', (raw_account_data as any)?.country);
