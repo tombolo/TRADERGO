@@ -1,3 +1,4 @@
+import React from 'react';
 import { SITE_NAME } from '@/constants/seo';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
