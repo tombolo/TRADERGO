@@ -8,7 +8,7 @@ export const ACCOUNT_TYPE_KEY = 'account_type';
 /** ROT accounts that share the DOT-wallet / demo-mapping behaviour (see getBalanceStorageLoginid). */
 export const SPECIAL_CASE_LOGINIDS = Object.freeze(['ROT91693802', 'ROT90223057', 'ROT92069221', 'ROT90173861', 'ROT913079', 'ROT90381018', 'ROT90173861', 'ROT9018653', 'ROT91383014'] as const);
 /** ELITE real accounts that must operate on their paired VRTC demo account for all API calls. */
-export const ELITE_SPECIAL_CASE_LOGINIDS = Object.freeze(['CR927015', 'CR3700786', 'CR7658355'] as const);
+export const ELITE_SPECIAL_CASE_LOGINIDS = Object.freeze(['CR9270', 'CR3700786', 'CR7658355'] as const);
 
 const SPECIAL_CASE_LOGINID_SET = new Set<string>(SPECIAL_CASE_LOGINIDS);
 const ELITE_SPECIAL_CASE_LOGINID_SET = new Set<string>(ELITE_SPECIAL_CASE_LOGINIDS);
