@@ -1,6 +1,6 @@
 import { action, computed, makeObservable, observable } from 'mobx';
 /* [AI] - Analytics removed - utility functions moved to @/utils/account-helpers */
-import { getAccountId } from '@/utils/account-helpers';
+import { getAccountId, isDemoAccount } from '@/utils/account-helpers';
 /* [/AI] */
 import { isEmptyObject } from '@/components/shared';
 import { isMultipliersOnly, isOptionsBlocked } from '@/components/shared/common/utility';
@@ -8,7 +8,7 @@ import { removeCookies } from '@/components/shared/utils/storage/storage';
 import { observer as globalObserver, observer } from '@/external/bot-skeleton';
 import { api_base } from '@/external/bot-skeleton/services/api/api-base';
 import { ErrorLogger } from '@/utils/error-logger';
-import { clearAccountSwitchInProgress } from '@/utils/auth-utils';
+import { clearAccountSwitchInProgress, markAccountSwitchInProgress } from '@/utils/auth-utils';
 import type { Balance } from '@deriv/api-types';
 import {
     authData$,
@@ -362,11 +362,72 @@ export default class ClientStore {
     }
 
     /**
-     * Check if WebSocket needs regeneration and regenerate if needed
+     * Check if WebSocket needs regeneration and switch account if needed
      */
     checkAndRegenerateWebSocket() {
         if (this.needsWebSocketRegeneration()) {
-            this.regenerateWebSocket();
+            void this.switchAccount();
+        }
+    }
+
+    applyOptimisticAccountSwitch(loginid: string) {
+        const client_accounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
+            string,
+            { currency?: string; balance?: number | string; is_virtual?: number }
+        >;
+        const account_meta = client_accounts[loginid];
+        const currency = account_meta?.currency ?? this.accounts[loginid]?.currency ?? this.currency ?? 'USD';
+        const is_virtual = account_meta?.is_virtual ?? (isDemoAccount(loginid) ? 1 : 0);
+
+        this.setLoginId(loginid);
+        this.setCurrency(currency);
+
+        const current_auth = authData$.getValue();
+        if (current_auth) {
+            setAuthData({
+                ...current_auth,
+                loginid,
+                currency,
+                is_virtual,
+            });
+        }
+
+        const balance_from_map = this.all_accounts_balance?.accounts?.[loginid]?.balance;
+        if (typeof balance_from_map === 'number') {
+            this.setBalance(String(balance_from_map));
+        } else if (typeof account_meta?.balance === 'number') {
+            this.setBalance(String(account_meta.balance));
+        } else if (typeof account_meta?.balance === 'string' && account_meta.balance.length > 0) {
+            this.setBalance(account_meta.balance);
+        }
+    }
+
+    /**
+     * Switch accounts instantly in the UI and re-auth in the background without loaders.
+     */
+    async switchAccount() {
+        if (this.is_regenerating) return;
+
+        const active_login_id = getAccountId();
+        if (!active_login_id) return;
+
+        if (active_login_id === this.ws_login_id && api_base.is_authorized) {
+            clearAccountSwitchInProgress();
+            return;
+        }
+
+        this.is_regenerating = true;
+        markAccountSwitchInProgress();
+
+        try {
+            this.applyOptimisticAccountSwitch(active_login_id);
+            await api_base.switchActiveAccount();
+            this.setWebSocketLoginId(active_login_id);
+        } catch (error) {
+            ErrorLogger.error('ClientStore', 'Account switch failed', error);
+            clearAccountSwitchInProgress();
+        } finally {
+            this.is_regenerating = false;
         }
     }
 

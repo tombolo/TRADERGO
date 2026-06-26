@@ -20,8 +20,7 @@ const useActiveAccount = ({
     const { client } = useStore() ?? {};
 
     const resolved_loginid =
-        `${activeLoginid || authData?.loginid || ''}`.trim() ||
-        (isAuthorized ? `${getAccountId() || ''}`.trim() : '') ||
+        `${activeLoginid || authData?.loginid || getAccountId() || ''}`.trim() ||
         `${accountList?.[0]?.loginid || ''}`.trim() ||
         '';
 

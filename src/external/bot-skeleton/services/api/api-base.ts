@@ -12,6 +12,7 @@ import {
 } from '@/utils/account-helpers';
 /* [/AI] */
 import CommonStore from '@/stores/common-store';
+import { removeCookies } from '@/components/shared/utils/storage/storage';
 import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import { resolveOAuthClientId } from '@/constants/oauth';
@@ -78,6 +79,7 @@ class APIBase {
     current_auth_subscriptions: SubscriptionPromise[] = [];
     is_authorized = false;
     active_symbols_promise: Promise<any[] | undefined> | null = null;
+    private silent_account_switch = false;
     common_store: CommonStore | undefined;
     reconnection_attempts: number = 0;
 
@@ -547,7 +549,9 @@ class APIBase {
         }
 
         this.account_id = getAccountId() || '';
-        setIsAuthorizing(true);
+        if (!this.silent_account_switch) {
+            setIsAuthorizing(true);
+        }
 
         try {
             const active_loginid = this.account_id;
@@ -1206,7 +1210,54 @@ class APIBase {
                 '%c🏁 [APIBase] authorizeAndSubscribe() finally block - setIsAuthorizing(false)',
                 'color: cyan;'
             );
-            setIsAuthorizing(false);
+            if (!this.silent_account_switch) {
+                setIsAuthorizing(false);
+            } else {
+                this.silent_account_switch = false;
+            }
+        }
+    }
+
+    /**
+     * Switch the active account with minimal disruption.
+     * Re-authorizes on the existing socket when possible; otherwise reconnects silently in the background.
+     */
+    async switchActiveAccount(): Promise<void> {
+        const active_login_id = getAccountId();
+        if (!active_login_id || this.is_running) {
+            clearAccountSwitchInProgress();
+            return;
+        }
+
+        const connection = this.api?.connection as WebSocket | undefined;
+        const ws_url = typeof connection?.url === 'string' ? connection.url : '';
+        const ws_has_otp = ws_url.includes('otp=');
+        const auth_system = getAuthSystem();
+        const can_reauthorize_in_place =
+            connection?.readyState === WebSocket.OPEN && (auth_system === 'ELITE' || !ws_has_otp);
+
+        this.silent_account_switch = true;
+        try {
+            if (can_reauthorize_in_place && this.api) {
+                this.account_id = active_login_id;
+                this.unsubscribeAllSubscriptions();
+                await this.authorizeAndSubscribe();
+                return;
+            }
+
+            const { clearDerivApiInstance } = await import('./appId');
+            clearDerivApiInstance();
+
+            const { DerivWSAccountsService } = await import('@/services/derivws-accounts.service');
+            DerivWSAccountsService.clearCache();
+
+            removeCookies('client_information');
+
+            await this.init(true);
+        } catch (error) {
+            this.silent_account_switch = false;
+            clearAccountSwitchInProgress();
+            throw error;
         }
     }
 

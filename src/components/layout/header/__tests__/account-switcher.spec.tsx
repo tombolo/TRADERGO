@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import AccountSwitcher from '../account-switcher';
 
-const mockCheckAndRegenerateWebSocket = jest.fn();
+const mockSwitchAccount = jest.fn();
 
 const mockAccountList = [
     { loginid: 'CR123', currency: 'USD', balance: 100, is_virtual: 0 },
@@ -17,7 +17,7 @@ jest.mock('@/hooks/useApiBase', () => ({
 
 jest.mock('@/hooks/useStore', () => ({
     useStore: jest.fn(() => ({
-        client: { checkAndRegenerateWebSocket: mockCheckAndRegenerateWebSocket },
+        client: { switchAccount: mockSwitchAccount },
         run_panel: { is_running: false },
     })),
 }));
@@ -74,7 +74,7 @@ describe('AccountSwitcher', () => {
         useApiBase.mockReturnValue({ accountList: mockAccountList, activeLoginid: 'CR123' });
         const { useStore } = require('@/hooks/useStore');
         useStore.mockReturnValue({
-            client: { checkAndRegenerateWebSocket: mockCheckAndRegenerateWebSocket },
+            client: { switchAccount: mockSwitchAccount },
             run_panel: { is_running: false },
         });
         require('@/external/bot-skeleton/services/api/api-base').api_base.is_running = false;
@@ -100,7 +100,7 @@ describe('AccountSwitcher', () => {
     it('does not open dropdown when bot is running via run_panel', () => {
         const { useStore } = require('@/hooks/useStore');
         useStore.mockReturnValue({
-            client: { checkAndRegenerateWebSocket: mockCheckAndRegenerateWebSocket },
+            client: { switchAccount: mockSwitchAccount },
             run_panel: { is_running: true },
         });
         render(<AccountSwitcher activeAccount={mockActiveAccount} />);
@@ -142,7 +142,7 @@ describe('AccountSwitcher', () => {
         expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     });
 
-    it('sets localStorage and calls checkAndRegenerateWebSocket on account select', () => {
+    it('sets localStorage and calls switchAccount on account select', () => {
         const setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
         render(<AccountSwitcher activeAccount={mockActiveAccount} />);
         fireEvent.click(screen.getByTestId('dt_acc_info'));
@@ -150,17 +150,17 @@ describe('AccountSwitcher', () => {
         const inactiveOption = options.find(o => o.getAttribute('aria-selected') === 'false');
         if (inactiveOption) fireEvent.click(inactiveOption);
         expect(setItemSpy).toHaveBeenCalledWith('active_loginid', 'VRTC456');
-        expect(mockCheckAndRegenerateWebSocket).toHaveBeenCalledTimes(1);
+        expect(mockSwitchAccount).toHaveBeenCalledTimes(1);
         setItemSpy.mockRestore();
     });
 
-    it('does not call checkAndRegenerateWebSocket when clicking the already-active account', () => {
+    it('does not call switchAccount when clicking the already-active account', () => {
         render(<AccountSwitcher activeAccount={mockActiveAccount} />);
         fireEvent.click(screen.getByTestId('dt_acc_info'));
         const options = screen.getAllByRole('option');
         const activeOption = options.find(o => o.getAttribute('aria-selected') === 'true');
         if (activeOption) fireEvent.click(activeOption);
-        expect(mockCheckAndRegenerateWebSocket).not.toHaveBeenCalled();
+        expect(mockSwitchAccount).not.toHaveBeenCalled();
     });
 
     it('sorts active account to the top of the list', () => {

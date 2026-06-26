@@ -13,7 +13,6 @@ import { DerivWSAccountsService } from '@/services/derivws-accounts.service';
 import { OAuthTokenExchangeService } from '@/services/oauth-token-exchange.service';
 import { useLogout } from '@/hooks/useLogout';
 import { isDemoAccount, isEliteSpecialCaseLoginId, isSpecialCaseLoginId } from '@/utils/account-helpers';
-import { markAccountSwitchInProgress } from '@/utils/auth-utils';
 import { Localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
 import { TAccountSwitcher } from './common/types';
@@ -283,8 +282,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
         (loginid: string) => {
             if (loginid === resolvedActiveLoginid) return;
 
-            markAccountSwitchInProgress();
-
             try {
                 const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
                 const clientAccounts = JSON.parse(localStorage.getItem('clientAccounts') ?? '{}') as Record<
@@ -308,7 +305,7 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
             }
 
             localStorage.setItem('active_loginid', loginid);
-            client?.checkAndRegenerateWebSocket?.();
+            void client?.switchAccount?.();
             setIsOpen(false);
         },
         [client, resolvedActiveLoginid]
@@ -387,7 +384,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
 
     if (!activeAccount) return null;
 
-    const isSwitching = Boolean(client?.is_account_regenerating);
     const { currency, isVirtual, balance } = activeAccount;
     const displayedAccounts = activeTab === 'demo' ? demoAccounts : realAccounts;
     const formattedDisplayedAccounts = formattedAccounts(displayedAccounts);
@@ -396,10 +392,6 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
     const currencyCode = currency ? getCurrencyDisplayCode(currency) : '';
 
     const renderBalanceText = () => {
-        if (isSwitching) {
-            return <Localize i18n_default_text='Switching account...' />;
-        }
-
         if (!currency) {
             return <Localize i18n_default_text='No currency assigned' />;
         }
@@ -424,35 +416,17 @@ const AccountSwitcher = observer(({ activeAccount }: TAccountSwitcher) => {
                     aria-haspopup='listbox'
                     className={classNames('acc-info', 'acc-info--inline', {
                         'acc-info--is-virtual': isVirtual,
-                        'acc-info--interactive': hasAccounts && !isSwitching,
+                        'acc-info--interactive': hasAccounts,
                         'acc-info--switch-disabled': !hasAccounts,
-                        'acc-info--is-switching': isSwitching,
                     })}
-                    onClick={isSwitching ? undefined : toggleDropdown}
+                    onClick={toggleDropdown}
                     onKeyDown={e => {
-                        if (isSwitching) return;
                         if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             toggleDropdown();
                         }
                     }}
                 >
-                    {isSwitching && (
-                        <span className='acc-info__switching-overlay' aria-hidden='true'>
-                            <svg className='acc-info__switching-spinner' viewBox='0 0 24 24' fill='none'>
-                                <circle
-                                    cx='12'
-                                    cy='12'
-                                    r='10'
-                                    stroke='currentColor'
-                                    strokeWidth='2.5'
-                                    strokeLinecap='round'
-                                    strokeDasharray='31.416'
-                                    strokeDashoffset='10'
-                                />
-                            </svg>
-                        </span>
-                    )}
                     <span className='acc-info__id' aria-hidden='true'>
                         <span className='acc-info__id-icon'>
                             <CurrencyIcon currency={currency?.toLowerCase()} isVirtual={isVirtual} />
