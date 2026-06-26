@@ -83,5 +83,9 @@ export default class RootStore {
         this.chart_store = new ChartStore(this);
         this.blockly_store = new BlocklyStore(this);
         this.data_collection_store = new DataCollectionStore(this, this.core);
+
+        // Must run after all stores exist so Bot Builder can init Blockly on first mount
+        // (returning users skip the boot loader and render before API init completes).
+        this.app.setDBotEngineStores();
     }
 }
