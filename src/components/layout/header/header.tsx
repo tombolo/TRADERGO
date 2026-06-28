@@ -8,7 +8,7 @@ import { useApiBase } from '@/hooks/useApiBase';
 import { useLogout } from '@/hooks/useLogout';
 import { useStore } from '@/hooks/useStore';
 import { getAccountId } from '@/utils/account-helpers';
-import { clearStaleSessionIfUnauthorized, hasStoredSession } from '@/utils/auth-utils';
+import { hasStoredSession } from '@/utils/auth-utils';
 import { navigateToTransfer } from '@/utils/transfer-utils';
 import { StandaloneCircleUserRegularIcon } from '@deriv/quill-icons/Standalone';
 import { Localize, useTranslations } from '@deriv-com/translations';
@@ -99,7 +99,6 @@ const AppHeader = observer(() => {
             if (is_account_regenerating || isAuthorizing) return;
 
             if (hasStoredSession() && !isAuthorizing) {
-                clearStaleSessionIfUnauthorized();
                 setAuthTimeout(true);
                 return;
             }

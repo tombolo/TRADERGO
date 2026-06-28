@@ -510,36 +510,27 @@ class APIBase {
     }
 
     reconnectIfNotConnected = () => {
-        if (this.api?.connection?.readyState && this.api?.connection?.readyState > 1) {
-            this.reconnection_attempts += 1;
-
-            if (this.reconnection_attempts >= this.MAX_RECONNECTION_ATTEMPTS) {
-                // Reset reconnection counter
-                this.reconnection_attempts = 0;
-
-                // Properly handle logout through the API
-                setIsAuthorized(false);
-                setAccountList([]);
-                setAuthData(null);
-
-                // Clear necessary storage items
-                localStorage.removeItem('active_loginid');
-                localStorage.removeItem('account_type');
-                localStorage.removeItem('accountsList');
-                localStorage.removeItem('clientAccounts');
-            } else {
-                // If we have a stored account ID and token, mark as authorizing while reconnecting
-                // This prevents the header from briefly showing login button during reconnection
-                const hasStoredAccount = localStorage.getItem('active_loginid');
-                const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
-                const hasToken = hasStoredAccount && accountsList[hasStoredAccount];
-                if (hasToken) {
-                    setIsAuthorizing(true);
-                }
-            }
-
-            this.init(true);
+        const readyState = this.api?.connection?.readyState;
+        if (readyState === undefined || readyState === WebSocket.CONNECTING || readyState === WebSocket.OPEN) {
+            return;
         }
+
+        const activeLoginid = localStorage.getItem('active_loginid');
+        const accountsList = JSON.parse(localStorage.getItem('accountsList') ?? '{}') as Record<string, string>;
+        const hasStoredSession = Boolean(activeLoginid && accountsList[activeLoginid]);
+
+        if (hasStoredSession) {
+            setIsAuthorizing(true);
+            this.reconnection_attempts = 0;
+        } else {
+            this.reconnection_attempts += 1;
+            if (this.reconnection_attempts >= this.MAX_RECONNECTION_ATTEMPTS) {
+                this.reconnection_attempts = 0;
+                setIsAuthorized(false);
+            }
+        }
+
+        this.init(true);
     };
 
     async authorizeAndSubscribe() {

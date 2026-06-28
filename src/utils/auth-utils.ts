@@ -4,6 +4,7 @@
 import { getLoginId } from '@/external/bot-skeleton/services/api/appId';
 
 export const AUTH_SITE_ORIGIN_KEY = 'auth_site_origin';
+export const AUTH_INFO_STORAGE_KEY = 'auth_info';
 export const ACCOUNT_SWITCH_IN_PROGRESS_KEY = 'account_switch_in_progress';
 
 export const markAccountSwitchInProgress = (): void => {
@@ -30,7 +31,54 @@ export const isAccountSwitchInProgress = (): boolean => {
     }
 };
 
-/** Registrable domain keys for sites that may have left stale sessions in storage. */
+/** Read OAuth bearer from session or local storage when still valid. */
+export const getValidPersistedAuthInfo = (): { access_token: string; expires_at?: number } | null => {
+    for (const storage of [sessionStorage, localStorage]) {
+        try {
+            const raw = storage.getItem(AUTH_INFO_STORAGE_KEY);
+            if (!raw) continue;
+
+            const parsed = JSON.parse(raw) as { access_token?: string; expires_at?: number };
+            if (!parsed?.access_token) continue;
+            if (parsed.expires_at && Date.now() >= parsed.expires_at) continue;
+
+            return { access_token: parsed.access_token, expires_at: parsed.expires_at };
+        } catch {
+            // ignore
+        }
+    }
+    return null;
+};
+
+/** Mirror auth_info into both storages so sessions survive tab close and browser restarts. */
+export const mirrorAuthInfoStorage = (authInfo: {
+    access_token: string;
+    expires_at?: number;
+    [key: string]: unknown;
+}): void => {
+    try {
+        const serialized = JSON.stringify(authInfo);
+        sessionStorage.setItem(AUTH_INFO_STORAGE_KEY, serialized);
+        localStorage.setItem(AUTH_INFO_STORAGE_KEY, serialized);
+    } catch {
+        // ignore
+    }
+};
+
+/** Promote session-only auth_info into localStorage for returning visitors. */
+export const syncAuthInfoAcrossStorages = (): void => {
+    try {
+        const fromSession = sessionStorage.getItem(AUTH_INFO_STORAGE_KEY);
+        const fromLocal = localStorage.getItem(AUTH_INFO_STORAGE_KEY);
+        if (fromSession && !fromLocal) {
+            localStorage.setItem(AUTH_INFO_STORAGE_KEY, fromSession);
+        } else if (fromLocal && !fromSession) {
+            sessionStorage.setItem(AUTH_INFO_STORAGE_KEY, fromLocal);
+        }
+    } catch {
+        // ignore
+    }
+};
 const LEGACY_AUTH_SITE_ORIGINS = new Set([
     'smarttraderstool.com',
     'smartderiv.pro',
@@ -46,12 +94,9 @@ export const hasStoredSession = (): boolean => {
             return true;
         }
 
-        const authInfoRaw = sessionStorage.getItem('auth_info');
-        if (authInfoRaw) {
-            const authInfo = JSON.parse(authInfoRaw) as { access_token?: string; expires_at?: number };
-            if (authInfo.access_token && (!authInfo.expires_at || Date.now() < authInfo.expires_at)) {
-                return true;
-            }
+        const authInfo = getValidPersistedAuthInfo();
+        if (authInfo?.access_token) {
+            return true;
         }
 
         return false;
@@ -95,7 +140,8 @@ export const clearAuthData = (): void => {
         localStorage.removeItem('auth_system');
         localStorage.removeItem('elite_oauth_flow_in_progress');
 
-        sessionStorage.removeItem('auth_info');
+        sessionStorage.removeItem(AUTH_INFO_STORAGE_KEY);
+        localStorage.removeItem(AUTH_INFO_STORAGE_KEY);
         sessionStorage.removeItem('deriv_accounts');
         sessionStorage.removeItem('oauth_pending');
         sessionStorage.removeItem('oauth_just_completed');

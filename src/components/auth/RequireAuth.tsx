@@ -4,7 +4,6 @@ import { Navigate, useLocation } from 'react-router-dom';
 import NetworkBootLoader from '@/components/loader/network-boot-loader';
 import { useApiBase } from '@/hooks/useApiBase';
 import {
-    clearStaleSessionIfUnauthorized,
     hasStoredSession,
     isAccountSwitchInProgress,
 } from '@/utils/auth-utils';
@@ -43,7 +42,6 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
 
         const timer = window.setTimeout(() => {
             if (!isAuthorized) {
-                clearStaleSessionIfUnauthorized();
                 setSessionTimedOut(true);
             }
         }, SESSION_VERIFY_TIMEOUT_MS);
@@ -59,29 +57,24 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
 
     const isAuthenticated = isAuthorized || Boolean(activeLoginid) || hasValidStoredAccount;
 
+    const shouldShowAuthLoader =
+        !isAccountSwitchInProgress() &&
+        !isAuthorized &&
+        (hasSession || isOAuthPending || isRecentOAuth);
+
     if (!hasSession && !isOAuthPending && !isRecentOAuth) {
         const hash = location.hash || '#dashboard';
         sessionStorage.setItem('post_login_redirect', `/app${hash}`);
         return <Navigate to='/' replace />;
     }
 
-    if (sessionTimedOut && !isAuthenticated) {
+    if (sessionTimedOut && !isAuthenticated && !hasSession) {
         const hash = location.hash || '#dashboard';
         sessionStorage.setItem('post_login_redirect', `/app${hash}`);
         return <Navigate to='/' replace />;
     }
 
-    const shouldShowAuthLoader =
-        !isAccountSwitchInProgress() &&
-        !isAuthorized &&
-        (isAuthorizing || isOAuthPending || isRecentOAuth) &&
-        (hasSession || isOAuthPending || isRecentOAuth);
-
     if (!isAuthenticated && !shouldShowAuthLoader) {
-        if (hasSession) {
-            clearStaleSessionIfUnauthorized();
-        }
-
         const hash = location.hash || '#dashboard';
         sessionStorage.setItem('post_login_redirect', `/app${hash}`);
 
@@ -97,7 +90,11 @@ const RequireAuth = observer(({ children }: TRequireAuthProps) => {
             {shouldShowAuthLoader && (
                 <NetworkBootLoader
                     message={localize('Please wait while we connect to the server...')}
-                    hint={localize('Verifying your session…')}
+                    hint={
+                        sessionTimedOut && hasSession
+                            ? localize('Reconnecting to your session…')
+                            : localize('Verifying your session…')
+                    }
                 />
             )}
             {children}

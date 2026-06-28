@@ -2,7 +2,7 @@ import { clearCodeVerifier, getAuthEnvironment, getCodeVerifier } from '@/compon
 import { OAUTH_CALLBACK_URL, resolveOAuthClientId } from '@/constants/oauth';
 import { ErrorLogger } from '@/utils/error-logger';
 import { isDemoAccount } from '@/utils/account-helpers';
-import { stampAuthSiteOrigin } from '@/utils/auth-utils';
+import { AUTH_INFO_STORAGE_KEY, mirrorAuthInfoStorage, stampAuthSiteOrigin } from '@/utils/auth-utils';
 import { AccountTypeDetectorService } from './account-type-detector.service';
 import { setAuthSystem, setAccountTypeMetadata } from '@/utils/auth-system-helpers';
 import { AuthRoutingService } from './auth-routing.service';
@@ -52,20 +52,21 @@ export class OAuthTokenExchangeService {
      */
     static getAuthInfo(): AuthInfo | null {
         try {
-            const authInfoStr = sessionStorage.getItem('auth_info');
-            if (!authInfoStr) {
-                return null;
+            for (const storage of [sessionStorage, localStorage]) {
+                const authInfoStr = storage.getItem(AUTH_INFO_STORAGE_KEY);
+                if (!authInfoStr) continue;
+
+                const authInfo: AuthInfo = JSON.parse(authInfoStr);
+
+                if (authInfo.expires_at && Date.now() >= authInfo.expires_at) {
+                    continue;
+                }
+
+                mirrorAuthInfoStorage(authInfo);
+                return authInfo;
             }
 
-            const authInfo: AuthInfo = JSON.parse(authInfoStr);
-
-            // Check if token is expired
-            if (authInfo.expires_at && Date.now() >= authInfo.expires_at) {
-                this.clearAuthInfo();
-                return null;
-            }
-
-            return authInfo;
+            return null;
         } catch (error) {
             ErrorLogger.error('OAuth', 'Error parsing auth_info', error);
             return null;
@@ -73,10 +74,11 @@ export class OAuthTokenExchangeService {
     }
 
     /**
-     * Clear authentication info from sessionStorage
+     * Clear authentication info from storage
      */
     static clearAuthInfo(): void {
-        sessionStorage.removeItem('auth_info');
+        sessionStorage.removeItem(AUTH_INFO_STORAGE_KEY);
+        localStorage.removeItem(AUTH_INFO_STORAGE_KEY);
     }
 
     /**
@@ -160,7 +162,7 @@ export class OAuthTokenExchangeService {
                     };
 
                     // Store as JSON string
-                    sessionStorage.setItem('auth_info', JSON.stringify(authInfo));
+                    mirrorAuthInfoStorage(authInfo);
 
                     // Also store token to accountsList in localStorage for getToken() to find
                     // getToken() in appId.js looks for tokens in localStorage.accountsList
@@ -355,7 +357,7 @@ export class OAuthTokenExchangeService {
                 }
 
                 // Store as JSON string
-                sessionStorage.setItem('auth_info', JSON.stringify(authInfo));
+                mirrorAuthInfoStorage(authInfo);
 
                 // Immediately fetch accounts and check account type after token exchange
                 try {
@@ -424,6 +426,7 @@ export class OAuthTokenExchangeService {
                         // Set the first account as active in localStorage
                         const firstAccount = accounts[0];
                         localStorage.setItem('active_loginid', firstAccount.account_id);
+                        localStorage.setItem('authToken', data.access_token as string);
 
                         // Set account type
                         const isDemo = isDemoAccount(firstAccount.account_id);
@@ -642,7 +645,7 @@ export class OAuthTokenExchangeService {
                 }
 
                 // Store updated auth info
-                sessionStorage.setItem('auth_info', JSON.stringify(authInfo));
+                mirrorAuthInfoStorage(authInfo);
             }
 
             return data;
